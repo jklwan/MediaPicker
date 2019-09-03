@@ -1,0 +1,2 @@
+include ':sample', ':picker'
+rootProject.name='MediaPicker'
