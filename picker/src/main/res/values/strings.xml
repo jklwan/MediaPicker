@@ -1,3 +1,18 @@
 <resources>
     <string name="app_name">MediaPicker</string>
+
+    <string name="imageCount">%1$d张</string>
+    <string name="videoCount">%1$d个</string>
+    <string name="chooseVideoLimit">只能选择%1%d秒之内的视频</string>
+    <string name="chooseAudioLimit">只能选择%1%d秒之内的音频</string>
+    <string name="chooseAllImage">所有图片</string>
+    <string name="chooseAllMedia">所有文件</string>
+    <string name="chooseAllVideo">所有视频</string>
+    <string name="chooseAllAudio">所有音频</string>
+    <string name="chooseMaxImage">最多只能选择%1$d张图片</string>
+    <string name="chooseMaxFile">最多只能选择%1$d个文件</string>
+    <string name="tipsTitle">提示</string>
+    <string name="actionSubmit">确定</string>
+    <string name="fileNoExist">该文件不存在！</string>
+    <string name="fileError">图片已损坏！</string>
 </resources>
