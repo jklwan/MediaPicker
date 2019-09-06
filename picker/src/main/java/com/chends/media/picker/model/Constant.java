@@ -44,6 +44,14 @@ public class Constant {
     }
 
     /**
+     * 文件类型
+     */
+    @IntDef({TYPE_IMAGE, TYPE_VIDEO, TYPE_AUDIO})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ItemType {
+    }
+
+    /**
      * 总数量
      */
     public static final String COLUMN_COUNT = "count";
@@ -61,6 +69,12 @@ public class Constant {
      */
     public static final String MEDIA_COVER = "media_cover";
 
-
-
+    /**
+     * 保存状态
+     */
+    private static final String STATE_CURRENT_SELECTION = "state_current_selection";
+    /**
+     * 权限
+     */
+    public static final int PERMISSION_STORAGE_REQUEST_CODE = 1;
 }

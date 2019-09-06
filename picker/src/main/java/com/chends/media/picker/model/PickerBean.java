@@ -11,9 +11,10 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * PickerBean
  * @author chends create on 2019/9/5.
  */
-public class PickerBean {
+public final class PickerBean {
     public Set<String> typeSet = new HashSet<>();
     public int maxNum = 1;
     public List<String> chooseList = new ArrayList<>();
@@ -22,6 +23,37 @@ public class PickerBean {
     public List<String> imageList = new ArrayList<>(), videoList = new ArrayList<>(),
             audioList = new ArrayList<>();
     public boolean hasImage, hasVideo, hasAudio;
+
+    private PickerBean() {
+    }
+
+    private static final class Instance {
+        private static final PickerBean INNER = new PickerBean();
+    }
+
+    public static PickerBean getInstance() {
+        return Instance.INNER;
+    }
+
+    public static PickerBean resetInstance() {
+        PickerBean bean = getInstance();
+        bean.reset();
+        return bean;
+    }
+
+    private void reset() {
+        typeSet = new HashSet<>();
+        maxNum = 1;
+        chooseList = new ArrayList<>();
+        audioLimit = -1;
+        videoLimit = -1;
+        imageList = new ArrayList<>();
+        videoList = new ArrayList<>();
+        audioList = new ArrayList<>();
+        hasImage = false;
+        hasVideo = false;
+        hasAudio = false;
+    }
 
     /**
      * 选择的类型

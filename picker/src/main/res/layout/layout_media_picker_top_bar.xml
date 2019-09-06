@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <ViewStub
+        android:id="@+id/topStub"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout="@layout/layout_media_picker_top_view"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_media_picker_top_bar"
+        android:orientation="horizontal">
+
+        <android.support.v7.widget.AppCompatImageView
+            android:layout_width="@dimen/dimen_media_picker_top_bar"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_rippleborderless_transparent"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:onClick="xmlClick"
+            app:srcCompat="@drawable/ic_media_picker_back" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:singleLine="true"
+            android:textColor="@color/color_media_picker_title_fg"
+            android:textStyle="bold"
+            tools:text="title" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:onClick="xmlClick"
+            android:textColor="@color/colors_media_picker_finish"
+            tools:enabled="true"
+            tools:text="完成" />
+    </LinearLayout>
+</LinearLayout>

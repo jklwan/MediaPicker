@@ -1,0 +1,19 @@
+<resources>
+
+    <style name="BaseTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/color_media_picker_title_bg</item>
+        <item name="colorPrimaryDark">@color/color_media_picker_title_bg</item>
+    </style>
+    <style name="MediaPicker" parent="BaseTheme">
+    </style>
+
+    <style name="fill">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
+
+    <style name="anim_popup_dir">
+        <item name="android:windowEnterAnimation">@anim/slide_in</item>
+        <item name="android:windowExitAnimation">@anim/slide_out</item>
+    </style>
+</resources>

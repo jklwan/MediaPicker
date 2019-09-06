@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="MediaPicker" parent="BaseTheme">
+        <item name="android:colorPrimary">@color/color_media_picker_title_bg</item>
+        <item name="android:colorPrimaryDark">@color/color_media_picker_title_bg</item>
+        <item name="android:statusBarColor">@color/transparent</item>
+    </style>
+</resources>

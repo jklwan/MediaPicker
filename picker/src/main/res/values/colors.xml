@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="white">#FFFFFFFF</color>
+    <color name="transparent">#00000000</color>
+    <color name="black_text">#FF333333</color>
+    <color name="gray_line">#FFD3D3D3</color>
+    <color name="gray_dark">#ff666666</color>
+    <color name="bottom_bg">#5e5e5e</color>
+
+    <color name="color_media_picker_title_bg">#ffffffff</color>
+    <color name="color_media_picker_title_fg">#ff333333</color>
+    <color name="color_media_picker_finish_disable">#ffc1d5ff</color>
+    <color name="color_media_picker_finish">#ff4266ff</color>
+
+    <color name="color_media_picker_bg">#fff5f5f5</color>
+    <color name="color_media_picker_bottom_bg">#ffffffff</color>
+    <color name="color_media_picker_folder_color">#ff333333</color>
+
+    <color name="color_media_folder_check">#ff4266ff</color>
+    <color name="color_media_folder_arrow">#ff000000</color>
+    <color name="color_media_picker_uncheck">#ffaaaaaa</color>
+    <color name="color_media_picker_checked">#ff4266ff</color>
+    <color name="ripple_light">#1f000000</color>
+</resources>

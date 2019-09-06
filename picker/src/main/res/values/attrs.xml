@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="Ratio">
+        <attr name="width_ratio" format="reference|float" />
+        <attr name="height_ratio" format="reference|float" />
+        <attr name="widthStandard" format="boolean" />
+    </declare-styleable>
+</resources>
