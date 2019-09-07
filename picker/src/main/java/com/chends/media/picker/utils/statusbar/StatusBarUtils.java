@@ -22,6 +22,7 @@ public class StatusBarUtils {
 
     private Activity mActivity;
     private Window mWindow;
+
     /**
      * 判断手机支不支持状态栏字体变色
      * Is support status bar dark font boolean.
@@ -60,10 +61,10 @@ public class StatusBarUtils {
         }
         if (OSUtils.isFlyMeOS4Later()) { // 修改FlyMe OS状态栏字体颜色
             if (builder.flyMeOSStatusBarFontColor != 0) {
-                FlyMeOSStatusBarFontUtils.setStatusBarDarkIcon(mActivity, builder.flyMeOSStatusBarFontColor);
+                FlyMeStatusBarUtils.setStatusBarDarkIcon(mActivity, builder.flyMeOSStatusBarFontColor);
             } else {
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-                    FlyMeOSStatusBarFontUtils.setStatusBarDarkIcon(mActivity, builder.darkFont);
+                    FlyMeStatusBarUtils.setStatusBarDarkIcon(mActivity, builder.darkFont);
                 }
             }
         }
@@ -77,9 +78,7 @@ public class StatusBarUtils {
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private int initBarAboveLOLLIPOP(int uiFlags) {
         uiFlags |= View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;  //Activity全屏显示，但状态栏不会被隐藏覆盖，状态栏依然可见，Activity顶端布局部分会被状态栏遮住。
-        if (!builder.isTranslucentStatus){
-            mWindow.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        }
+        mWindow.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         mWindow.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);  //需要设置这个才能设置状态栏颜色
         mWindow.setStatusBarColor(Color.TRANSPARENT);
         return uiFlags;
@@ -98,13 +97,8 @@ public class StatusBarUtils {
      */
     private void setupStatusBarView() {
         if (builder.statusBarView != null) {
-            if (builder.statusBarFlag) {
-                builder.statusBarView.setBackgroundColor(ColorUtils.blendARGB(builder.statusBarColor,
-                        builder.statusBarColorTransform, builder.statusBarAlpha));
-            } else {
-                builder.statusBarView.setBackgroundColor(ColorUtils.blendARGB(builder.statusBarColor,
-                        Color.TRANSPARENT, builder.statusBarAlpha));
-            }
+            builder.statusBarView.setBackgroundColor(ColorUtils.blendARGB(builder.statusBarColor,
+                    Color.BLACK, builder.statusBarAlpha));
         }
     }
 
@@ -152,7 +146,7 @@ public class StatusBarUtils {
         }
     }
 
-    public static class Builder{
+    public static class Builder {
         private Activity activity;
         /**
          * 状态栏透明度
@@ -169,22 +163,12 @@ public class StatusBarUtils {
          */
         private boolean darkFont = false;
         /**
-         * 是否可以修改状态栏颜色
-         */
-        private boolean statusBarFlag = true;
-        /**
-         * 状态栏变换后的颜色
-         */
-        @ColorInt
-        private int statusBarColorTransform = Color.BLACK;
-        /**
          * flyMeOS状态栏字体变色
          */
         @ColorInt
         private int flyMeOSStatusBarFontColor = Color.BLACK;
-        
+
         private View statusBarView;
-        private boolean isTranslucentStatus = false;
 
         public Builder(Activity activity) {
             this.activity = activity;
@@ -203,7 +187,7 @@ public class StatusBarUtils {
             return statusBarDarkFont(darkFont, 0f);
         }
 
-        public Builder statusBarDarkFont(boolean isDarkFont, @FloatRange(from = 0f, to = 1f) float statusAlpha){
+        public Builder statusBarDarkFont(boolean isDarkFont, @FloatRange(from = 0f, to = 1f) float statusAlpha) {
             this.darkFont = isDarkFont;
             if (!isDarkFont) {
                 this.flyMeOSStatusBarFontColor = 0;
@@ -216,27 +200,13 @@ public class StatusBarUtils {
             return this;
         }
 
-        public Builder setStatusBarFlag(boolean statusBarFlag) {
-            this.statusBarFlag = statusBarFlag;
-            return this;
-        }
-
-        public Builder setStatusBarColorTransform(int statusBarColorTransform) {
-            this.statusBarColorTransform = statusBarColorTransform;
-            return this;
-        }
-
         public Builder setStatusBarView(View statusBarView) {
             this.statusBarView = statusBarView;
             return this;
         }
 
-        public Builder isTranslucentStatus(boolean isTranslucentStatus) {
-            this.isTranslucentStatus = isTranslucentStatus;
-            return this;
-        }
 
-        public StatusBarUtils builder(){
+        public StatusBarUtils builder() {
             return new StatusBarUtils(this);
         }
     }

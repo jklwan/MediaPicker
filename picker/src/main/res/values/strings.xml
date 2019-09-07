@@ -2,11 +2,11 @@
     <string name="app_name">MediaPicker</string>
 
     <string name="string_media_picker_imageCount">%1$d张</string>
-    <string name="string_media_picker_videoCount">%1$d个</string>
+    <string name="string_media_picker_mediaCount">%1$d个</string>
     <string name="string_media_picker_chooseVideoLimit">只能选择%1%d秒之内的视频</string>
     <string name="string_media_picker_chooseAudioLimit">只能选择%1%d秒之内的音频</string>
+    <string name="string_media_picker_chooseAll">所有文件</string>
     <string name="string_media_picker_chooseAllImage">所有图片</string>
-    <string name="string_media_picker_chooseAllMedia">所有文件</string>
     <string name="string_media_picker_chooseAllVideo">所有视频</string>
     <string name="string_media_picker_chooseAllAudio">所有音频</string>
     <string name="string_media_picker_chooseMaxImage">最多只能选择%1$d张图片</string>
@@ -20,4 +20,5 @@
     <string name="string_media_picker_finish_format">完成(%1$d/%2$d)</string>
 
     <string name="string_media_picker_no_storage_permission">无法获取存储卡权限！</string>
+    <string name="string_media_picker_no_media">没有扫描到文件</string>
 </resources>

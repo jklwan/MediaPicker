@@ -18,22 +18,22 @@
         tools:spanCount="3" />
 
     <FrameLayout
+        android:id="@+id/picker_bottom"
         android:layout_width="match_parent"
         android:layout_height="@dimen/dimen_media_picker_bottom_bar"
         android:background="@color/color_media_picker_bottom_bg">
 
         <LinearLayout
-            android:id="@+id/dir"
+            android:id="@+id/picker_folder"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:background="@drawable/bg_ripple_transparent"
-            android:onClick="xmlClick"
             android:orientation="horizontal"
             android:paddingLeft="10dp"
             android:paddingRight="10dp">
 
             <TextView
-                android:id="@+id/dir_text"
+                android:id="@+id/picker_folder_name"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:gravity="center_vertical"
@@ -42,7 +42,7 @@
                 tools:text="1" />
 
             <android.support.v7.widget.AppCompatImageView
-                android:id="@+id/dir_arrow"
+                android:id="@+id/picker_folder_arrow"
                 android:layout_width="20dp"
                 android:layout_height="match_parent"
                 android:layout_marginStart="10dp"
@@ -52,13 +52,12 @@
         </LinearLayout>
 
         <android.support.v7.widget.AppCompatTextView
-            android:id="@+id/preview"
+            android:id="@+id/picker_preview"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="end"
             android:background="@drawable/bg_ripple_transparent"
             android:gravity="center"
-            android:onClick="xmlClick"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:textColor="@color/color_media_picker_folder_color"

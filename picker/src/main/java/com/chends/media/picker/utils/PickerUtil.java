@@ -5,7 +5,6 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
 
-import com.chends.media.picker.MimeType;
 import com.chends.media.picker.R;
 import com.chends.media.picker.model.Constant;
 import com.chends.media.picker.model.PickerBean;
@@ -14,10 +13,12 @@ import com.chends.media.picker.model.PickerBean;
  * @author chends create on 2019/9/5.
  */
 public class PickerUtil {
-    private static final PickerUtil single = new PickerUtil();
+    private static class Singleton {
+        private static final PickerUtil single = new PickerUtil();
+    }
 
     public static PickerUtil getInstance() {
-        return single;
+        return Singleton.single;
     }
 
     private PickerUtil() {
@@ -44,30 +45,22 @@ public class PickerUtil {
         return getInstance().statusHeight;
     }
 
-    public String getAllImage() {
-        return MimeType.getSelectionType(PickerBean.getInstance().imageList);
-    }
-
-
-    public String getAllVideo() {
-        return MimeType.getSelectionType(PickerBean.getInstance().videoList);
-    }
-
-
-    public String getAllAudio() {
-        return MimeType.getSelectionType(PickerBean.getInstance().audioList);
-    }
-
     /**
      * 初始化数据
      * @param activity activity
      */
     public void init(Activity activity) {
         Context context = activity.getApplicationContext();
-        Constant.Folder_Name_All_Media = context.getString(R.string.string_media_picker_chooseAllMedia);
+        Constant.Folder_Name_All = context.getString(R.string.string_media_picker_chooseAll);
         Constant.Folder_Name_All_Image = context.getString(R.string.string_media_picker_chooseAllImage);
         Constant.Folder_Name_All_Video = context.getString(R.string.string_media_picker_chooseAllVideo);
         Constant.Folder_Name_All_Audio = context.getString(R.string.string_media_picker_chooseAllAudio);
+        initOther();
+    }
+
+    private void initOther(){
+        PickerBean.getInstance().init();
+        SelectUtil.getInstance().init();
     }
 
     /**
@@ -87,5 +80,7 @@ public class PickerUtil {
         return false;
     }
 
-
+    public static boolean checkNull(Object object) {
+        return object != null;
+    }
 }

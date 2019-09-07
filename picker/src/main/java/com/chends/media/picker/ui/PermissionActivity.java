@@ -1,8 +1,10 @@
 package com.chends.media.picker.ui;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -10,6 +12,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 
 import com.chends.media.picker.utils.PermissionUtil;
+
+import java.io.File;
 
 /**
  * 权限判断
@@ -74,6 +78,24 @@ public class PermissionActivity extends AppCompatActivity {
      * @param success success
      */
     private void setResult(boolean success) {
+        if (success && (TextUtils.equals(permission, Manifest.permission.WRITE_EXTERNAL_STORAGE))) {
+            boolean trySuccess = true;
+            // 虽然已经有权限，需要创建一个文件来测试
+            if (TextUtils.equals(Environment.getExternalStorageState(), Environment.MEDIA_MOUNTED)) {
+                File temp = new File(Environment.getExternalStorageDirectory(), "permission.test");
+                try {
+                    if (temp.exists()) {
+                        trySuccess = temp.delete();
+                    }
+                    trySuccess = trySuccess && temp.createNewFile();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            if (!trySuccess) {
+                setResult(false);
+            }
+        }
         Intent intent = new Intent();
         setResult(success ? RESULT_OK : RESULT_CANCELED, intent);
         finish();

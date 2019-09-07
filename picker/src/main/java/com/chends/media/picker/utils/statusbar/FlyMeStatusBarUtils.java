@@ -13,7 +13,7 @@ import java.lang.reflect.Method;
  * FlyMe OS 修改状态栏字体颜色工具类
  * @author chends create on 2019/9/6.
  */
-public class FlyMeOSStatusBarFontUtils {
+public class FlyMeStatusBarUtils {
     private static Method mSetStatusBarColorIcon;
     private static Method mSetStatusBarDarkIcon;
     private static Field mStatusBarColorFiled;

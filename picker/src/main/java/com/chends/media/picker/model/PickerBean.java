@@ -20,9 +20,9 @@ public final class PickerBean {
     public List<String> chooseList = new ArrayList<>();
     public long audioLimit = -1;
     public long videoLimit = -1;
-    public List<String> imageList = new ArrayList<>(), videoList = new ArrayList<>(),
-            audioList = new ArrayList<>();
-    public boolean hasImage, hasVideo, hasAudio;
+    public Set<String> imageList = new HashSet<>(), videoList = new HashSet<>(),
+            audioList = new HashSet<>();
+    public boolean hasImage, hasVideo, hasAudio, hasAll;
 
     private PickerBean() {
     }
@@ -47,9 +47,9 @@ public final class PickerBean {
         chooseList = new ArrayList<>();
         audioLimit = -1;
         videoLimit = -1;
-        imageList = new ArrayList<>();
-        videoList = new ArrayList<>();
-        audioList = new ArrayList<>();
+        imageList = new HashSet<>();
+        videoList = new HashSet<>();
+        audioList = new HashSet<>();
         hasImage = false;
         hasVideo = false;
         hasAudio = false;
@@ -118,6 +118,11 @@ public final class PickerBean {
     public void init() {
         if (typeSet.isEmpty()) {
             typeSet = MimeType.allImage();
+            for (String type : typeSet) {
+                if (!TextUtils.isEmpty(type)) {
+                    imageList.add(type);
+                }
+            }
             hasImage = true;
         } else {
             for (String type : typeSet) {
@@ -134,6 +139,11 @@ public final class PickerBean {
                     }
                 }
             }
+        }
+        if (hasImage == hasVideo) {
+            hasAll = hasImage;
+        } else {
+            hasAll = hasAudio;
         }
     }
 

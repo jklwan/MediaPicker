@@ -27,6 +27,36 @@
         app:layout_constraintTop_toBottomOf="@id/chooseImage" />
 
     <Button
+        android:id="@+id/chooseIVideo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:onClick="xmlClick"
+        android:text="选择图片视频"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/chooseVideo" />
+
+    <Button
+        android:id="@+id/chooseIAudio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:onClick="xmlClick"
+        android:text="选择图片音频"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/chooseIVideo" />
+
+    <Button
+        android:id="@+id/chooseAVideo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:onClick="xmlClick"
+        android:text="选择音频视频"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/chooseIAudio" />
+
+    <Button
         android:id="@+id/chooseAll"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -34,6 +64,6 @@
         android:onClick="xmlClick"
         android:text="选择所有类型"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/chooseVideo" />
+        app:layout_constraintTop_toBottomOf="@id/chooseAVideo" />
 
 </android.support.constraint.ConstraintLayout>

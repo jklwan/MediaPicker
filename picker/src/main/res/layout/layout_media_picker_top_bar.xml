@@ -2,49 +2,40 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/topBar"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:layout_height="@dimen/dimen_media_picker_top_bar"
+    android:background="@color/color_media_picker_bottom_bg"
+    android:orientation="horizontal">
 
-    <ViewStub
-        android:id="@+id/topStub"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout="@layout/layout_media_picker_top_view"/>
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/topBar_back"
+        android:layout_width="@dimen/dimen_media_picker_top_bar"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_rippleborderless_transparent"
+        android:paddingTop="15dp"
+        android:paddingBottom="15dp"
+        app:srcCompat="@drawable/ic_media_picker_back" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/dimen_media_picker_top_bar"
-        android:orientation="horizontal">
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/topBar_title"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:singleLine="true"
+        android:textColor="@color/color_media_picker_title_fg"
+        android:textStyle="bold"
+        tools:text="title" />
 
-        <android.support.v7.widget.AppCompatImageView
-            android:layout_width="@dimen/dimen_media_picker_top_bar"
-            android:layout_height="match_parent"
-            android:background="@drawable/bg_rippleborderless_transparent"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:onClick="xmlClick"
-            app:srcCompat="@drawable/ic_media_picker_back" />
-
-        <android.support.v7.widget.AppCompatTextView
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:singleLine="true"
-            android:textColor="@color/color_media_picker_title_fg"
-            android:textStyle="bold"
-            tools:text="title" />
-
-        <android.support.v7.widget.AppCompatTextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:onClick="xmlClick"
-            android:textColor="@color/colors_media_picker_finish"
-            tools:enabled="true"
-            tools:text="完成" />
-    </LinearLayout>
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/topBar_finish"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:textColor="@color/colors_media_picker_finish"
+        tools:enabled="true"
+        tools:text="完成" />
 </LinearLayout>

@@ -3,8 +3,10 @@ package com.chends.media.picker;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
+import com.chends.media.picker.model.Constant;
+
 import java.util.HashSet;
-import java.util.List;
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -70,24 +72,41 @@ public class MimeType {
      * @return selections
      */
     @Nullable
-    public static String getSelectionType(List<String> types) {
+    public static String getSelectionType(Set<String> types) {
         if (types == null || types.isEmpty()) {
             return null;
         }
-        int length = types.size();
         StringBuilder builder = new StringBuilder("(");
         String type;
-        for (int i = 0; i < length; i++) {
-            type = types.get(i);
+        Iterator<String> it = types.iterator();
+        while (it.hasNext()) {
+            type = it.next();
             if (TextUtils.isEmpty(type)) {
                 continue;
             }
             builder.append("'").append(type).append("'");
-            if (i < length - 1) {
+            if (it.hasNext()) {
                 builder.append(",");
             }
         }
         builder.append(")");
         return builder.toString();
+    }
+
+    /**
+     * 根据mimeType获取文件type
+     * @param mimeType mimeType
+     */
+    @Constant.ItemType
+    public static int getItemType(String mimeType){
+        if (TextUtils.isEmpty(mimeType)) return Constant.TYPE_IMAGE;
+        String lower = mimeType.toLowerCase();
+        if (lower.startsWith(Constant.IMAGE_START)){
+            return Constant.TYPE_IMAGE;
+        } else if (lower.startsWith(Constant.VIDEO_START)){
+            return Constant.TYPE_VIDEO;
+        } else {
+            return Constant.TYPE_AUDIO;
+        }
     }
 }

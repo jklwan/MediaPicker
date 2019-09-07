@@ -8,6 +8,9 @@ import android.view.View;
 import com.chends.media.picker.MediaPicker;
 import com.chends.media.picker.MimeType;
 
+import java.util.HashSet;
+import java.util.Set;
+
 
 public class MainActivity extends AppCompatActivity {
     private final int imageCode = 1, videoCode = 2, allCode = 3;
@@ -23,12 +26,33 @@ public class MainActivity extends AppCompatActivity {
             case R.id.chooseImage:
                 MediaPicker.with(this)
                         .addTypes(MimeType.allImage())
-                        .maxNum(4)
+                        .maxNum(8)
                         .start(imageCode);
                 break;
             case R.id.chooseVideo:
                 MediaPicker.with(this)
                         .addTypes(MimeType.allVideo())
+                        .maxNum(3)
+                        .start(videoCode);
+                break;
+            case R.id.chooseIVideo:
+                MediaPicker.with(this)
+                        .addTypes(MimeType.allImage())
+                        .addTypes(MimeType.allVideo())
+                        .maxNum(5)
+                        .start(videoCode);
+                break;
+            case R.id.chooseIAudio:
+                MediaPicker.with(this)
+                        .addTypes(MimeType.allImage())
+                        .addTypes(allAudio())
+                        .maxNum(8)
+                        .start(videoCode);
+                break;
+            case R.id.chooseAVideo:
+                MediaPicker.with(this)
+                        .addTypes(MimeType.allVideo())
+                        .addTypes(allAudio())
                         .maxNum(3)
                         .start(videoCode);
                 break;
@@ -39,6 +63,14 @@ public class MainActivity extends AppCompatActivity {
                         .start(allCode);
                 break;
         }
+    }
+
+    private Set<String> allAudio(){
+        return new HashSet<String>(){{
+            add("audio/mpeg");
+            add("audio/ogg");
+            add("audio/aac");
+        }};
     }
 
     @Override

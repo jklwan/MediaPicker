@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.view.View;
 
 import com.chends.media.picker.R;
 import com.chends.media.picker.utils.ControlUtil;
@@ -24,28 +23,23 @@ public class MediaPickerActivity extends BasePickerActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_media_picker);
         PermissionActivity.checkPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE, permissionCode);
+        util = new ControlUtil(this);
+        util.onRestoreInstanceState(savedInstanceState);
     }
 
     /**
-     * 初始化
+     * 获取到权限后初始化
      */
     private void init() {
-
-    }
-
-    @Override
-    protected void xmlClick(View view) {
-        switch (view.getId()){
-
-        }
+        util.startLoader();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode){
+        switch (requestCode) {
             case permissionCode:
-                if (resultCode == RESULT_OK){
+                if (resultCode == RESULT_OK) {
                     // 成功
                     init();
                 } else {
