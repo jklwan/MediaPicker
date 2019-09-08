@@ -1,4 +1,4 @@
-package com.chends.media.picker.utils;
+package com.chends.media.picker.sample;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;

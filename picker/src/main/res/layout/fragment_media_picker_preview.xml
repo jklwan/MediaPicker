@@ -1,9 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/fill">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/match">
 
     <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
         android:id="@+id/imageView"
-        style="@style/fill" />
+        style="@style/match" />
 
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/select"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_gravity="end"
+        android:background="@null"
+        android:clickable="false"
+        android:paddingStart="20dp"
+        android:paddingLeft="20dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="10dp"
+        android:paddingRight="10dp"
+        android:paddingBottom="20dp"
+        android:scaleType="fitCenter"
+        app:srcCompat="@drawable/ic_media_picker_checked" />
 </FrameLayout>

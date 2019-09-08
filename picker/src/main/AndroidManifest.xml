@@ -10,7 +10,7 @@
             android:screenOrientation="portrait"
             android:theme="@style/MediaPicker" />
         <activity
-            android:name=".ui.PermissionActivity"
+            android:name=".ui.PreviewActivity"
             android:screenOrientation="portrait"
             android:theme="@style/MediaPicker" />
     </application>

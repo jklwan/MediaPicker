@@ -2,12 +2,21 @@ package com.chends.media.picker.utils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.support.media.ExifInterface;
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
 
+import com.chends.media.picker.MimeType;
 import com.chends.media.picker.R;
 import com.chends.media.picker.model.Constant;
+import com.chends.media.picker.model.ItemBean;
 import com.chends.media.picker.model.PickerBean;
+
+import java.io.File;
 
 /**
  * @author chends create on 2019/9/5.
@@ -25,6 +34,7 @@ public class PickerUtil {
     }
 
     private int statusHeight = 0;
+    private float density = 0.0f;
 
     /**
      * 获得状态栏的高度
@@ -45,6 +55,17 @@ public class PickerUtil {
         return getInstance().statusHeight;
     }
 
+    public static int dp2px(float dpValue) {
+        return (int) (dpValue * getDensity() + 0.5f);
+    }
+
+    public static float getDensity() {
+        if (getInstance().density <= 0.0f) {
+            getInstance().density = Resources.getSystem().getDisplayMetrics().density;
+        }
+        return getInstance().density;
+    }
+
     /**
      * 初始化数据
      * @param activity activity
@@ -58,7 +79,7 @@ public class PickerUtil {
         initOther();
     }
 
-    private void initOther(){
+    private void initOther() {
         PickerBean.getInstance().init();
         SelectUtil.getInstance().init();
     }
@@ -80,7 +101,110 @@ public class PickerUtil {
         return false;
     }
 
-    public static boolean checkNull(Object object) {
-        return object != null;
+    /**
+     * checkFile
+     * @param context context
+     * @param bean    bean
+     * @return
+     */
+    public static boolean checkFile(Context context, ItemBean bean) {
+        if (!isFileExist(bean.getPath())) {
+            scanMediaFile(context, new File(bean.getPath()));
+            return false;
+        }
+        int type = MimeType.getItemType(bean.getMimeType());
+        if (type == Constant.TYPE_IMAGE) {
+            return isImageFile(bean.getPath());
+        } else {
+            return bean.getDuration() > 0;
+        }
     }
+
+    /**
+     * 是否存在
+     * @param filePath path
+     * @return true or false
+     */
+    public static boolean isFileExist(String filePath) {
+        if (TextUtils.isEmpty(filePath)) {
+            return false;
+        }
+        File file = new File(filePath);
+        return (file.exists());
+    }
+
+    /**
+     * 通知扫描文件
+     * @param context context
+     * @param file    file
+     */
+    public static void scanMediaFile(Context context, File file) {
+        context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
+    }
+
+    /**
+     * 是否图片文件
+     * @param path path
+     * @return true or false
+     */
+    public static boolean isImageFile(String path) {
+        try {
+            File file = new File(path);
+            if (!TextUtils.isEmpty(path) && file.isFile() && file.exists()) {
+                int[] wh = getImageWH(file.getAbsolutePath());
+                return wh[0] > 0 && wh[1] > 0;
+            }
+            return false;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
+    /**
+     * 获取图片的宽高
+     * @param imagePath imagePath
+     * @return int[]，0：宽，1：高
+     */
+    private static int[] getImageWH(String imagePath) {
+        int[] wh = new int[]{0, 0};
+        try {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(imagePath, options);
+            wh[0] = options.outWidth;
+            wh[1] = options.outHeight;
+            if (wh[0] <= 0 || wh[1] <= 0) {
+                ExifInterface exifInterface = new ExifInterface(imagePath);
+                wh[1] = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_LENGTH, ExifInterface.ORIENTATION_NORMAL);//获取图片的高度
+                wh[0] = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_WIDTH, ExifInterface.ORIENTATION_NORMAL);//获取图片的宽度
+            }
+        } catch (Exception ex) {
+        }
+        return wh;
+    }
+
+    /**
+     * select点击
+     * @param context context
+     * @param path    path
+     */
+    public static boolean selectPath(Context context, String path) {
+        if (PickerBean.getInstance().chooseList.size() >= PickerBean.getInstance().maxNum) {
+            int resId;
+            if (!PickerBean.getInstance().hasAll && PickerBean.getInstance().hasImage) {
+                resId = R.string.string_media_picker_chooseMaxImage;
+            } else {
+                resId = R.string.string_media_picker_chooseMaxFile;
+            }
+            ToastUtils.showShort(context, context.getString(resId));
+            return false;
+        }
+        if (PickerBean.getInstance().chooseList.contains(path)) {
+            PickerBean.getInstance().chooseList.remove(path);
+        } else {
+            PickerBean.getInstance().chooseList.add(path);
+        }
+        return true;
+    }
+
 }

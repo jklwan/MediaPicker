@@ -1,8 +1,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    style="@style/match"
     android:orientation="vertical">
 
     <include layout="@layout/layout_media_picker_top_bar" />
@@ -37,7 +36,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:gravity="center_vertical"
-                android:textColor="@color/color_media_picker_folder_color"
+                android:textColor="@color/color_media_picker_bottom_text_color"
                 android:textSize="15sp"
                 tools:text="1" />
 
@@ -60,7 +59,7 @@
             android:gravity="center"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:textColor="@color/color_media_picker_folder_color"
+            android:textColor="@color/color_media_picker_bottom_text_color"
             tools:text="预览" />
     </FrameLayout>
 

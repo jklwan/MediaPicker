@@ -8,8 +8,12 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import com.chends.media.picker.R;
+import com.chends.media.picker.listener.PickerCallback;
+import com.chends.media.picker.model.PickerBean;
+import com.chends.media.picker.utils.PickerUtil;
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 
@@ -21,6 +25,8 @@ public class PreviewFragment extends Fragment {
     private static final String BUNDLE_PATH = "path";
 
     private String path;
+    private ImageView select;
+    private PickerCallback callback;
 
     public static PreviewFragment newInstance(String path) {
         PreviewFragment result = new PreviewFragment();
@@ -28,6 +34,11 @@ public class PreviewFragment extends Fragment {
         args.putString(BUNDLE_PATH, path);
         result.setArguments(args);
         return result;
+    }
+
+    public PreviewFragment setCallback(PickerCallback callback) {
+        this.callback = callback;
+        return this;
     }
 
     @Override
@@ -48,11 +59,31 @@ public class PreviewFragment extends Fragment {
                 path = savedInstanceState.getString(BUNDLE_PATH);
             }
         }
+        select = rootView.findViewById(R.id.select);
         if (!TextUtils.isEmpty(path)) {
             SubsamplingScaleImageView imageView = rootView.findViewById(R.id.imageView);
             imageView.setImage(ImageSource.uri(path));
+            select.setImageResource(PickerBean.getInstance().chooseList.contains(path) ?
+                    R.drawable.ic_media_picker_checked : R.drawable.ic_media_picker_uncheck);
         }
-
+        select.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!TextUtils.isEmpty(path)) {
+                    if (PickerUtil.selectPath(getActivity(), path)) {
+                        boolean choose = PickerBean.getInstance().chooseList.contains(path);
+                        if (choose) {
+                            select.setImageResource(R.drawable.ic_media_picker_checked);
+                        } else {
+                            select.setImageResource(R.drawable.ic_media_picker_uncheck);
+                        }
+                        if (callback != null) {
+                            callback.onChooseChange(choose, path);
+                        }
+                    }
+                }
+            }
+        });
         return rootView;
     }
 

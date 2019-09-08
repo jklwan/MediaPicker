@@ -18,7 +18,11 @@
 
     <string name="string_media_picker_finish">完成</string>
     <string name="string_media_picker_finish_format">完成(%1$d/%2$d)</string>
+    <string name="string_media_picker_preview">预览</string>
+    <string name="string_media_picker_preview_format">预览(%1$d/%2$d)</string>
 
     <string name="string_media_picker_no_storage_permission">无法获取存储卡权限！</string>
     <string name="string_media_picker_no_media">没有扫描到文件</string>
+    <string name="string_media_picker_type_video">视频</string>
+    <string name="string_media_picker_type_audio">音频</string>
 </resources>

@@ -7,13 +7,13 @@
     <style name="MediaPicker" parent="BaseTheme">
     </style>
 
-    <style name="fill">
+    <style name="match">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
     </style>
 
     <style name="anim_popup_folder">
-        <item name="android:windowEnterAnimation">@anim/folder_slide_in</item>
-        <item name="android:windowExitAnimation">@anim/folder_slide_out</item>
+        <item name="android:windowEnterAnimation">@anim/folder_popup_in</item>
+        <item name="android:windowExitAnimation">@anim/folder_popup_out</item>
     </style>
 </resources>

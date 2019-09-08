@@ -2,8 +2,10 @@ package com.chends.media.picker.utils;
 
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 
 import com.chends.media.picker.MimeType;
+import com.chends.media.picker.model.Constant;
 import com.chends.media.picker.model.PickerBean;
 
 /**
@@ -11,6 +13,7 @@ import com.chends.media.picker.model.PickerBean;
  * @author chends create on 2019/9/5.
  */
 public class SelectUtil {
+
     private static class Singleton {
         private static final SelectUtil single = new SelectUtil();
     }
@@ -22,10 +25,10 @@ public class SelectUtil {
     private SelectUtil() {
     }
 
-    public static final Uri IMAGE_URI = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-    public static final Uri VIDEO_URI = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-    public static final Uri AUDIO_URI = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-    public static final Uri FILE_URI = MediaStore.Files.getContentUri("external");
+    private static final Uri IMAGE_URI = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+    private static final Uri VIDEO_URI = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+    private static final Uri AUDIO_URI = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+    private static final Uri FILE_URI = MediaStore.Files.getContentUri("external");
 
     /**
      * 总数量
@@ -34,27 +37,39 @@ public class SelectUtil {
     /**
      * 图片数量
      */
-    public static final String IMAGE_COUNT = "image_count";
+    static final String IMAGE_COUNT = "image_count";
+    /**
+     * 图片类型
+     */
+    static final String IMAGE_MIME_TYPE = "image_mime_type";
     /**
      * 图片封面
      */
-    public static final String IMAGE_COVER = "image_cover";
+    static final String IMAGE_COVER = "image_cover";
     /**
      * 视频数量
      */
-    public static final String VIDEO_COUNT = "video_count";
+    static final String VIDEO_COUNT = "video_count";
+    /**
+     * 视频类型
+     */
+    static final String VIDEO_MIME_TYPE = "video_mime_type";
     /**
      * 视频封面
      */
-    public static final String VIDEO_COVER = "video_cover";
+    static final String VIDEO_COVER = "video_cover";
     /**
      * 音频数量
      */
-    public static final String AUDIO_COUNT = "audio_count";
+    static final String AUDIO_COUNT = "audio_count";
+    /**
+     * 音频类型
+     */
+    static final String AUDIO_MIME_TYPE = "audio_mime_type";
     /**
      * 音频封面
      */
-    public static final String AUDIO_COVER = "audio_cover";
+    static final String AUDIO_COVER = "audio_cover";
 
     /**
      * projection
@@ -66,6 +81,14 @@ public class SelectUtil {
             MediaStore.MediaColumns.DATA,
             MediaStore.MediaColumns.MIME_TYPE,
             "count(*) as " + COLUMN_COUNT};
+    /**
+     * item projection
+     */
+    private static final String[] ITEM_PROJECTION = {
+            MediaStore.MediaColumns._ID,
+            MediaStore.MediaColumns.DATA,
+            MediaStore.MediaColumns.MIME_TYPE,
+            MediaStore.Video.Media.DURATION};
     /**
      * 查询中大小的条件：必须大于0
      */
@@ -83,7 +106,7 @@ public class SelectUtil {
     /**
      * 查询条件：所有
      */
-    public static String allSelection() {
+    private static String allSelection() {
         StringBuilder mediaType = new StringBuilder("(");
         if (PickerBean.getInstance().hasImage) {
             mediaType.append(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE);
@@ -110,7 +133,7 @@ public class SelectUtil {
     /**
      * 查询条件：所有图片
      */
-    public static String imageSelection() {
+    private static String imageSelection() {
         return MediaStore.MediaColumns.MIME_TYPE + " in " +
                 MimeType.getSelectionType(PickerBean.getInstance().imageList);
     }
@@ -119,7 +142,7 @@ public class SelectUtil {
     /**
      * 查询条件：所有视频
      */
-    public static String videoSelection() {
+    private static String videoSelection() {
         return MediaStore.MediaColumns.MIME_TYPE + " in " +
                 MimeType.getSelectionType(PickerBean.getInstance().videoList);
     }
@@ -127,7 +150,7 @@ public class SelectUtil {
     /**
      * 查询条件：所有音频
      */
-    public static String audioSelection() {
+    private static String audioSelection() {
         return MediaStore.MediaColumns.MIME_TYPE + " in " +
                 MimeType.getSelectionType(PickerBean.getInstance().videoList);
     }
@@ -180,43 +203,55 @@ public class SelectUtil {
         int length, srcLength;
         length = srcLength = PROJECTION.length;
         if (data.hasImage) {
-            length += 2;
+            length += 3;
         }
         if (data.hasVideo) {
-            length += 2;
+            length += 3;
         }
         if (data.hasAudio) {
-            length += 2;
+            length += 3;
         }
         result = new String[length];
         System.arraycopy(PROJECTION, 0, result, 0, srcLength);
         srcLength--;
         if (data.hasImage) {
-            srcLength ++;
+            srcLength++;
             result[srcLength] = "(case when " + MediaStore.MediaColumns.MIME_TYPE + " in " +
                     MimeType.getSelectionType(PickerBean.getInstance().imageList) + " then " +
                     MediaStore.MediaColumns.DATA + " else '' end) as " + IMAGE_COVER;
-            srcLength ++;
+            srcLength++;
+            result[srcLength] = "(case when " + MediaStore.MediaColumns.MIME_TYPE + " in " +
+                    MimeType.getSelectionType(PickerBean.getInstance().imageList) + " then " +
+                    MediaStore.MediaColumns.MIME_TYPE + " else '' end) as " + IMAGE_MIME_TYPE;
+            srcLength++;
             result[srcLength] = "sum(case when " + MediaStore.MediaColumns.MIME_TYPE + " in " +
                     MimeType.getSelectionType(PickerBean.getInstance().imageList) +
                     " then 1 else 0 end) as " + IMAGE_COUNT;
         }
         if (data.hasVideo) {
-            srcLength ++;
+            srcLength++;
             result[srcLength] = "(case when " + MediaStore.MediaColumns.MIME_TYPE + " in " +
                     MimeType.getSelectionType(PickerBean.getInstance().videoList) + " then " +
                     MediaStore.MediaColumns.DATA + " else '' end) as " + VIDEO_COVER;
-            srcLength ++;
+            srcLength++;
+            result[srcLength] = "(case when " + MediaStore.MediaColumns.MIME_TYPE + " in " +
+                    MimeType.getSelectionType(PickerBean.getInstance().videoList) + " then " +
+                    MediaStore.MediaColumns.MIME_TYPE + " else '' end) as " + VIDEO_MIME_TYPE;
+            srcLength++;
             result[srcLength] = "sum(case when " + MediaStore.MediaColumns.MIME_TYPE + " in " +
                     MimeType.getSelectionType(PickerBean.getInstance().videoList) +
                     " then 1 else 0 end) as " + VIDEO_COUNT;
         }
         if (data.hasAudio) {
-            srcLength ++;
+            srcLength++;
             result[srcLength] = "(case when " + MediaStore.MediaColumns.MIME_TYPE + " in " +
                     MimeType.getSelectionType(PickerBean.getInstance().audioList) + " then " +
                     MediaStore.MediaColumns.DATA + " else '' end) as " + AUDIO_COVER;
-            srcLength ++;
+            srcLength++;
+            result[srcLength] = "(case when " + MediaStore.MediaColumns.MIME_TYPE + " in " +
+                    MimeType.getSelectionType(PickerBean.getInstance().audioList) + " then " +
+                    MediaStore.MediaColumns.MIME_TYPE + " else '' end) as " + AUDIO_MIME_TYPE;
+            srcLength++;
             result[srcLength] = "sum(case when " + MediaStore.MediaColumns.MIME_TYPE + " in " +
                     MimeType.getSelectionType(PickerBean.getInstance().audioList) +
                     " then 1 else 0 end) as " + AUDIO_COUNT;
@@ -238,5 +273,57 @@ public class SelectUtil {
      */
     public static String getFolderSelection() {
         return getInstance().folderSelection;
+    }
+
+    /**
+     * 获取uri
+     * @param folderId folderId
+     * @return uri
+     */
+    public static Uri getItemUri(String folderId) {
+        if (TextUtils.equals(Constant.Folder_Id_All, folderId)) {
+            return FILE_URI;
+        } else if (TextUtils.equals(Constant.Folder_Id_All_Video, folderId)) {
+            return VIDEO_URI;
+        } else if (TextUtils.equals(Constant.Folder_Id_All_Audio, folderId)) {
+            return AUDIO_URI;
+        } else if (TextUtils.equals(Constant.Folder_Id_All_Image, folderId)) {
+            return IMAGE_URI;
+        } else {
+            return IMAGE_URI;
+        }
+    }
+
+    /**
+     * 获取 projection
+     * @return projection
+     */
+    public static String[] getItemProjection() {
+        return ITEM_PROJECTION;
+    }
+
+    /**
+     * 获取 selection
+     * @param folderId folderId
+     * @return uri
+     */
+    public static String getItemSelection(String folderId) {
+        StringBuilder selection = new StringBuilder();
+        if (TextUtils.equals(Constant.Folder_Id_All, folderId)) {
+            selection.append(allSelection());
+        } else if (TextUtils.equals(Constant.Folder_Id_All_Video, folderId)) {
+            selection.append(videoSelection());
+        } else if (TextUtils.equals(Constant.Folder_Id_All_Audio, folderId)) {
+            selection.append(audioSelection());
+        } else if (TextUtils.equals(Constant.Folder_Id_All_Image, folderId)) {
+            selection.append(imageSelection());
+        } else {
+            selection.append(imageSelection())
+                    .append(" and ")
+                    .append(MediaStore.Images.Media.BUCKET_ID)
+                    .append("=")
+                    .append(folderId);
+        }
+        return selection.append(MIN_SIZE).toString();
     }
 }

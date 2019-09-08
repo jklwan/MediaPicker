@@ -39,8 +39,17 @@ public class Constant {
      * 保存状态
      */
     public static final String STATE_CURRENT_SELECTION = "state_current_selection";
+
     /**
-     * 权限
+     * extra data
      */
-    public static final int PERMISSION_STORAGE_REQUEST_CODE = 1;
+    public static final String EXTRA_CHOOSE_DATA = "extra_choose_data";
+    /**
+     * folder id
+     */
+    public static final String EXTRA_FOLDER_ID = "extra_folder_id";
+    /**
+     * 选择position
+     */
+    public static final String EXTRA_POSITION = "extra_position";
 }

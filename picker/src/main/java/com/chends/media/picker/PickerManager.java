@@ -56,19 +56,19 @@ public final class PickerManager {
      * 限制视频时长
      * @param second second
      */
-    public PickerManager setVideoLimit(int second) {
+    /*public PickerManager setVideoLimit(int second) {
         pickerBean.setVideoLimit(second);
         return this;
-    }
+    }*/
 
     /**
      * 限制音频时长
      * @param second second
      */
-    public PickerManager setAudioLimit(int second) {
+    /*public PickerManager setAudioLimit(int second) {
         pickerBean.setAudioLimit(second);
         return this;
-    }
+    }*/
 
     /**
      * 开始

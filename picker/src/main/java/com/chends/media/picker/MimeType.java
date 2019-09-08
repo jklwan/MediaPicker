@@ -109,4 +109,14 @@ public class MimeType {
             return Constant.TYPE_AUDIO;
         }
     }
+
+    /**
+     * 是否gif
+     * @param mimeType mimeType
+     * @return is gif
+     */
+    public static boolean isGif(String mimeType){
+        if (TextUtils.isEmpty(mimeType)) return false;
+        return mimeType.equalsIgnoreCase(GIF);
+    }
 }

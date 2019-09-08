@@ -5,7 +5,7 @@
     android:id="@+id/topBar"
     android:layout_width="match_parent"
     android:layout_height="@dimen/dimen_media_picker_top_bar"
-    android:background="@color/color_media_picker_bottom_bg"
+    android:background="@color/color_media_picker_top_bg"
     android:orientation="horizontal">
 
     <android.support.v7.widget.AppCompatImageView
@@ -23,6 +23,8 @@
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:gravity="center_vertical"
+        android:layout_marginLeft="20dp"
+        android:layout_marginStart="20dp"
         android:singleLine="true"
         android:textColor="@color/color_media_picker_title_fg"
         android:textStyle="bold"

@@ -1,10 +1,14 @@
 package com.chends.media.picker;
 
 import android.app.Activity;
+import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
+import com.chends.media.picker.model.Constant;
+
 import java.lang.ref.WeakReference;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -64,5 +68,12 @@ public class MediaPicker {
         return fragment == null ? null : fragment.get();
     }
 
-
+    /**
+     * 获取选择的 数据
+     * @param data bundle
+     * @return data
+     */
+    public List<String> getData(Bundle data){
+        return data.getStringArrayList(Constant.EXTRA_CHOOSE_DATA);
+    }
 }

@@ -4,6 +4,6 @@
     android:viewportWidth="1024"
     android:viewportHeight="1024">
     <path
-        android:fillColor="@color/color_media_picker_folder_color"
+        android:fillColor="@color/color_media_picker_bottom_text_color"
         android:pathData="M472.06 751.55L72.83 352.32c-22.08-22.08-22.08-57.79 0-79.87 22.02-22.02 57.79-22.08 79.87 0L512 631.74l359.3-359.3c22.02-22.02 57.79-22.08 79.87 0 22.08 22.08 22.02 57.79 0 79.87L551.94 751.54c-22.08 22.03-57.8 22.03-79.88 0.01z" />
 </vector>

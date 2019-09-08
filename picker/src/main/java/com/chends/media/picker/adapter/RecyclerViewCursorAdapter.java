@@ -112,4 +112,5 @@ public abstract class RecyclerViewCursorAdapter<VH extends RecyclerView.ViewHold
     private boolean checkData(Cursor cursor) {
         return cursor != null && !cursor.isClosed();
     }
+
 }

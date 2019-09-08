@@ -19,6 +19,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
+import com.chends.media.picker.listener.PickerCallback;
 import com.chends.media.picker.model.ItemBean;
 import com.chends.media.picker.ui.PreviewFragment;
 
@@ -29,20 +30,27 @@ import java.util.List;
  * 预览页
  */
 public class PreviewPagerAdapter extends FragmentPagerAdapter {
-
     private List<ItemBean> mList = new ArrayList<>();
+    private PickerCallback callback;
 
     public PreviewPagerAdapter(FragmentManager manager, List<ItemBean> list) {
         super(manager);
-        mList.clear();
-        if (list != null) {
+        if (list != null){
             mList.addAll(list);
         }
     }
 
+    public void setCallback(PickerCallback callback) {
+        this.callback = callback;
+    }
+
     @Override
     public Fragment getItem(int position) {
-        return PreviewFragment.newInstance(mList.get(position).path);
+        String path = null;
+        if (getMediaItem(position) != null){
+            path = getMediaItem(position).getPath();
+        }
+        return PreviewFragment.newInstance(path).setCallback(callback);
     }
 
     @Override
@@ -50,7 +58,15 @@ public class PreviewPagerAdapter extends FragmentPagerAdapter {
         return mList.size();
     }
 
+    @Override
+    public long getItemId(int position) {
+        return getMediaItem(position).hashCode();
+    }
+
     public ItemBean getMediaItem(int position) {
+        if (position < 0 || position >= mList.size()){
+            return null;
+        }
         return mList.get(position);
     }
 

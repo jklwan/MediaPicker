@@ -3,6 +3,7 @@ package com.chends.media.picker.model;
 import android.text.TextUtils;
 
 import com.chends.media.picker.MimeType;
+import com.chends.media.picker.utils.MediaLoader;
 import com.chends.media.picker.utils.PickerUtil;
 
 import java.util.ArrayList;
@@ -17,12 +18,14 @@ import java.util.Set;
 public final class PickerBean {
     public Set<String> typeSet = new HashSet<>();
     public int maxNum = 1;
+    public int spanCount = 3;
     public List<String> chooseList = new ArrayList<>();
-    public long audioLimit = -1;
-    public long videoLimit = -1;
+    //public long audioLimit = -1;
+    //public long videoLimit = -1;
     public Set<String> imageList = new HashSet<>(), videoList = new HashSet<>(),
             audioList = new HashSet<>();
     public boolean hasImage, hasVideo, hasAudio, hasAll;
+    public MediaLoader loader;
 
     private PickerBean() {
     }
@@ -44,15 +47,17 @@ public final class PickerBean {
     private void reset() {
         typeSet = new HashSet<>();
         maxNum = 1;
+        spanCount = 3;
         chooseList = new ArrayList<>();
-        audioLimit = -1;
-        videoLimit = -1;
+        /*audioLimit = -1;
+        videoLimit = -1;*/
         imageList = new HashSet<>();
         videoList = new HashSet<>();
         audioList = new HashSet<>();
         hasImage = false;
         hasVideo = false;
         hasAudio = false;
+        loader = null;
     }
 
     /**
@@ -96,20 +101,35 @@ public final class PickerBean {
      * videoLimit
      * @param second second
      */
-    public void setVideoLimit(int second) {
+    /*public void setVideoLimit(int second) {
         if (second > 0) {
             videoLimit = second;
         }
-    }
+    }*/
 
     /**
      * audioLimit
      * @param second second
      */
-    public void setAudioLimit(int second) {
+    /*public void setAudioLimit(int second) {
         if (second > 0) {
             audioLimit = second;
         }
+    }*/
+
+    /**
+     * 图片加载
+     */
+    public void setLoader(MediaLoader loader) {
+        this.loader = loader;
+    }
+
+    /**
+     * 每行显示数量
+     * @param spanCount spanCount
+     */
+    public void setSpanCount(int spanCount) {
+        this.spanCount = spanCount;
     }
 
     /**

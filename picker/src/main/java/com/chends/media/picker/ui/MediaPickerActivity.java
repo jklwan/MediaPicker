@@ -1,13 +1,16 @@
 package com.chends.media.picker.ui;
 
-import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
 import com.chends.media.picker.R;
+import com.chends.media.picker.model.Constant;
+import com.chends.media.picker.model.PickerBean;
 import com.chends.media.picker.utils.ControlUtil;
-import com.chends.media.picker.utils.ToastUtils;
+
+import java.util.ArrayList;
 
 /**
  * 选择页面
@@ -16,40 +19,60 @@ import com.chends.media.picker.utils.ToastUtils;
 public class MediaPickerActivity extends BasePickerActivity {
 
     private ControlUtil util;
-    private final int permissionCode = 1, previewCode = permissionCode + 1;
+    public static final int PREVIEW_CODE = 1;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_media_picker);
-        PermissionActivity.checkPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE, permissionCode);
         util = new ControlUtil(this);
         util.onRestoreInstanceState(savedInstanceState);
-    }
-
-    /**
-     * 获取到权限后初始化
-     */
-    private void init() {
         util.startLoader();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != RESULT_OK){
+            return;
+        }
         switch (requestCode) {
-            case permissionCode:
-                if (resultCode == RESULT_OK) {
-                    // 成功
-                    init();
-                } else {
-                    ToastUtils.showLong(this, R.string.string_media_picker_no_storage_permission);
-                    finish();
-                    return;
-                }
+            case PREVIEW_CODE:
+                sendResult(this);
                 break;
-            case previewCode:
-                break;
+        }
+    }
+
+    /**
+     * send result
+     * @param activity activity
+     */
+    public static void sendResult(Activity activity){
+        Intent intent = new Intent();
+        intent.putStringArrayListExtra(Constant.EXTRA_CHOOSE_DATA, new ArrayList<>(PickerBean.getInstance().chooseList));
+        activity.setResult(RESULT_OK,intent);
+        activity.finish();
+    }
+
+    public static void startPreview(Activity activity){
+        Intent intent = new Intent(activity, PreviewActivity.class);
+        //intent.putParcelableArrayListExtra(Constant.EXTRA_CHOOSE_DATA, new ArrayList<>(PickerBean.getInstance().chooseList));
+        activity.startActivityForResult(intent, PREVIEW_CODE);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (util != null){
+            util.onSaveInstanceState(outState);
+        }
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if (util != null){
+            util.onRestoreInstanceState(savedInstanceState);
         }
     }
 }

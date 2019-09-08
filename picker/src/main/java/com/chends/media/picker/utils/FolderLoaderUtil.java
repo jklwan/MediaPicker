@@ -10,7 +10,6 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 
-import com.chends.media.picker.BuildConfig;
 import com.chends.media.picker.listener.FolderLoaderCallback;
 import com.chends.media.picker.loader.FolderLoader;
 import com.chends.media.picker.model.Constant;
@@ -28,13 +27,12 @@ public class FolderLoaderUtil implements LoaderManager.LoaderCallbacks<Cursor> {
     private Context context;
     private LoaderManager manager;
     private FolderLoaderCallback mCallback;
-    private int mCurrentSelection;
+    private int mCurrentSelection = 0;
 
     FolderLoaderUtil(AppCompatActivity activity, FolderLoaderCallback callback) {
         context = activity;
         this.mCallback = callback;
         manager = activity.getSupportLoaderManager();
-        LoaderManager.enableDebugLogging(BuildConfig.DEBUG);
     }
 
     void startLoader() {
@@ -52,54 +50,60 @@ public class FolderLoaderUtil implements LoaderManager.LoaderCallbacks<Cursor> {
         List<FolderBean> list = new ArrayList<>();
         if (cursor != null && cursor.getCount() > 0) {
             PickerBean data = PickerBean.getInstance();
-            int totalCount = 0, videoCount = 0, audioCount = 0, coverType = Constant.TYPE_IMAGE;
-            String coverPath = "", imageCover = "", videoCover = "", audioCover = "";
+            int totalCount = 0, videoCount = 0, audioCount = 0, iCount, vCount = 0, aCount = 0;
+            String coverPath = "", mimeType = "", imageCover, imageMime, videoCover = "", videoMime = "",
+                    audioCover = "", audioMime = "";
             if (data.hasAll) {
                 // 混合查询
                 while (cursor.moveToNext()) {
                     FolderBean folder = FolderBean.singleOf(cursor);
                     if (TextUtils.isEmpty(coverPath)) {
                         coverPath = folder.getCoverPath();
-                        coverType = folder.getCoverType();
+                        mimeType = folder.getMimeType();
                     }
                     totalCount += folder.getCount();
-                    int vCount = 0, aCount = 0;
                     if (data.hasVideo) {
                         vCount = cursor.getInt(cursor.getColumnIndex(SelectUtil.VIDEO_COUNT));
                         videoCount += vCount;
-                        if (vCount > 0 && TextUtils.isEmpty(videoCover)) {
+                        if (vCount > 0 && (TextUtils.isEmpty(videoCover) || TextUtils.isEmpty(videoMime))) {
                             videoCover = cursor.getString(cursor.getColumnIndex(SelectUtil.VIDEO_COVER));
+                            videoMime = cursor.getString(cursor.getColumnIndex(SelectUtil.VIDEO_MIME_TYPE));
                         }
                     }
                     if (data.hasAudio) {
                         aCount = cursor.getInt(cursor.getColumnIndex(SelectUtil.AUDIO_COUNT));
                         audioCount += aCount;
-                        if (aCount > 0 && TextUtils.isEmpty(audioCover)) {
+                        if (aCount > 0 && (TextUtils.isEmpty(audioCover) || TextUtils.isEmpty(audioMime))) {
                             audioCover = cursor.getString(cursor.getColumnIndex(SelectUtil.AUDIO_COVER));
+                            audioMime = cursor.getString(cursor.getColumnIndex(SelectUtil.AUDIO_MIME_TYPE));
                         }
                     }
 
                     int count = folder.getCount() - vCount - aCount;
-                    if (data.hasImage && count > 0) {
-                        imageCover = cursor.getString(cursor.getColumnIndex(SelectUtil.IMAGE_COVER));
-                        list.add(FolderBean.valueOfTypeCount(cursor, imageCover, Constant.TYPE_IMAGE, count));
+                    if (data.hasImage) {
+                        iCount = cursor.getInt(cursor.getColumnIndex(SelectUtil.IMAGE_COUNT));
+                        if (iCount > 0) {
+                            imageCover = cursor.getString(cursor.getColumnIndex(SelectUtil.IMAGE_COVER));
+                            imageMime = cursor.getString(cursor.getColumnIndex(SelectUtil.IMAGE_MIME_TYPE));
+                            list.add(FolderBean.valueOfTypeCount(cursor, imageCover, imageMime, count));
+                        }
                     }
                 }
                 if (data.hasAudio) {
                     // 添加：所有音频
-                    FolderBean allAudio = new FolderBean(audioCover, Constant.TYPE_AUDIO,
-                            Constant.Folder_Id_All_Audio, Constant.Folder_Name_All_Audio, audioCount);
+                    FolderBean allAudio = new FolderBean(audioCover, audioMime, Constant.Folder_Id_All_Audio,
+                            Constant.Folder_Name_All_Audio, audioCount);
                     list.add(0, allAudio);
                 }
                 if (data.hasVideo) {
                     // 添加：所有视频
-                    FolderBean allVideo = new FolderBean(videoCover, Constant.TYPE_VIDEO,
-                            Constant.Folder_Id_All_Video, Constant.Folder_Name_All_Video, videoCount);
+                    FolderBean allVideo = new FolderBean(videoCover, videoMime, Constant.Folder_Id_All_Video,
+                            Constant.Folder_Name_All_Video, videoCount);
                     list.add(0, allVideo);
                 }
                 // 不添加所有图片！
                 // 添加：所有文件
-                FolderBean all = new FolderBean(coverPath, coverType,
+                FolderBean all = new FolderBean(coverPath, mimeType,
                         Constant.Folder_Id_All, Constant.Folder_Name_All, totalCount);
                 list.add(0, all);
             } else {
@@ -128,13 +132,13 @@ public class FolderLoaderUtil implements LoaderManager.LoaderCallbacks<Cursor> {
                     totalCount += folder.getCount();
                     if (TextUtils.isEmpty(coverPath)) {
                         coverPath = folder.getCoverPath();
-                        coverType = folder.getCoverType();
+                        mimeType = folder.getMimeType();
                     }
                     if (data.hasImage) {
                         list.add(folder);
                     }
                 }
-                FolderBean all = new FolderBean(coverPath, coverType, allId, allName, totalCount);
+                FolderBean all = new FolderBean(coverPath, mimeType, allId, allName, totalCount);
                 list.add(0, all);
             }
         }

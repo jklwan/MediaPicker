@@ -4,7 +4,6 @@ import android.database.Cursor;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 
-import com.chends.media.picker.MimeType;
 import com.chends.media.picker.utils.SelectUtil;
 
 /**
@@ -16,40 +15,39 @@ public class FolderBean {
     /**
      * 封面
      */
-    private String mCoverPath;
+    private final String mCoverPath;
     /**
-     * 封面图片类型（图片，音视频）
+     * 封面类型
      */
-    @Constant.ItemType
-    private int coverType;
+    private final String mimeType;
+
     /**
      * 文件夹id
      */
-    private String mId;
+    private final String mId;
     /**
      * 文件夹名称
      */
-    private String mDisplayName;
+    private final String mDisplayName;
     /**
      * 总数
      */
-    private int mCount;
+    private final int mCount;
 
     /**
      * @param mCoverPath   封面
-     * @param coverType    封面类型
      * @param mId          文件夹id
      * @param mDisplayName 显示名称
      * @param mCount       总数
+     * @param mimeType     封面类型
      */
-    public FolderBean(String mCoverPath, int coverType, String mId, String mDisplayName, int mCount) {
+    public FolderBean(String mCoverPath, String mimeType, String mId, String mDisplayName, int mCount) {
         this.mCoverPath = mCoverPath;
-        this.coverType = coverType;
+        this.mimeType = mimeType;
         this.mId = mId;
         this.mDisplayName = mDisplayName;
         this.mCount = mCount;
     }
-
 
     /**
      * 单类型
@@ -57,9 +55,8 @@ public class FolderBean {
      * @return folderBean
      */
     public static FolderBean singleOf(Cursor cursor) {
-        String mimeType = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.MIME_TYPE));
         return new FolderBean(cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DATA)),
-                MimeType.getItemType(mimeType),
+                cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.MIME_TYPE)),
                 cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_ID)),
                 cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME)),
                 cursor.getInt(cursor.getColumnIndex(SelectUtil.COLUMN_COUNT)));
@@ -69,12 +66,12 @@ public class FolderBean {
      * folderBean
      * @param cursor    cursor
      * @param coverPath 封面
-     * @param coverType 封面类型
+     * @param mimeType  封面类型
      * @param count     总数
      * @return FolderBean
      */
-    public static FolderBean valueOfTypeCount(Cursor cursor, String coverPath, int coverType, int count) {
-        return new FolderBean(coverPath, coverType,
+    public static FolderBean valueOfTypeCount(Cursor cursor, String coverPath, String mimeType, int count) {
+        return new FolderBean(coverPath, mimeType,
                 cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_ID)),
                 cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME)),
                 count);
@@ -96,9 +93,8 @@ public class FolderBean {
         return mId;
     }
 
-    @Constant.ItemType
-    public int getCoverType() {
-        return coverType;
+    public String getMimeType() {
+        return mimeType;
     }
 
     @Override

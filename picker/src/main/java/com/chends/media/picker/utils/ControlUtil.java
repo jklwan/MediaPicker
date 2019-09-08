@@ -4,16 +4,34 @@ import android.app.Activity;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.OnLifecycleEvent;
+import android.content.Intent;
+import android.content.res.Resources;
+import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.PopupWindow;
+import android.widget.TextView;
 
 import com.chends.media.picker.R;
+import com.chends.media.picker.adapter.ItemAdapter;
 import com.chends.media.picker.listener.FolderLoaderCallback;
+import com.chends.media.picker.listener.FolderSelectedListener;
+import com.chends.media.picker.listener.ItemClickListener;
+import com.chends.media.picker.listener.ItemLoaderCallback;
+import com.chends.media.picker.model.Constant;
 import com.chends.media.picker.model.FolderBean;
-import com.chends.media.picker.widget.MediaPickerView;
+import com.chends.media.picker.model.ItemBean;
+import com.chends.media.picker.model.PickerBean;
+import com.chends.media.picker.ui.MediaPickerActivity;
+import com.chends.media.picker.ui.PreviewActivity;
+import com.chends.media.picker.widget.FolderPopupWindow;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -26,16 +44,56 @@ public class ControlUtil implements LifecycleObserver {
     private WeakReference<AppCompatActivity> reference;
     private FolderLoaderUtil folderUtil;
     private ItemLoaderUtil itemUtil;
-    private MediaPickerView pickerView;
+    private TextView title, finish, folderName, preview;
+    private View topBar, back, folderArrow, bottom, folder;
+    private RecyclerView recyclerView;
+    private ItemAdapter itemAdapter;
+    private FolderPopupWindow popupWindow;
+    private LoaderCallBack callBack;
 
     public ControlUtil(AppCompatActivity activity) {
         this.reference = new WeakReference<>(activity);
         activity.getLifecycle().addObserver(this);
-        LoaderCallBack callBack = new LoaderCallBack();
-        folderUtil = new FolderLoaderUtil(activity,callBack);
-        //itemUtil = new ItemLoaderUtil();
-        pickerView = new MediaPickerView(activity);
-        pickerView.setClickListener(new PickerClick());
+        callBack = new LoaderCallBack();
+        folderUtil = new FolderLoaderUtil(activity, callBack);
+        itemUtil = new ItemLoaderUtil(activity, callBack);
+        initView(activity, callBack);
+    }
+
+    private void initView(Activity activity, FolderSelectedListener listener) {
+        topBar = activity.findViewById(R.id.topBar);
+        back = activity.findViewById(R.id.topBar_back);
+        title = activity.findViewById(R.id.topBar_title);
+        finish = activity.findViewById(R.id.topBar_finish);
+        recyclerView = activity.findViewById(R.id.recyclerView);
+        bottom = activity.findViewById(R.id.picker_bottom);
+        folder = activity.findViewById(R.id.picker_folder);
+        folderName = activity.findViewById(R.id.picker_folder_name);
+        folderArrow = activity.findViewById(R.id.picker_folder_arrow);
+        preview = activity.findViewById(R.id.picker_preview);
+        finish.setEnabled(false);
+        bottom.setVisibility(View.GONE);
+        preview.setEnabled(false);
+        int height = Resources.getSystem().getDisplayMetrics().heightPixels - PickerUtil.getStatusHeight(activity) -
+                activity.getResources().getDimensionPixelSize(R.dimen.dimen_media_picker_top_bar) -
+                activity.getResources().getDimensionPixelSize(R.dimen.dimen_media_picker_bottom_bar);
+        popupWindow = FolderPopupWindow.create(activity, ViewGroup.LayoutParams.MATCH_PARENT, height);
+        popupWindow.setSelectListener(listener);
+        popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                onShowDismissPopup(false);
+            }
+        });
+        setClickListener(new PickerClick());
+        recyclerView.setLayoutManager(new GridLayoutManager(activity, PickerBean.getInstance().spanCount));
+    }
+
+    private void setClickListener(View.OnClickListener listener) {
+        back.setOnClickListener(listener);
+        finish.setOnClickListener(listener);
+        folder.setOnClickListener(listener);
+        preview.setOnClickListener(listener);
     }
 
     private class PickerClick implements View.OnClickListener {
@@ -44,11 +102,16 @@ public class ControlUtil implements LifecycleObserver {
             if (v.getId() == R.id.topBar_back) {
                 reference.get().onBackPressed();
             } else if (v.getId() == R.id.topBar_finish) {
-
+                if (!PickerBean.getInstance().chooseList.isEmpty()){
+                    MediaPickerActivity.sendResult(reference.get());
+                }
             } else if (v.getId() == R.id.picker_folder) {
-
+                popupWindow.show(topBar);
+                onShowDismissPopup(true);
             } else if (v.getId() == R.id.picker_preview) {
-
+                if (!PickerBean.getInstance().chooseList.isEmpty()){
+                    MediaPickerActivity.startPreview(reference.get());
+                }
             }
         }
     }
@@ -62,24 +125,113 @@ public class ControlUtil implements LifecycleObserver {
         }
     }
 
-    private class LoaderCallBack implements FolderLoaderCallback{
+    private class LoaderCallBack implements FolderSelectedListener, FolderLoaderCallback,
+            ItemLoaderCallback, ItemClickListener {
+
+        @Override
+        public void onSelected(FolderBean bean) {
+            if (checkActivity()) {
+                popupWindow.dismiss();
+                title.setText(bean.getDisplayName());
+                folderName.setText(bean.getDisplayName());
+                if (checkItemUtil()) {
+                    itemUtil.startLoader(bean.getId());
+                }
+            }
+        }
+
         @Override
         public void onFolderLoaderFinish(@NonNull List<FolderBean> list) {
             if (checkActivity()) {
                 if (list.isEmpty()) {
                     ToastUtils.showLong(reference.get(), R.string.string_media_picker_no_media);
                 } else {
-                    pickerView.onFolderLoad(list);
+                    bottom.setVisibility(View.VISIBLE);
+                    popupWindow.setData(list);
+                    popupWindow.setSelect(folderUtil.getCurrentSelection());
+                    title.setText(list.get(folderUtil.getCurrentSelection()).getDisplayName());
+                    updateFinish();
+                    folderName.setText(title.getText());
                 }
-
             }
         }
 
         @Override
         public void onFolderLoaderReset() {
             if (checkActivity()) {
-                pickerView.onFolderLoaderReset();
+                popupWindow.setData(null);
             }
+        }
+
+        @Override
+        public void onItemLoaderFinish(Cursor cursor) {
+            if (itemAdapter == null) {
+                itemAdapter = new ItemAdapter(cursor, MediaStore.MediaColumns._ID);
+                itemAdapter.setClickListener(callBack);
+                recyclerView.setAdapter(itemAdapter);
+            } else {
+                itemAdapter.swapCursor(cursor);
+            }
+        }
+
+        @Override
+        public void onItemLoaderReset() {
+            if (itemAdapter != null) {
+                itemAdapter.swapCursor(null);
+            }
+        }
+
+        @Override
+        public void onItemClick(ItemBean bean, int position) {
+            if (!PickerUtil.isFileExist(bean.getPath())) {
+                ToastUtils.showShort(reference.get(), reference.get().getString(R.string.string_media_picker_fileNoExist));
+                return;
+            }
+            if (PickerUtil.checkFile(reference.get(), bean)) {
+                // start preview
+                Intent intent = new Intent(reference.get(), PreviewActivity.class);
+                intent.putExtra(Constant.EXTRA_POSITION, position);
+                intent.putExtra(Constant.EXTRA_FOLDER_ID, bean.getId());
+                reference.get().startActivityForResult(intent, MediaPickerActivity.PREVIEW_CODE);
+            } else {
+                ToastUtils.showShort(reference.get(), reference.get().getString(R.string.string_media_picker_fileError));
+            }
+        }
+
+        @Override
+        public void onItemSelectClick(ItemBean bean, int position) {
+            if (!PickerUtil.isFileExist(bean.getPath())) {
+                ToastUtils.showShort(reference.get(), reference.get().getString(R.string.string_media_picker_fileNoExist));
+                return;
+            }
+            if (PickerUtil.checkFile(reference.get(), bean)) {
+                // start select
+                if (PickerUtil.selectPath(reference.get(), bean.getPath())) {
+                    itemAdapter.setChoose(position, bean.getPath());
+                    updateFinish();
+                }
+            } else {
+                ToastUtils.showShort(reference.get(), reference.get().getString(R.string.string_media_picker_fileError));
+            }
+        }
+    }
+
+    /**
+     * 更新finish和preview文字
+     */
+    private void updateFinish() {
+        if (checkActivity()) {
+            if (PickerBean.getInstance().chooseList.isEmpty()) {
+                finish.setText(R.string.string_media_picker_finish);
+                preview.setText(R.string.string_media_picker_preview);
+            } else {
+                finish.setText(reference.get().getString(R.string.string_media_picker_finish_format,
+                        PickerBean.getInstance().maxNum, PickerBean.getInstance().chooseList.size()));
+                preview.setText(reference.get().getString(R.string.string_media_picker_preview_format,
+                        PickerBean.getInstance().maxNum, PickerBean.getInstance().chooseList.size()));
+            }
+            finish.setEnabled(!PickerBean.getInstance().chooseList.isEmpty());
+            preview.setEnabled(!PickerBean.getInstance().chooseList.isEmpty());
         }
     }
 
@@ -103,19 +255,33 @@ public class ControlUtil implements LifecycleObserver {
         }
     }
 
+    private void onShowDismissPopup(boolean show) {
+        folderArrow.animate().cancel();
+        if (show) {
+            folderArrow.animate().rotation(180).setDuration(200).start();
+        } else {
+            folderArrow.animate().rotation(0).setDuration(200).start();
+        }
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+    public void onPause() {
+        popupWindow.dismiss();
+    }
+
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     public void onDestroy() {
         if (checkFolderUtil()) {
             folderUtil.onDestroy();
         }
         if (checkItemUtil()) {
-            //itemUtil.onDestroy();
+            itemUtil.onDestroy();
         }
     }
 
-    private boolean checkActivity(){
+    private boolean checkActivity() {
         Activity activity;
-        if (reference != null && (activity = reference.get()) != null && !activity.isFinishing()){
+        if (reference != null && (activity = reference.get()) != null && !activity.isFinishing()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
                 return !activity.isDestroyed();
             }
