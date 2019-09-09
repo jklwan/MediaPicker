@@ -52,11 +52,7 @@ public class PreviewCursorPagerAdapter extends FragmentPagerAdapter {
             throw new IllegalStateException("getItem:move cursor to position " + position);
         }
 
-        String path = null;
-        if (getMediaItem(position) != null){
-            path = getMediaItem(position).getPath();
-        }
-        return PreviewFragment.newInstance(path).setCallback(callback);
+        return PreviewFragment.newInstance(getMediaItem(position)).setCallback(callback);
     }
 
     @Override

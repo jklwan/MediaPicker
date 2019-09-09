@@ -158,20 +158,21 @@ public class ItemAdapter extends RecyclerViewCursorAdapter<ItemAdapter.ItemHolde
          * @param bean bean
          */
         private void loadImage(ItemBean bean) {
+            image.setImageResource(R.drawable.ic_media_picker_image_default);
             if (PickerBean.getInstance().loader != null) {
                 int type = MimeType.getItemType(bean.getMimeType());
                 switch (type) {
                     case Constant.TYPE_IMAGE:
-                        PickerBean.getInstance().loader.loadImage(image, bean.getPath(),
-                                wh, wh, true, MimeType.isGif(bean.getMimeType()));
+                        PickerBean.getInstance().loader.loadImageThumbnail(image, bean.getPath(),
+                                wh, wh, MimeType.isGif(bean.getMimeType()));
                         break;
                     case Constant.TYPE_VIDEO:
-                        PickerBean.getInstance().loader.loadVideo(image, bean.getPath(),
-                                wh, wh, true);
+                        PickerBean.getInstance().loader.loadVideoThumbnail(image, bean.getPath(),
+                                wh, wh);
                         break;
                     case Constant.TYPE_AUDIO:
-                        PickerBean.getInstance().loader.loadAudio(image, bean.getPath(),
-                                wh, wh, true);
+                        PickerBean.getInstance().loader.loadAudioThumbnail(image, bean.getPath(),
+                                wh, wh);
                         break;
                 }
             }

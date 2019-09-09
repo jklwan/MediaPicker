@@ -186,9 +186,9 @@ public class PickerUtil {
     /**
      * select点击
      * @param context context
-     * @param path    path
+     * @param item    item
      */
-    public static boolean selectPath(Context context, String path) {
+    public static boolean selectPath(Context context, ItemBean item) {
         if (PickerBean.getInstance().chooseList.size() >= PickerBean.getInstance().maxNum) {
             int resId;
             if (!PickerBean.getInstance().hasAll && PickerBean.getInstance().hasImage) {
@@ -199,10 +199,13 @@ public class PickerUtil {
             ToastUtils.showShort(context, context.getString(resId));
             return false;
         }
+        String path = item.getPath();
         if (PickerBean.getInstance().chooseList.contains(path)) {
             PickerBean.getInstance().chooseList.remove(path);
+            PickerBean.getInstance().chooseItem.remove(item);
         } else {
             PickerBean.getInstance().chooseList.add(path);
+            PickerBean.getInstance().chooseItem.add(item);
         }
         return true;
     }

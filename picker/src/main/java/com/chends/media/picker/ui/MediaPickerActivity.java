@@ -56,7 +56,7 @@ public class MediaPickerActivity extends BasePickerActivity {
 
     public static void startPreview(Activity activity){
         Intent intent = new Intent(activity, PreviewActivity.class);
-        //intent.putParcelableArrayListExtra(Constant.EXTRA_CHOOSE_DATA, new ArrayList<>(PickerBean.getInstance().chooseList));
+        intent.putParcelableArrayListExtra(Constant.EXTRA_CHOOSE_DATA, new ArrayList<>(PickerBean.getInstance().chooseItem));
         activity.startActivityForResult(intent, PREVIEW_CODE);
     }
 

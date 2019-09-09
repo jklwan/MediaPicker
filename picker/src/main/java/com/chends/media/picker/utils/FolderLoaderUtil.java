@@ -49,6 +49,9 @@ public class FolderLoaderUtil implements LoaderManager.LoaderCallbacks<Cursor> {
     public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
         List<FolderBean> list = new ArrayList<>();
         if (cursor != null && cursor.getCount() > 0) {
+            if (cursor.getPosition() != -1) {
+                cursor.moveToPosition(-1);
+            }
             PickerBean data = PickerBean.getInstance();
             int totalCount = 0, videoCount = 0, audioCount = 0, iCount, vCount = 0, aCount = 0;
             String coverPath = "", mimeType = "", imageCover, imageMime, videoCover = "", videoMime = "",

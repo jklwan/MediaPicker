@@ -20,5 +20,10 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':picker')
     implementation deps.appcompat_v7
+    implementation deps.recyclerview_v7
     implementation deps.constraintLayout
+    implementation deps.exifinterface
+    implementation deps.glide_loader
+    implementation deps.glide_factory
+    implementation deps.okhttp
 }

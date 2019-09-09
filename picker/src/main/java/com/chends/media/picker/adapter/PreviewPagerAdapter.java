@@ -46,11 +46,7 @@ public class PreviewPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        String path = null;
-        if (getMediaItem(position) != null){
-            path = getMediaItem(position).getPath();
-        }
-        return PreviewFragment.newInstance(path).setCallback(callback);
+        return PreviewFragment.newInstance(getMediaItem(position)).setCallback(callback);
     }
 
     @Override

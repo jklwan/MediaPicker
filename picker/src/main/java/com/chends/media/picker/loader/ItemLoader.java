@@ -28,6 +28,11 @@ public class ItemLoader extends CursorLoader {
                 SelectUtil.getItemSelection(folderId), null, SelectUtil.SORT_ORDER);
     }
 
+    public static ItemLoader search(Context context){
+        return new ItemLoader(context, SelectUtil.getFolderUri(), SelectUtil.getItemProjection(),
+                SelectUtil.getSearchSelection(), null, SelectUtil.SORT_ORDER);
+    }
+
     @Override
     public Cursor loadInBackground() {
         return super.loadInBackground();

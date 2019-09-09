@@ -6,18 +6,23 @@ ext {
             'compileSdk': 27,
             'buildTools': '28.0.3',
             'targetSdk' : 27,
-            'minSdk' : 14
+            'minSdk'    : 14
     ]
     deps = [
-            support_v4          : "com.android.support:support-v4:$supportVersion",
-            appcompat_v7        : "com.android.support:appcompat-v7:$supportVersion",
-            recyclerview_v7     : "com.android.support:recyclerview-v7:$supportVersion",
-            design              : "com.android.support:design:$supportVersion",
-            cardView            : "com.android.support:cardview-v7:$supportVersion",
-            exifinterface       : "com.android.support:exifinterface:$supportVersion",
-            multidex            : 'com.android.support:multidex:1.0.3',
-            multidex_in         : 'com.android.support:multidex-instrumentation:1.0.3',
-            constraintLayout    : 'com.android.support.constraint:constraint-layout:1.1.3',
-            subsampling_image   : 'com.davemorrissey.labs:subsampling-scale-image-view:3.10.0'
+            support_v4       : "com.android.support:support-v4:$supportVersion",
+            appcompat_v7     : "com.android.support:appcompat-v7:$supportVersion",
+            recyclerview_v7  : "com.android.support:recyclerview-v7:$supportVersion",
+            annotations      : "com.android.support:support-annotations:$supportVersion",
+            design           : "com.android.support:design:$supportVersion",
+            cardView         : "com.android.support:cardview-v7:$supportVersion",
+            exifinterface    : "com.android.support:exifinterface:$supportVersion",
+            multidex         : 'com.android.support:multidex:1.0.3',
+            multidex_in      : 'com.android.support:multidex-instrumentation:1.0.3',
+            constraintLayout : 'com.android.support.constraint:constraint-layout:1.1.3',
+            subsampling_image: 'com.davemorrissey.labs:subsampling-scale-image-view:3.10.0',
+            big_image_viewer : 'com.github.piasy:BigImageViewer:1.5.7',
+            glide_loader     : 'com.github.piasy:GlideImageLoader:1.5.7',
+            glide_factory    : 'com.github.piasy:GlideImageViewFactory:1.5.7',
+            okhttp           : 'com.squareup.okhttp3:okhttp:3.12.3'
     ]
 }

@@ -34,7 +34,10 @@ import com.chends.media.picker.ui.PreviewActivity;
 import com.chends.media.picker.widget.FolderPopupWindow;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 管理
@@ -102,14 +105,14 @@ public class ControlUtil implements LifecycleObserver {
             if (v.getId() == R.id.topBar_back) {
                 reference.get().onBackPressed();
             } else if (v.getId() == R.id.topBar_finish) {
-                if (!PickerBean.getInstance().chooseList.isEmpty()){
+                if (!PickerBean.getInstance().chooseList.isEmpty()) {
                     MediaPickerActivity.sendResult(reference.get());
                 }
             } else if (v.getId() == R.id.picker_folder) {
                 popupWindow.show(topBar);
                 onShowDismissPopup(true);
             } else if (v.getId() == R.id.picker_preview) {
-                if (!PickerBean.getInstance().chooseList.isEmpty()){
+                if (!PickerBean.getInstance().chooseList.isEmpty()) {
                     MediaPickerActivity.startPreview(reference.get());
                 }
             }
@@ -120,6 +123,22 @@ public class ControlUtil implements LifecycleObserver {
      * 开始获取数据前提是必须有存储卡读写权限
      */
     public void startLoader() {
+        if (PickerBean.getInstance().chooseList.isEmpty()) {
+            startLoadFolder();
+        } else {
+            // 初始化
+            if (checkItemUtil()) {
+                itemUtil.search();
+            } else {
+                startLoadFolder();
+            }
+        }
+    }
+
+    /**
+     * 开始加载文件夹列表
+     */
+    private void startLoadFolder() {
         if (checkFolderUtil()) {
             folderUtil.startLoader();
         }
@@ -136,6 +155,9 @@ public class ControlUtil implements LifecycleObserver {
                 folderName.setText(bean.getDisplayName());
                 if (checkItemUtil()) {
                     itemUtil.startLoader(bean.getId());
+                }
+                if (checkFolderUtil()){
+                    folderUtil.setStateCurrentSelection(popupWindow.getSelection());
                 }
             }
         }
@@ -164,20 +186,43 @@ public class ControlUtil implements LifecycleObserver {
         }
 
         @Override
-        public void onItemLoaderFinish(Cursor cursor) {
-            if (itemAdapter == null) {
-                itemAdapter = new ItemAdapter(cursor, MediaStore.MediaColumns._ID);
-                itemAdapter.setClickListener(callBack);
-                recyclerView.setAdapter(itemAdapter);
+        public void onItemLoaderFinish(Cursor cursor, boolean isSearch) {
+            if (isSearch) {
+                Map<String, ItemBean> maps = new HashMap<>();
+                while (cursor.moveToNext()) {
+                    ItemBean bean = ItemBean.valueOf(cursor);
+                    maps.put(bean.getPath(), bean);
+                }
+                List<String> choose = PickerBean.getInstance().chooseList;
+                List<String> delList = new ArrayList<>();
+                for (String path : choose) {
+                    if (maps.containsKey(path)) {
+                        PickerBean.getInstance().chooseItem.add(maps.get(path));
+                    } else {
+                        delList.add(path);
+                    }
+                }
+                if (!delList.isEmpty()) {
+                    PickerBean.getInstance().chooseList.removeAll(delList);
+                }
+                startLoadFolder();
             } else {
-                itemAdapter.swapCursor(cursor);
+                if (itemAdapter == null) {
+                    itemAdapter = new ItemAdapter(cursor, MediaStore.MediaColumns._ID);
+                    itemAdapter.setClickListener(callBack);
+                    recyclerView.setAdapter(itemAdapter);
+                } else {
+                    itemAdapter.swapCursor(cursor);
+                }
             }
         }
 
         @Override
-        public void onItemLoaderReset() {
-            if (itemAdapter != null) {
-                itemAdapter.swapCursor(null);
+        public void onItemLoaderReset(boolean isSearch) {
+            if (!isSearch) {
+                if (itemAdapter != null) {
+                    itemAdapter.swapCursor(null);
+                }
             }
         }
 
@@ -206,7 +251,7 @@ public class ControlUtil implements LifecycleObserver {
             }
             if (PickerUtil.checkFile(reference.get(), bean)) {
                 // start select
-                if (PickerUtil.selectPath(reference.get(), bean.getPath())) {
+                if (PickerUtil.selectPath(reference.get(), bean)) {
                     itemAdapter.setChoose(position, bean.getPath());
                     updateFinish();
                 }
@@ -226,9 +271,9 @@ public class ControlUtil implements LifecycleObserver {
                 preview.setText(R.string.string_media_picker_preview);
             } else {
                 finish.setText(reference.get().getString(R.string.string_media_picker_finish_format,
-                        PickerBean.getInstance().maxNum, PickerBean.getInstance().chooseList.size()));
+                        PickerBean.getInstance().chooseList.size(), PickerBean.getInstance().maxNum));
                 preview.setText(reference.get().getString(R.string.string_media_picker_preview_format,
-                        PickerBean.getInstance().maxNum, PickerBean.getInstance().chooseList.size()));
+                        PickerBean.getInstance().chooseList.size(), PickerBean.getInstance().maxNum));
             }
             finish.setEnabled(!PickerBean.getInstance().chooseList.isEmpty());
             preview.setEnabled(!PickerBean.getInstance().chooseList.isEmpty());

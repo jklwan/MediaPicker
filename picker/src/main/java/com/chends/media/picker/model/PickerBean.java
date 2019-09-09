@@ -20,6 +20,7 @@ public final class PickerBean {
     public int maxNum = 1;
     public int spanCount = 3;
     public List<String> chooseList = new ArrayList<>();
+    public List<ItemBean> chooseItem= new ArrayList<>();
     //public long audioLimit = -1;
     //public long videoLimit = -1;
     public Set<String> imageList = new HashSet<>(), videoList = new HashSet<>(),
@@ -48,7 +49,8 @@ public final class PickerBean {
         typeSet = new HashSet<>();
         maxNum = 1;
         spanCount = 3;
-        chooseList = new ArrayList<>();
+        chooseList.clear();
+        chooseItem.clear();
         /*audioLimit = -1;
         videoLimit = -1;*/
         imageList = new HashSet<>();

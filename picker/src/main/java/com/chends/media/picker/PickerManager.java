@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 
 import com.chends.media.picker.model.PickerBean;
 import com.chends.media.picker.ui.MediaPickerActivity;
+import com.chends.media.picker.utils.MediaLoader;
 import com.chends.media.picker.utils.PickerUtil;
 
 import java.util.List;
@@ -69,6 +70,15 @@ public final class PickerManager {
         pickerBean.setAudioLimit(second);
         return this;
     }*/
+
+
+    /**
+     * 图片加载
+     */
+    public PickerManager setLoader(MediaLoader loader) {
+        pickerBean.setLoader(loader);
+        return this;
+    }
 
     /**
      * 开始

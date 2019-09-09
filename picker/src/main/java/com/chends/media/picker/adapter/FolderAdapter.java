@@ -95,6 +95,11 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderHold
         setSelect(newPos);
     }
 
+    public int getSelection(){
+        if (selectItem == null) return 0;
+        return mList.indexOf(selectItem);
+    }
+
     @Override
     public int getItemCount() {
         return mList.size();
@@ -172,20 +177,21 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderHold
          * @param bean bean
          */
         private void loadImage(FolderBean bean) {
+            folderImage.setImageResource(R.drawable.ic_media_picker_image_default);
             if (PickerBean.getInstance().loader != null) {
                 int type = MimeType.getItemType(bean.getMimeType());
                 switch (type) {
                     case Constant.TYPE_IMAGE:
-                        PickerBean.getInstance().loader.loadImage(folderImage, bean.getCoverPath(),
-                                wh, wh, true, MimeType.isGif(bean.getMimeType()));
+                        PickerBean.getInstance().loader.loadImageThumbnail(folderImage, bean.getCoverPath(),
+                                wh, wh,  MimeType.isGif(bean.getMimeType()));
                         break;
                     case Constant.TYPE_VIDEO:
-                        PickerBean.getInstance().loader.loadVideo(folderImage, bean.getCoverPath(),
-                                wh, wh, true);
+                        PickerBean.getInstance().loader.loadVideoThumbnail(folderImage, bean.getCoverPath(),
+                                wh, wh);
                         break;
                     case Constant.TYPE_AUDIO:
-                        PickerBean.getInstance().loader.loadAudio(folderImage, bean.getCoverPath(),
-                                wh, wh, true);
+                        PickerBean.getInstance().loader.loadAudioThumbnail(folderImage, bean.getCoverPath(),
+                                wh, wh);
                         break;
                 }
             }

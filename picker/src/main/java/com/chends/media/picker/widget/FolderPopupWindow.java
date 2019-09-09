@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.math.MathUtils;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -33,20 +34,19 @@ public class FolderPopupWindow extends PopupWindow {
     private FolderAdapter mAdapter;
 
     public static FolderPopupWindow create(Activity activity, int width, int height) {
-        ViewGroup group = (ViewGroup)activity.getWindow().getDecorView();
-        View contentView = LayoutInflater.from(activity).inflate(R.layout.layout_media_picker_folder, group,false);
+        ViewGroup group = (ViewGroup) activity.getWindow().getDecorView();
+        View contentView = LayoutInflater.from(activity).inflate(R.layout.layout_media_picker_folder, group, false);
         return new FolderPopupWindow(width, height, contentView);
     }
 
     private FolderPopupWindow(int width, int height, View contentView) {
         super(contentView, width, height, true);
         this.mContentView = contentView;
-        if (height > 0){
+        if (height > 0) {
             int padding = height / 6;
-            contentView.setPadding(0,padding,0,0);
+            contentView.setPadding(0, padding, 0, 0);
         }
         context = contentView.getContext();
-
         setAnimationStyle(R.style.anim_popup_folder);
         setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(context, R.color.color_media_picker_folder_bg)));
         setTouchable(true);
@@ -69,7 +69,14 @@ public class FolderPopupWindow extends PopupWindow {
      * init view
      */
     private void initViews() {
+        mContentView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+            }
+        });
         RecyclerView recyclerView = mContentView.findViewById(R.id.recyclerView);
+        recyclerView.setOnClickListener(null);
         mAdapter = new FolderAdapter(context);
         recyclerView.setAdapter(mAdapter);
     }
@@ -86,15 +93,20 @@ public class FolderPopupWindow extends PopupWindow {
         mAdapter.setList(list);
     }
 
-    public void setSelect(int position){
+    public void setSelect(int position) {
         mAdapter.setSelect(position);
+    }
+
+    public int getSelection() {
+        return MathUtils.clamp(mAdapter.getSelection(),
+                0, mAdapter.getItemCount() - 1);
     }
 
     /**
      * cancel
      */
-    private void cancelAnim(){
-        if (animation != null && !animation.hasEnded()){
+    private void cancelAnim() {
+        if (animation != null && !animation.hasEnded()) {
             animation.cancel();
         }
     }
@@ -103,7 +115,7 @@ public class FolderPopupWindow extends PopupWindow {
      * 显示
      * @param view view
      */
-    public void show(View view){
+    public void show(View view) {
         cancelAnim();
         showAsDropDown(view);
         animation = AnimationUtils.loadAnimation(context, R.anim.folder_slide_in);

@@ -8,12 +8,17 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.LoaderManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.TextView;
 
 import com.chends.media.picker.MediaPicker;
 import com.chends.media.picker.MimeType;
 import com.chends.media.picker.utils.ToastUtils;
+import com.github.piasy.biv.BigImageViewer;
+import com.github.piasy.biv.loader.glide.GlideImageLoader;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
@@ -21,12 +26,16 @@ public class MainActivity extends AppCompatActivity {
     private String permission = Manifest.permission.WRITE_EXTERNAL_STORAGE;
     private final int requestCode = 1, chooseCode = 2;
     private View clickView;
+    private TextView view;
+    private List<String> choose = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        BigImageViewer.initialize(GlideImageLoader.with(getApplicationContext()));
         LoaderManager.enableDebugLogging(BuildConfig.DEBUG);
+        setContentView(R.layout.activity_main);
+        view = findViewById(R.id.text);
     }
 
     @Override
@@ -51,8 +60,8 @@ public class MainActivity extends AppCompatActivity {
      * @param success success
      */
     private void setResult(boolean success) {
-        if (!success){
-            ToastUtils.showLong(this,"无法获取存储卡权限");
+        if (!success) {
+            ToastUtils.showLong(this, "无法获取存储卡权限");
             return;
         }
 
@@ -61,12 +70,16 @@ public class MainActivity extends AppCompatActivity {
                 MediaPicker.with(this)
                         .addTypes(MimeType.allImage())
                         .maxNum(8)
+                        .chooseList(choose)
+                        .setLoader(new MyMediaLoader())
                         .start(chooseCode);
                 break;
             case R.id.chooseVideo:
                 MediaPicker.with(this)
                         .addTypes(MimeType.allVideo())
                         .maxNum(3)
+                        .chooseList(choose)
+                        .setLoader(new MyMediaLoader())
                         .start(chooseCode);
                 break;
             case R.id.chooseIVideo:
@@ -74,6 +87,8 @@ public class MainActivity extends AppCompatActivity {
                         .addTypes(MimeType.allImage())
                         .addTypes(MimeType.allVideo())
                         .maxNum(5)
+                        .chooseList(choose)
+                        .setLoader(new MyMediaLoader())
                         .start(chooseCode);
                 break;
             case R.id.chooseIAudio:
@@ -81,6 +96,8 @@ public class MainActivity extends AppCompatActivity {
                         .addTypes(MimeType.allImage())
                         .addTypes(allAudio())
                         .maxNum(8)
+                        .chooseList(choose)
+                        .setLoader(new MyMediaLoader())
                         .start(chooseCode);
                 break;
             case R.id.chooseAVideo:
@@ -88,6 +105,8 @@ public class MainActivity extends AppCompatActivity {
                         .addTypes(MimeType.allVideo())
                         .addTypes(allAudio())
                         .maxNum(3)
+                        .chooseList(choose)
+                        .setLoader(new MyMediaLoader())
                         .start(chooseCode);
                 break;
             case R.id.chooseAll:
@@ -95,12 +114,18 @@ public class MainActivity extends AppCompatActivity {
                         .addTypes(MimeType.all())
                         .addTypes(allAudio())
                         .maxNum(9)
+                        .chooseList(choose)
+                        .setLoader(new MyMediaLoader())
                         .start(chooseCode);
                 break;
         }
     }
 
+
     public void xmlClick(View view) {
+        if (clickView != view){
+            choose.clear();
+        }
         clickView = view;
         if (!PermissionUtil.checkPermission(this, permission)) {
             ActivityCompat.requestPermissions(this, new String[]{permission}, requestCode);
@@ -109,8 +134,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private Set<String> allAudio(){
-        return new HashSet<String>(){{
+    private Set<String> allAudio() {
+        return new HashSet<String>() {{
             add("audio/mpeg");
             add("audio/ogg");
             add("audio/aac");
@@ -120,8 +145,19 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK && requestCode == chooseCode) {
-
+        if (resultCode == RESULT_OK && requestCode == chooseCode && data != null) {
+            Bundle bundle = data.getExtras();
+            if (bundle != null) {
+                List<String> list = MediaPicker.getData(data.getExtras());
+                StringBuilder builder = new StringBuilder("结果：");
+                for (String item : list) {
+                    builder.append("\n").append(item);
+                }
+                view.setText(builder.toString());
+                if (!list.isEmpty()){
+                    choose.addAll(list);
+                }
+            }
         }
     }
 }

@@ -73,7 +73,7 @@ public class MediaPicker {
      * @param data bundle
      * @return data
      */
-    public List<String> getData(Bundle data){
+    public static List<String> getData(Bundle data){
         return data.getStringArrayList(Constant.EXTRA_CHOOSE_DATA);
     }
 }

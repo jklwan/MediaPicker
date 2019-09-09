@@ -8,6 +8,8 @@ import com.chends.media.picker.MimeType;
 import com.chends.media.picker.model.Constant;
 import com.chends.media.picker.model.PickerBean;
 
+import java.util.List;
+
 /**
  * 查询
  * @author chends create on 2019/9/5.
@@ -325,5 +327,22 @@ public class SelectUtil {
                     .append(folderId);
         }
         return selection.append(MIN_SIZE).toString();
+    }
+
+    /**
+     * 查询条件
+     * @return selection
+     */
+    public static String getSearchSelection(){
+        StringBuilder selection = new StringBuilder(MediaStore.MediaColumns.DATA);
+        selection.append(" in (");
+        List<String> list = PickerBean.getInstance().chooseList;
+        for (String item : list){
+            if (!TextUtils.isEmpty(item)) {
+                selection.append("'").append(item).append("'");
+            }
+        }
+        selection.append(")").append(MIN_SIZE);
+        return selection.toString();
     }
 }

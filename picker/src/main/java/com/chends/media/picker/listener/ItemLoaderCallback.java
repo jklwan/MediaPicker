@@ -7,7 +7,7 @@ import android.database.Cursor;
  * @author chends create on 2019/9/7.
  */
 public interface ItemLoaderCallback {
-    void onItemLoaderFinish(Cursor cursor);
+    void onItemLoaderFinish(Cursor cursor, boolean isSearch);
 
-    void onItemLoaderReset();
+    void onItemLoaderReset(boolean isSearch);
 }

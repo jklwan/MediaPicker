@@ -19,6 +19,7 @@ import com.chends.media.picker.model.Constant;
 import com.chends.media.picker.model.ItemBean;
 import com.chends.media.picker.model.PickerBean;
 import com.chends.media.picker.utils.ItemLoaderUtil;
+import com.github.piasy.biv.BigImageViewer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,9 +74,9 @@ public class PreviewActivity extends BasePickerActivity {
                 updateTitle();
             }
         });
-        if (useCursor){
+        if (useCursor) {
             mAdapter = new PreviewCursorPagerAdapter(getSupportFragmentManager(), MediaStore.MediaColumns._ID);
-            ((PreviewCursorPagerAdapter)mAdapter).setCallback(new PickerCallback() {
+            ((PreviewCursorPagerAdapter) mAdapter).setCallback(new PickerCallback() {
                 @Override
                 public void onChooseChange(boolean choose, String path) {
                     updateFinish();
@@ -83,7 +84,7 @@ public class PreviewActivity extends BasePickerActivity {
             });
         } else {
             mAdapter = new PreviewPagerAdapter(getSupportFragmentManager(), list);
-            ((PreviewPagerAdapter)mAdapter).setCallback(new PickerCallback() {
+            ((PreviewPagerAdapter) mAdapter).setCallback(new PickerCallback() {
                 @Override
                 public void onChooseChange(boolean choose, String path) {
                     updateFinish();
@@ -95,18 +96,22 @@ public class PreviewActivity extends BasePickerActivity {
         if (useCursor) {
             util = new ItemLoaderUtil(this, new ItemLoaderCallback() {
                 @Override
-                public void onItemLoaderFinish(Cursor cursor) {
-                    ((PreviewCursorPagerAdapter)mAdapter).swapCursor(cursor);
-                    if (selectPosition < 0 || selectPosition >= mAdapter.getCount()) {
-                        selectPosition = 0;
+                public void onItemLoaderFinish(Cursor cursor, boolean isSearch) {
+                    if (!isSearch) {
+                        ((PreviewCursorPagerAdapter) mAdapter).swapCursor(cursor);
+                        if (selectPosition < 0 || selectPosition >= mAdapter.getCount()) {
+                            selectPosition = 0;
+                        }
+                        viewPager.setCurrentItem(selectPosition, false);
+                        updateTitle();
                     }
-                    viewPager.setCurrentItem(selectPosition, false);
-                    updateTitle();
                 }
 
                 @Override
-                public void onItemLoaderReset() {
-                    ((PreviewCursorPagerAdapter)mAdapter).swapCursor(null);
+                public void onItemLoaderReset(boolean isSearch) {
+                    if (!isSearch) {
+                        ((PreviewCursorPagerAdapter) mAdapter).swapCursor(null);
+                    }
                 }
             });
             util.startLoader(folderId);
@@ -139,7 +144,7 @@ public class PreviewActivity extends BasePickerActivity {
             finish.setText(getString(R.string.string_media_picker_finish));
         } else {
             finish.setText(getString(R.string.string_media_picker_finish_format,
-                    PickerBean.getInstance().maxNum, PickerBean.getInstance().chooseList.size()));
+                    PickerBean.getInstance().chooseList.size(), PickerBean.getInstance().maxNum));
         }
         finish.setEnabled(!PickerBean.getInstance().chooseList.isEmpty());
     }
@@ -170,6 +175,7 @@ public class PreviewActivity extends BasePickerActivity {
         if (useCursor && util != null) {
             util.onDestroy();
         }
+        BigImageViewer.imageLoader().cancelAll();
         super.onDestroy();
     }
 }

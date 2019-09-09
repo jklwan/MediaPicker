@@ -30,7 +30,11 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation deps.appcompat_v7
-    implementation deps.recyclerview_v7
-    implementation deps.subsampling_image
+    compileOnly deps.appcompat_v7
+    compileOnly deps.recyclerview_v7
+    api deps.annotations
+    api deps.subsampling_image
+    api(deps.big_image_viewer){
+        exclude group:'com.android.support'
+    }
 }
