@@ -15,12 +15,12 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.chends.media.picker.R;
 import com.chends.media.picker.adapter.ItemAdapter;
 import com.chends.media.picker.listener.FolderLoaderCallback;
+import com.chends.media.picker.listener.FolderPopupListener;
 import com.chends.media.picker.listener.FolderSelectedListener;
 import com.chends.media.picker.listener.ItemClickListener;
 import com.chends.media.picker.listener.ItemLoaderCallback;
@@ -80,14 +80,15 @@ public class ControlUtil implements LifecycleObserver {
                 activity.getResources().getDimensionPixelSize(R.dimen.dimen_media_picker_bottom_bar);
         popupWindow = FolderPopupWindow.create(activity, ViewGroup.LayoutParams.MATCH_PARENT, height);
         popupWindow.setSelectListener(listener);
-        popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
-            @Override
-            public void onDismiss() {
-                onShowDismissPopup(false);
-            }
-        });
+        popupWindow.setPopupListener(callBack);
         setClickListener(new PickerClick());
         recyclerView.setLayoutManager(new GridLayoutManager(activity, PickerBean.getInstance().spanCount));
+        recyclerView.addItemDecoration(new CommonItemDecoration
+                .Builder(PickerBean.getInstance().spanCount)
+                .setDecoration(PickerUtil.dp2px(1.5f))
+                .setIncludeLR(true)
+                .setIncludeTB(true)
+                .build());
     }
 
     private void setClickListener(View.OnClickListener listener) {
@@ -144,13 +145,16 @@ public class ControlUtil implements LifecycleObserver {
         }
     }
 
-    private class LoaderCallBack implements FolderSelectedListener, FolderLoaderCallback,
+    private class LoaderCallBack implements FolderSelectedListener, FolderLoaderCallback, FolderPopupListener,
             ItemLoaderCallback, ItemClickListener {
+        @Override
+        public void onDismiss() {
+            onShowDismissPopup(false);
+        }
 
         @Override
         public void onSelected(FolderBean bean) {
             if (checkActivity()) {
-                popupWindow.dismiss();
                 title.setText(bean.getDisplayName());
                 folderName.setText(bean.getDisplayName());
                 if (checkItemUtil()) {
@@ -159,6 +163,7 @@ public class ControlUtil implements LifecycleObserver {
                 if (checkFolderUtil()) {
                     folderUtil.setStateCurrentSelection(popupWindow.getSelection());
                 }
+                popupWindow.dismiss();
             }
         }
 

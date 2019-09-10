@@ -16,6 +16,7 @@ import android.widget.PopupWindow;
 
 import com.chends.media.picker.R;
 import com.chends.media.picker.adapter.FolderAdapter;
+import com.chends.media.picker.listener.FolderPopupListener;
 import com.chends.media.picker.listener.FolderSelectedListener;
 import com.chends.media.picker.model.FolderBean;
 
@@ -32,6 +33,7 @@ public class FolderPopupWindow extends PopupWindow {
     private Animation animation;
 
     private FolderAdapter mAdapter;
+    private FolderPopupListener listener;
 
     public static FolderPopupWindow create(Activity activity, int width, int height) {
         ViewGroup group = (ViewGroup) activity.getWindow().getDecorView();
@@ -83,6 +85,10 @@ public class FolderPopupWindow extends PopupWindow {
 
     public void setSelectListener(FolderSelectedListener listener) {
         mAdapter.setListener(listener);
+    }
+
+    public void setPopupListener(FolderPopupListener listener) {
+        this.listener = listener;
     }
 
     /**
@@ -143,6 +149,9 @@ public class FolderPopupWindow extends PopupWindow {
             }
         });
         mContentView.startAnimation(animation);
+        if (listener != null){
+            listener.onDismiss();
+        }
 
     }
 

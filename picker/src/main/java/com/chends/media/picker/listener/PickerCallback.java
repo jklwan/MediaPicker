@@ -13,11 +13,4 @@ public abstract class PickerCallback {
 
     }
 
-    /**
-     * 选中的图片有问题时
-     */
-    public void onChooseError(String path) {
-
-    }
-
 }

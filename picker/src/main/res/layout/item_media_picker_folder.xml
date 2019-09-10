@@ -2,63 +2,79 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="fill_parent"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="center"
-    android:orientation="horizontal"
-    android:background="@drawable/bg_ripple_transparent"
-    android:padding="5dp">
-
-    <FrameLayout
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:background="@drawable/bg_media_picker_folder">
-
-        <android.support.v7.widget.AppCompatImageView
-            android:id="@+id/folder_image"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:scaleType="centerCrop"
-            tools:ignore="contentDescription"
-            android:src="@drawable/ic_media_picker_image_default" />
-    </FrameLayout>
+    android:orientation="vertical">
 
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginLeft="10dp"
-        android:layout_weight="1"
-        android:orientation="vertical">
+        android:background="@drawable/bg_ripple_transparent"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="5dp">
 
-        <TextView
-            android:id="@+id/folder_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textColor="@color/color_media_picker_folder_color"
-            tools:text="@string/string_media_picker_chooseAllImage" />
+        <FrameLayout
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:background="@drawable/bg_media_picker_folder">
 
-        <TextView
-            android:id="@+id/folder_count"
-            android:layout_width="wrap_content"
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/folder_image"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_media_picker_image_default"
+                tools:ignore="contentDescription" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textColor="@color/color_media_picker_folder_color"
-            tools:text="0张" />
+            android:layout_marginStart="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/folder_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/color_media_picker_folder_color"
+                tools:text="@string/string_media_picker_chooseAllImage" />
+
+            <TextView
+                android:id="@+id/folder_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/color_media_picker_folder_color"
+                tools:text="0张" />
+        </LinearLayout>
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/folder_selected"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginEnd="15dp"
+            android:layout_marginRight="15dp"
+            app:srcCompat="@drawable/ic_media_picker_folder_check" />
+
     </LinearLayout>
 
-    <android.support.v7.widget.AppCompatImageView
-        android:id="@+id/folder_selected"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
+    <View
+        android:id="@+id/folder_line"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
         android:layout_marginStart="5dp"
         android:layout_marginLeft="5dp"
-        android:layout_marginEnd="15dp"
-        android:layout_marginRight="15dp"
-        app:srcCompat="@drawable/ic_media_picker_folder_check" />
-
+        android:layout_marginEnd="5dp"
+        android:layout_marginRight="5dp"
+        android:background="@color/color_media_picker_folder_line" />
 </LinearLayout>

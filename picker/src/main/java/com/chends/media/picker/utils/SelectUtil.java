@@ -8,7 +8,7 @@ import com.chends.media.picker.MimeType;
 import com.chends.media.picker.model.Constant;
 import com.chends.media.picker.model.PickerBean;
 
-import java.util.List;
+import java.util.Iterator;
 
 /**
  * 查询
@@ -36,42 +36,6 @@ public class SelectUtil {
      * 总数量
      */
     public static final String COLUMN_COUNT = "count";
-    /**
-     * 图片数量
-     */
-    static final String IMAGE_COUNT = "image_count";
-    /**
-     * 图片类型
-     */
-    static final String IMAGE_MIME_TYPE = "image_mime_type";
-    /**
-     * 图片封面
-     */
-    static final String IMAGE_COVER = "image_cover";
-    /**
-     * 视频数量
-     */
-    static final String VIDEO_COUNT = "video_count";
-    /**
-     * 视频类型
-     */
-    static final String VIDEO_MIME_TYPE = "video_mime_type";
-    /**
-     * 视频封面
-     */
-    static final String VIDEO_COVER = "video_cover";
-    /**
-     * 音频数量
-     */
-    static final String AUDIO_COUNT = "audio_count";
-    /**
-     * 音频类型
-     */
-    static final String AUDIO_MIME_TYPE = "audio_mime_type";
-    /**
-     * 音频封面
-     */
-    static final String AUDIO_COVER = "audio_cover";
 
     /**
      * projection
@@ -168,12 +132,11 @@ public class SelectUtil {
         PickerBean data = PickerBean.getInstance();
         // 是否混合查询
         StringBuilder selection = new StringBuilder();
+        folderProjection = PROJECTION;
         if (data.hasAll) {
             folderUri = FILE_URI;
-            folderProjection = buildProjection(data);
             selection.append(allSelection());
         } else {
-            folderProjection = PROJECTION;
             if (data.hasImage) {
                 folderUri = IMAGE_URI;
                 selection.append(imageSelection());
@@ -185,7 +148,11 @@ public class SelectUtil {
                 selection.append(audioSelection());
             }
         }
-        folderSelection = selection.append(MIN_SIZE).append(GROUP_BUCKET).toString();
+        selection.append(MIN_SIZE).append(GROUP_BUCKET);
+        if (data.hasAll) {
+            selection.append("),(").append( MediaStore.Files.FileColumns.MEDIA_TYPE);
+        }
+        folderSelection = selection.toString();
     }
 
     /**
@@ -196,70 +163,6 @@ public class SelectUtil {
         return getInstance().folderUri;
     }
 
-    /**
-     * 构建 projection
-     * @return String[]
-     */
-    private String[] buildProjection(PickerBean data) {
-        String[] result;
-        int length, srcLength;
-        length = srcLength = PROJECTION.length;
-        if (data.hasImage) {
-            length += 3;
-        }
-        if (data.hasVideo) {
-            length += 3;
-        }
-        if (data.hasAudio) {
-            length += 3;
-        }
-        result = new String[length];
-        System.arraycopy(PROJECTION, 0, result, 0, srcLength);
-        srcLength--;
-        if (data.hasImage) {
-            srcLength++;
-            result[srcLength] = "(case when " + MediaStore.MediaColumns.MIME_TYPE + " in " +
-                    MimeType.getSelectionType(PickerBean.getInstance().imageList) + " then " +
-                    MediaStore.MediaColumns.DATA + " else '' end) as " + IMAGE_COVER;
-            srcLength++;
-            result[srcLength] = "(case when " + MediaStore.MediaColumns.MIME_TYPE + " in " +
-                    MimeType.getSelectionType(PickerBean.getInstance().imageList) + " then " +
-                    MediaStore.MediaColumns.MIME_TYPE + " else '' end) as " + IMAGE_MIME_TYPE;
-            srcLength++;
-            result[srcLength] = "sum(case when " + MediaStore.MediaColumns.MIME_TYPE + " in " +
-                    MimeType.getSelectionType(PickerBean.getInstance().imageList) +
-                    " then 1 else 0 end) as " + IMAGE_COUNT;
-        }
-        if (data.hasVideo) {
-            srcLength++;
-            result[srcLength] = "(case when " + MediaStore.MediaColumns.MIME_TYPE + " in " +
-                    MimeType.getSelectionType(PickerBean.getInstance().videoList) + " then " +
-                    MediaStore.MediaColumns.DATA + " else '' end) as " + VIDEO_COVER;
-            srcLength++;
-            result[srcLength] = "(case when " + MediaStore.MediaColumns.MIME_TYPE + " in " +
-                    MimeType.getSelectionType(PickerBean.getInstance().videoList) + " then " +
-                    MediaStore.MediaColumns.MIME_TYPE + " else '' end) as " + VIDEO_MIME_TYPE;
-            srcLength++;
-            result[srcLength] = "sum(case when " + MediaStore.MediaColumns.MIME_TYPE + " in " +
-                    MimeType.getSelectionType(PickerBean.getInstance().videoList) +
-                    " then 1 else 0 end) as " + VIDEO_COUNT;
-        }
-        if (data.hasAudio) {
-            srcLength++;
-            result[srcLength] = "(case when " + MediaStore.MediaColumns.MIME_TYPE + " in " +
-                    MimeType.getSelectionType(PickerBean.getInstance().audioList) + " then " +
-                    MediaStore.MediaColumns.DATA + " else '' end) as " + AUDIO_COVER;
-            srcLength++;
-            result[srcLength] = "(case when " + MediaStore.MediaColumns.MIME_TYPE + " in " +
-                    MimeType.getSelectionType(PickerBean.getInstance().audioList) + " then " +
-                    MediaStore.MediaColumns.MIME_TYPE + " else '' end) as " + AUDIO_MIME_TYPE;
-            srcLength++;
-            result[srcLength] = "sum(case when " + MediaStore.MediaColumns.MIME_TYPE + " in " +
-                    MimeType.getSelectionType(PickerBean.getInstance().audioList) +
-                    " then 1 else 0 end) as " + AUDIO_COUNT;
-        }
-        return result;
-    }
 
     /**
      * 获取 folderProjection
@@ -356,10 +259,13 @@ public class SelectUtil {
     public static String getSearchSelection() {
         StringBuilder selection = new StringBuilder(MediaStore.MediaColumns.DATA);
         selection.append(" in (");
-        List<String> list = PickerBean.getInstance().chooseList;
-        for (String item : list) {
-            if (!TextUtils.isEmpty(item)) {
-                selection.append("'").append(item).append("'");
+        Iterator<String> it = PickerBean.getInstance().chooseList.iterator();
+        String item;
+        if (it.hasNext()) {
+            selection.append("'").append(it.next()).append("'");
+            while (it.hasNext()) {
+                selection.append(",");
+                selection.append("'").append(it.next()).append("'");
             }
         }
         selection.append(")").append(MIN_SIZE);

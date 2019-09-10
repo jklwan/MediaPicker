@@ -68,7 +68,7 @@ public class ItemAdapter extends RecyclerViewCursorAdapter<ItemAdapter.ItemHolde
     public class ItemHolder extends RecyclerView.ViewHolder {
         private ImageView image, select;
         private View root, avLayout, filter;
-        private TextView type, duration, audioName;
+        private TextView type, duration, audioName, imageType;
 
         public ItemHolder(View itemView) {
             super(itemView);
@@ -79,6 +79,7 @@ public class ItemAdapter extends RecyclerViewCursorAdapter<ItemAdapter.ItemHolde
             type = itemView.findViewById(R.id.media_type);
             duration = itemView.findViewById(R.id.duration);
             audioName = itemView.findViewById(R.id.audioName);
+            imageType = itemView.findViewById(R.id.imageType);
             filter = itemView.findViewById(R.id.image_filter);
         }
 
@@ -90,10 +91,16 @@ public class ItemAdapter extends RecyclerViewCursorAdapter<ItemAdapter.ItemHolde
             if (itemType == Constant.TYPE_IMAGE) {
                 avLayout.setVisibility(View.GONE);
                 audioName.setVisibility(View.GONE);
+                if (MimeType.isGif(bean.getMimeType())){
+                    imageType.setVisibility(View.VISIBLE);
+                    imageType.setText(R.string.string_media_picker_gif);
+                } else {
+                    imageType.setVisibility(View.GONE);
+                }
             } else {
+                imageType.setVisibility(View.GONE);
                 avLayout.setVisibility(View.VISIBLE);
                 duration.setText(getDuration(bean.getDuration()));
-
                 if (itemType == Constant.TYPE_VIDEO) {
                     type.setText(R.string.string_media_picker_type_video);
                     audioName.setVisibility(View.GONE);
@@ -112,7 +119,6 @@ public class ItemAdapter extends RecyclerViewCursorAdapter<ItemAdapter.ItemHolde
          * 绝对路径获取名称
          * @param path path
          * @return name
-         *
          */
         private String getName(String path) {
             int last = path.lastIndexOf('#');
@@ -120,10 +126,10 @@ public class ItemAdapter extends RecyclerViewCursorAdapter<ItemAdapter.ItemHolde
                 last = path.length();
             }
             int lasDot = path.lastIndexOf('.');
-            if (lasDot != -1 && lasDot < last){
+            if (lasDot != -1 && lasDot < last) {
                 last = lasDot;
             }
-            int lastPath = path.lastIndexOf('/');
+            int lastPath = path.lastIndexOf('/') + 1;
             String ext = "";
             if (lastPath > 0) {
                 ext = path.substring(lastPath, last);

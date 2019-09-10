@@ -95,7 +95,7 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderHold
         setSelect(newPos);
     }
 
-    public int getSelection(){
+    public int getSelection() {
         if (selectItem == null) return 0;
         return mList.indexOf(selectItem);
     }
@@ -112,7 +112,7 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderHold
 
     @Override
     public void onBindViewHolder(@NonNull FolderHolder holder, int position) {
-        holder.bindData(getItem(position));
+        holder.bindData(getItem(position), position);
         holder.itemView.setOnClickListener(new ItemClick(holder));
     }
 
@@ -147,7 +147,7 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderHold
     public class FolderHolder extends RecyclerView.ViewHolder {
         private ImageView folderImage;
         private TextView folderName, folderCount;
-        private View folderSelected;
+        private View folderSelected, folderLine;
 
         public FolderHolder(View itemView) {
             super(itemView);
@@ -155,9 +155,10 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderHold
             folderName = itemView.findViewById(R.id.folder_name);
             folderCount = itemView.findViewById(R.id.folder_count);
             folderSelected = itemView.findViewById(R.id.folder_selected);
+            folderLine = itemView.findViewById(R.id.folder_line);
         }
 
-        public void bindData(FolderBean bean) {
+        public void bindData(FolderBean bean, int position) {
             if (bean != null) {
                 loadImage(bean);
                 folderName.setText(bean.getDisplayName());
@@ -170,6 +171,7 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderHold
                 folderCount.setText(context.getString(res, bean.getCount()));
                 setSelected(bean.equals(selectItem));
             }
+            folderLine.setVisibility(position < getItemCount() - 1 ? View.VISIBLE : View.GONE);
         }
 
         /**
@@ -183,7 +185,7 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderHold
                 switch (type) {
                     case Constant.TYPE_IMAGE:
                         PickerBean.getInstance().loader.loadImageThumbnail(folderImage, bean.getCoverPath(),
-                                wh, wh,  MimeType.isGif(bean.getMimeType()));
+                                wh, wh, MimeType.isGif(bean.getMimeType()));
                         break;
                     case Constant.TYPE_VIDEO:
                         PickerBean.getInstance().loader.loadVideoThumbnail(folderImage, bean.getCoverPath(),

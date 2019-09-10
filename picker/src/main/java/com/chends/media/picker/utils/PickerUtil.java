@@ -189,21 +189,21 @@ public class PickerUtil {
      * @param item    item
      */
     public static boolean selectPath(Context context, ItemBean item) {
-        if (PickerBean.getInstance().chooseList.size() >= PickerBean.getInstance().maxNum) {
-            int resId;
-            if (!PickerBean.getInstance().hasAll && PickerBean.getInstance().hasImage) {
-                resId = R.string.string_media_picker_chooseMaxImage;
-            } else {
-                resId = R.string.string_media_picker_chooseMaxFile;
-            }
-            ToastUtils.showShort(context, context.getString(resId));
-            return false;
-        }
         String path = item.getPath();
         if (PickerBean.getInstance().chooseList.contains(path)) {
             PickerBean.getInstance().chooseList.remove(path);
             PickerBean.getInstance().chooseItem.remove(item);
         } else {
+            if (PickerBean.getInstance().chooseList.size() >= PickerBean.getInstance().maxNum) {
+                int resId;
+                if (!PickerBean.getInstance().hasAll && PickerBean.getInstance().hasImage) {
+                    resId = R.string.string_media_picker_chooseMaxImage;
+                } else {
+                    resId = R.string.string_media_picker_chooseMaxFile;
+                }
+                ToastUtils.showShort(context, context.getString(resId, PickerBean.getInstance().maxNum));
+                return false;
+            }
             PickerBean.getInstance().chooseList.add(path);
             PickerBean.getInstance().chooseItem.add(item);
         }

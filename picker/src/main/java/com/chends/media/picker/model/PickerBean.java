@@ -25,7 +25,7 @@ public final class PickerBean {
     //public long videoLimit = -1;
     public Set<String> imageList = new HashSet<>(), videoList = new HashSet<>(),
             audioList = new HashSet<>();
-    public boolean hasImage, hasVideo, hasAudio, hasAll, showPreview;
+    public boolean hasImage, hasVideo, hasAudio, hasAll, showPreview, reset = false;
     public MediaLoader loader;
 
     private PickerBean() {
@@ -61,6 +61,7 @@ public final class PickerBean {
         hasVideo = false;
         hasAudio = false;
         showPreview = false;
+        reset = true;
         loader = null;
     }
 

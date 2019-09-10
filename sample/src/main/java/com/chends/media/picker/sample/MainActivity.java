@@ -155,6 +155,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 view.setText(builder.toString());
                 if (!list.isEmpty()){
+                    choose.clear();
                     choose.addAll(list);
                 }
             }

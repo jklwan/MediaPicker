@@ -10,6 +10,7 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 
+import com.chends.media.picker.MimeType;
 import com.chends.media.picker.listener.FolderLoaderCallback;
 import com.chends.media.picker.loader.FolderLoader;
 import com.chends.media.picker.model.Constant;
@@ -54,7 +55,7 @@ public class FolderLoaderUtil implements LoaderManager.LoaderCallbacks<Cursor> {
             }
             PickerBean data = PickerBean.getInstance();
             int totalCount = 0, videoCount = 0, audioCount = 0, iCount, vCount = 0, aCount = 0;
-            String coverPath = "", mimeType = "", imageCover, imageMime, videoCover = "", videoMime = "",
+            String coverPath = "", mimeType = "", videoCover = "", videoMime = "",
                     audioCover = "", audioMime = "";
             if (data.hasAll) {
                 // 混合查询
@@ -65,29 +66,26 @@ public class FolderLoaderUtil implements LoaderManager.LoaderCallbacks<Cursor> {
                         mimeType = folder.getMimeType();
                     }
                     totalCount += folder.getCount();
-                    if (data.hasVideo) {
-                        vCount = cursor.getInt(cursor.getColumnIndex(SelectUtil.VIDEO_COUNT));
+                    int type = MimeType.getItemType(folder.getMimeType());
+                    if (type == Constant.TYPE_IMAGE) {
+                        // 图片
+                        iCount = cursor.getInt(cursor.getColumnIndex(SelectUtil.COLUMN_COUNT));
+                        if (iCount > 0) {
+                            list.add(folder);
+                        }
+                    } else if (type == Constant.TYPE_VIDEO) {
+                        vCount = cursor.getInt(cursor.getColumnIndex(SelectUtil.COLUMN_COUNT));
                         videoCount += vCount;
                         if (vCount > 0 && (TextUtils.isEmpty(videoCover) || TextUtils.isEmpty(videoMime))) {
-                            videoCover = cursor.getString(cursor.getColumnIndex(SelectUtil.VIDEO_COVER));
-                            videoMime = cursor.getString(cursor.getColumnIndex(SelectUtil.VIDEO_MIME_TYPE));
+                            videoCover = folder.getCoverPath();
+                            videoMime = folder.getMimeType();
                         }
-                    }
-                    if (data.hasAudio) {
-                        aCount = cursor.getInt(cursor.getColumnIndex(SelectUtil.AUDIO_COUNT));
+                    } else if (type == Constant.TYPE_AUDIO) {
+                        aCount = cursor.getInt(cursor.getColumnIndex(SelectUtil.COLUMN_COUNT));
                         audioCount += aCount;
                         if (aCount > 0 && (TextUtils.isEmpty(audioCover) || TextUtils.isEmpty(audioMime))) {
-                            audioCover = cursor.getString(cursor.getColumnIndex(SelectUtil.AUDIO_COVER));
-                            audioMime = cursor.getString(cursor.getColumnIndex(SelectUtil.AUDIO_MIME_TYPE));
-                        }
-                    }
-
-                    if (data.hasImage) {
-                        iCount = cursor.getInt(cursor.getColumnIndex(SelectUtil.IMAGE_COUNT));
-                        if (iCount > 0) {
-                            imageCover = cursor.getString(cursor.getColumnIndex(SelectUtil.IMAGE_COVER));
-                            imageMime = cursor.getString(cursor.getColumnIndex(SelectUtil.IMAGE_MIME_TYPE));
-                            list.add(FolderBean.valueOfTypeCount(cursor, imageCover, imageMime, iCount));
+                            audioCover = folder.getCoverPath();
+                            audioMime = folder.getMimeType();
                         }
                     }
                 }
