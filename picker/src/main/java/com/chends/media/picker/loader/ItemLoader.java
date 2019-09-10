@@ -24,12 +24,17 @@ public class ItemLoader extends CursorLoader {
      * 构建 ItemLoader
      */
     public static ItemLoader create(Context context, String folderId){
-        return new ItemLoader(context, SelectUtil.getItemUri(folderId), SelectUtil.getItemProjection(),
+        return new ItemLoader(context, SelectUtil.getItemUri(folderId), SelectUtil.getItemProjection(folderId),
                 SelectUtil.getItemSelection(folderId), null, SelectUtil.SORT_ORDER);
     }
 
+    /**
+     * 首次搜索已选择的文件
+     * @param context context
+     * @return loader
+     */
     public static ItemLoader search(Context context){
-        return new ItemLoader(context, SelectUtil.getFolderUri(), SelectUtil.getItemProjection(),
+        return new ItemLoader(context, SelectUtil.getFolderUri(), SelectUtil.getItemSearchProjection(),
                 SelectUtil.getSearchSelection(), null, SelectUtil.SORT_ORDER);
     }
 

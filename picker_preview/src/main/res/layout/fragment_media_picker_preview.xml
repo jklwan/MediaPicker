@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/match">
+
+    <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+        android:id="@+id/imageView"
+        style="@style/match" />
+
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/gifImage"
+        style="@style/match"
+        android:visibility="gone" />
+</FrameLayout>

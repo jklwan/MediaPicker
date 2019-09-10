@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.OnLifecycleEvent;
-import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Build;
@@ -25,12 +24,10 @@ import com.chends.media.picker.listener.FolderLoaderCallback;
 import com.chends.media.picker.listener.FolderSelectedListener;
 import com.chends.media.picker.listener.ItemClickListener;
 import com.chends.media.picker.listener.ItemLoaderCallback;
-import com.chends.media.picker.model.Constant;
 import com.chends.media.picker.model.FolderBean;
 import com.chends.media.picker.model.ItemBean;
 import com.chends.media.picker.model.PickerBean;
 import com.chends.media.picker.ui.MediaPickerActivity;
-import com.chends.media.picker.ui.PreviewActivity;
 import com.chends.media.picker.widget.FolderPopupWindow;
 
 import java.lang.ref.WeakReference;
@@ -76,6 +73,7 @@ public class ControlUtil implements LifecycleObserver {
         preview = activity.findViewById(R.id.picker_preview);
         finish.setEnabled(false);
         bottom.setVisibility(View.GONE);
+        preview.setVisibility(PickerBean.getInstance().showPreview ? View.VISIBLE : View.GONE);
         preview.setEnabled(false);
         int height = Resources.getSystem().getDisplayMetrics().heightPixels - PickerUtil.getStatusHeight(activity) -
                 activity.getResources().getDimensionPixelSize(R.dimen.dimen_media_picker_top_bar) -
@@ -113,7 +111,9 @@ public class ControlUtil implements LifecycleObserver {
                 onShowDismissPopup(true);
             } else if (v.getId() == R.id.picker_preview) {
                 if (!PickerBean.getInstance().chooseList.isEmpty()) {
-                    MediaPickerActivity.startPreview(reference.get());
+                    if (!MediaPickerActivity.startPreview(reference.get())) {
+                        ToastUtils.showLong(reference.get(), R.string.string_media_picker_no_preview);
+                    }
                 }
             }
         }
@@ -156,7 +156,7 @@ public class ControlUtil implements LifecycleObserver {
                 if (checkItemUtil()) {
                     itemUtil.startLoader(bean.getId());
                 }
-                if (checkFolderUtil()){
+                if (checkFolderUtil()) {
                     folderUtil.setStateCurrentSelection(popupWindow.getSelection());
                 }
             }
@@ -233,11 +233,9 @@ public class ControlUtil implements LifecycleObserver {
                 return;
             }
             if (PickerUtil.checkFile(reference.get(), bean)) {
-                // start preview
-                Intent intent = new Intent(reference.get(), PreviewActivity.class);
-                intent.putExtra(Constant.EXTRA_POSITION, position);
-                intent.putExtra(Constant.EXTRA_FOLDER_ID, bean.getId());
-                reference.get().startActivityForResult(intent, MediaPickerActivity.PREVIEW_CODE);
+                if (!MediaPickerActivity.startPreview(reference.get(), position, bean.getId())) {
+                    onItemSelectClick(bean, position);
+                }
             } else {
                 ToastUtils.showShort(reference.get(), reference.get().getString(R.string.string_media_picker_fileError));
             }

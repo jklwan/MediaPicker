@@ -1,11 +1,10 @@
-package com.chends.media.picker.ui;
+package com.chends.media.picker.preview.ui;
 
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,7 +18,7 @@ import com.chends.media.picker.model.Constant;
 import com.chends.media.picker.model.ItemBean;
 import com.chends.media.picker.model.PickerBean;
 import com.chends.media.picker.utils.PickerUtil;
-import com.github.piasy.biv.view.BigImageView;
+import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 
 /**
  * 预览页
@@ -69,10 +68,9 @@ public class PreviewFragment extends Fragment {
         }
         select = rootView.findViewById(R.id.select);
         if (item != null) {
-            BigImageView imageView = rootView.findViewById(R.id.imageView);
+            SubsamplingScaleImageView imageView = rootView.findViewById(R.id.imageView);
             int type = MimeType.getItemType(item.getMimeType());
-            imageView.setFailureImage(ContextCompat.getDrawable(requireActivity(),
-                    R.drawable.ic_media_picker_image_default));
+
             if (PickerBean.getInstance().loader != null) {
                 if (type == Constant.TYPE_IMAGE) {
                     PickerBean.getInstance().loader.loadImageFull(imageView,

@@ -20,12 +20,12 @@ public final class PickerBean {
     public int maxNum = 1;
     public int spanCount = 3;
     public List<String> chooseList = new ArrayList<>();
-    public List<ItemBean> chooseItem= new ArrayList<>();
+    public List<ItemBean> chooseItem = new ArrayList<>();
     //public long audioLimit = -1;
     //public long videoLimit = -1;
     public Set<String> imageList = new HashSet<>(), videoList = new HashSet<>(),
             audioList = new HashSet<>();
-    public boolean hasImage, hasVideo, hasAudio, hasAll;
+    public boolean hasImage, hasVideo, hasAudio, hasAll, showPreview;
     public MediaLoader loader;
 
     private PickerBean() {
@@ -56,9 +56,11 @@ public final class PickerBean {
         imageList = new HashSet<>();
         videoList = new HashSet<>();
         audioList = new HashSet<>();
+        hasAll = false;
         hasImage = false;
         hasVideo = false;
         hasAudio = false;
+        showPreview = false;
         loader = null;
     }
 
@@ -135,9 +137,17 @@ public final class PickerBean {
     }
 
     /**
+     * 是否显示预览，需要显示时需要引用picker_preview库
+     */
+    private void initPreview() {
+        showPreview = PickerUtil.getPreview() != null;
+    }
+
+    /**
      * init，初始化某些参数
      */
     public void init() {
+        initPreview();
         if (typeSet.isEmpty()) {
             typeSet = MimeType.allImage();
             for (String type : typeSet) {

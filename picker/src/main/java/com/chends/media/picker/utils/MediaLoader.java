@@ -2,7 +2,7 @@ package com.chends.media.picker.utils;
 
 import android.widget.ImageView;
 
-import com.github.piasy.biv.view.BigImageView;
+import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 
 /**
  * MediaLoader
@@ -13,7 +13,7 @@ public abstract class MediaLoader {
 
     }
 
-    public void loadImageFull(BigImageView view, String path, int width, int height, boolean isGif) {
+    public void loadImageFull(SubsamplingScaleImageView view, String path, int width, int height, boolean isGif) {
 
     }
 
@@ -21,7 +21,7 @@ public abstract class MediaLoader {
 
     }
 
-    public void loadVideoFull(BigImageView view, String path, int width, int height) {
+    public void loadVideoFull(SubsamplingScaleImageView view, String path, int width, int height) {
 
     }
 
@@ -29,7 +29,7 @@ public abstract class MediaLoader {
 
     }
 
-    public void loadAudioFull(BigImageView view, String path, int width, int height) {
+    public void loadAudioFull(SubsamplingScaleImageView view, String path, int width, int height) {
 
     }
 }

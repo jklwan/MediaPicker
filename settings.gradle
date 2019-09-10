@@ -1,2 +1,2 @@
-include ':sample', ':picker'
-rootProject.name='MediaPicker'
+include ':sample', ':picker', ':picker_preview'
+rootProject.name = 'MediaPicker'

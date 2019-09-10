@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.chends.media.picker.adapter;
+package com.chends.media.picker.preview.adapter;
 
 import android.database.Cursor;
 import android.support.v4.app.Fragment;
@@ -22,7 +22,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 
 import com.chends.media.picker.listener.PickerCallback;
 import com.chends.media.picker.model.ItemBean;
-import com.chends.media.picker.ui.PreviewFragment;
+import com.chends.media.picker.preview.ui.PreviewFragment;
 
 /**
  * 预览页

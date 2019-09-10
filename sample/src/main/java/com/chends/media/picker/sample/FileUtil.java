@@ -239,12 +239,12 @@ public class FileUtil {
             cursor = context.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                     videoColumns, MediaStore.Audio.Media.DATA + "=?",
                     new String[]{audioPath}, null);
-            if (cursor != null && cursor.moveToFirst()) {
+            if (cursor != null && cursor.getCount() > 0 && cursor.moveToFirst()) {
                 int albumId = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID));
                 tCursor = context.getContentResolver().query(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
                         tColumns, MediaStore.Audio.Albums._ID + "=" + albumId,
                         null, null);
-                if (tCursor != null && tCursor.moveToFirst()) {
+                if (tCursor != null && tCursor.getCount() > 0 && tCursor.moveToFirst()) {
                     return tCursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM_ART));
                 }
             }

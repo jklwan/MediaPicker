@@ -105,7 +105,7 @@ public class PickerUtil {
      * checkFile
      * @param context context
      * @param bean    bean
-     * @return
+     * @return 文件是否有效
      */
     public static boolean checkFile(Context context, ItemBean bean) {
         if (!isFileExist(bean.getPath())) {
@@ -210,4 +210,17 @@ public class PickerUtil {
         return true;
     }
 
+    /**
+     * 获取预览页
+     * @return preview
+     */
+    public static Class getPreview(){
+        Class cls = null;
+        try {
+            cls = Class.forName("com.chends.media.picker.preview.ui.PreviewActivity");
+        } catch (ClassNotFoundException ignore) {
+
+        }
+        return cls;
+    }
 }

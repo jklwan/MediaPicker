@@ -1,14 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    style="@style/match">
+    style="@style/match"
+    android:orientation="vertical">
 
-    <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
-        android:id="@+id/imageView"
+    <include layout="@layout/layout_media_picker_top_bar" />
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewPager"
         style="@style/match" />
+
 
     <android.support.v7.widget.AppCompatImageView
         android:id="@+id/select"
+        app:srcCompat="@drawable/ic_media_picker_checked"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_gravity="end"
@@ -20,6 +25,5 @@
         android:paddingEnd="10dp"
         android:paddingRight="10dp"
         android:paddingBottom="20dp"
-        android:scaleType="fitCenter"
-        app:srcCompat="@drawable/ic_media_picker_checked" />
-</FrameLayout>
+        android:scaleType="fitCenter" />
+</LinearLayout>

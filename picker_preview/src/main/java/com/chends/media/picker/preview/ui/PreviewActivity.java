@@ -1,4 +1,4 @@
-package com.chends.media.picker.ui;
+package com.chends.media.picker.preview.ui;
 
 import android.database.Cursor;
 import android.os.Bundle;
@@ -11,15 +11,15 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.chends.media.picker.R;
-import com.chends.media.picker.adapter.PreviewCursorPagerAdapter;
-import com.chends.media.picker.adapter.PreviewPagerAdapter;
+import com.chends.media.picker.preview.adapter.PreviewCursorPagerAdapter;
+import com.chends.media.picker.preview.adapter.PreviewPagerAdapter;
 import com.chends.media.picker.listener.ItemLoaderCallback;
 import com.chends.media.picker.listener.PickerCallback;
 import com.chends.media.picker.model.Constant;
 import com.chends.media.picker.model.ItemBean;
 import com.chends.media.picker.model.PickerBean;
+import com.chends.media.picker.ui.BasePickerActivity;
 import com.chends.media.picker.utils.ItemLoaderUtil;
-import com.github.piasy.biv.BigImageViewer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -175,7 +175,6 @@ public class PreviewActivity extends BasePickerActivity {
         if (useCursor && util != null) {
             util.onDestroy();
         }
-        BigImageViewer.imageLoader().cancelAll();
         super.onDestroy();
     }
 }

@@ -154,7 +154,7 @@ public class SelectUtil {
      */
     private static String audioSelection() {
         return MediaStore.MediaColumns.MIME_TYPE + " in " +
-                MimeType.getSelectionType(PickerBean.getInstance().videoList);
+                MimeType.getSelectionType(PickerBean.getInstance().audioList);
     }
 
     /**
@@ -298,10 +298,30 @@ public class SelectUtil {
 
     /**
      * 获取 projection
+     * @param folderId 文件夹id
      * @return projection
      */
-    public static String[] getItemProjection() {
-        return ITEM_PROJECTION;
+    public static String[] getItemProjection(String folderId) {
+        if (TextUtils.equals(Constant.Folder_Id_All, folderId) ||
+                TextUtils.equals(Constant.Folder_Id_All_Video, folderId) ||
+                TextUtils.equals(Constant.Folder_Id_All_Audio, folderId)) {
+            return ITEM_PROJECTION;
+        } else {
+            return new String[]{ITEM_PROJECTION[0], ITEM_PROJECTION[1], ITEM_PROJECTION[2]};
+        }
+    }
+
+    /**
+     * 获取 projection
+     * @return projection
+     */
+    public static String[] getItemSearchProjection() {
+        PickerBean data = PickerBean.getInstance();
+        if (data.hasAll || data.hasVideo || data.hasAudio){
+            return ITEM_PROJECTION;
+        } else {
+            return new String[]{ITEM_PROJECTION[0], ITEM_PROJECTION[1], ITEM_PROJECTION[2]};
+        }
     }
 
     /**
@@ -333,11 +353,11 @@ public class SelectUtil {
      * 查询条件
      * @return selection
      */
-    public static String getSearchSelection(){
+    public static String getSearchSelection() {
         StringBuilder selection = new StringBuilder(MediaStore.MediaColumns.DATA);
         selection.append(" in (");
         List<String> list = PickerBean.getInstance().chooseList;
-        for (String item : list){
+        for (String item : list) {
             if (!TextUtils.isEmpty(item)) {
                 selection.append("'").append(item).append("'");
             }

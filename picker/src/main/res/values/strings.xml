@@ -25,4 +25,5 @@
     <string name="string_media_picker_no_media">没有扫描到文件</string>
     <string name="string_media_picker_type_video">视频</string>
     <string name="string_media_picker_type_audio">音频</string>
+    <string name="string_media_picker_no_preview">无法预览</string>
 </resources>

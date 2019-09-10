@@ -9,6 +9,7 @@ import com.chends.media.picker.R;
 import com.chends.media.picker.model.Constant;
 import com.chends.media.picker.model.PickerBean;
 import com.chends.media.picker.utils.ControlUtil;
+import com.chends.media.picker.utils.PickerUtil;
 
 import java.util.ArrayList;
 
@@ -33,7 +34,7 @@ public class MediaPickerActivity extends BasePickerActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode != RESULT_OK){
+        if (resultCode != RESULT_OK) {
             return;
         }
         switch (requestCode) {
@@ -47,23 +48,62 @@ public class MediaPickerActivity extends BasePickerActivity {
      * send result
      * @param activity activity
      */
-    public static void sendResult(Activity activity){
+    public static void sendResult(Activity activity) {
         Intent intent = new Intent();
         intent.putStringArrayListExtra(Constant.EXTRA_CHOOSE_DATA, new ArrayList<>(PickerBean.getInstance().chooseList));
-        activity.setResult(RESULT_OK,intent);
+        activity.setResult(RESULT_OK, intent);
         activity.finish();
     }
 
-    public static void startPreview(Activity activity){
-        Intent intent = new Intent(activity, PreviewActivity.class);
-        intent.putParcelableArrayListExtra(Constant.EXTRA_CHOOSE_DATA, new ArrayList<>(PickerBean.getInstance().chooseItem));
-        activity.startActivityForResult(intent, PREVIEW_CODE);
+    /**
+     * 打开预览页
+     * @param activity activity
+     */
+    public static boolean startPreview(Activity activity) {
+        if (PickerBean.getInstance().showPreview) {
+            Class cls = PickerUtil.getPreview();
+            if (cls != null) {
+                Intent intent = new Intent(activity, cls);
+                intent.putParcelableArrayListExtra(Constant.EXTRA_CHOOSE_DATA, new ArrayList<>(PickerBean.getInstance().chooseItem));
+                try {
+                    activity.startActivityForResult(intent, PREVIEW_CODE);
+                    return true;
+                } catch (Exception e) {
+                    return false;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 打开预览页
+     * @param activity activity
+     * @param position position
+     * @param folderId 文件夹id
+     */
+    public static boolean startPreview(Activity activity, int position, String folderId) {
+        if (PickerBean.getInstance().showPreview) {
+            Class cls = PickerUtil.getPreview();
+            if (cls != null) {
+                Intent intent = new Intent(activity, cls);
+                intent.putExtra(Constant.EXTRA_POSITION, position);
+                intent.putExtra(Constant.EXTRA_FOLDER_ID, folderId);
+                try {
+                    activity.startActivityForResult(intent, PREVIEW_CODE);
+                    return true;
+                } catch (Exception e) {
+                    return false;
+                }
+            }
+        }
+        return false;
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (util != null){
+        if (util != null) {
             util.onSaveInstanceState(outState);
         }
     }
@@ -71,7 +111,7 @@ public class MediaPickerActivity extends BasePickerActivity {
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        if (util != null){
+        if (util != null) {
             util.onRestoreInstanceState(savedInstanceState);
         }
     }

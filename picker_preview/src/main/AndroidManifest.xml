@@ -1,0 +1,10 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.chends.media.picker.preview">
+
+    <application>
+        <activity
+            android:name=".ui.PreviewActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/MediaPicker" />
+    </application>
+</manifest>

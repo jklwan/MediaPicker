@@ -47,7 +47,7 @@ public class ItemAdapter extends RecyclerViewCursorAdapter<ItemAdapter.ItemHolde
     @Override
     public void onBindViewHolder(@NonNull ItemHolder holder, int position, @NonNull List<Object> payloads) {
         if (!payloads.isEmpty() && (payloads.get(0) instanceof String)) {
-            holder.setSelect((String)payloads.get(0));
+            holder.setSelect((String) payloads.get(0));
             return;
         }
         onBindViewHolder(holder, getCursor());
@@ -68,7 +68,7 @@ public class ItemAdapter extends RecyclerViewCursorAdapter<ItemAdapter.ItemHolde
     public class ItemHolder extends RecyclerView.ViewHolder {
         private ImageView image, select;
         private View root, avLayout, filter;
-        private TextView type, duration;
+        private TextView type, duration, audioName;
 
         public ItemHolder(View itemView) {
             super(itemView);
@@ -78,6 +78,7 @@ public class ItemAdapter extends RecyclerViewCursorAdapter<ItemAdapter.ItemHolde
             avLayout = itemView.findViewById(R.id.avLayout);
             type = itemView.findViewById(R.id.media_type);
             duration = itemView.findViewById(R.id.duration);
+            audioName = itemView.findViewById(R.id.audioName);
             filter = itemView.findViewById(R.id.image_filter);
         }
 
@@ -88,15 +89,46 @@ public class ItemAdapter extends RecyclerViewCursorAdapter<ItemAdapter.ItemHolde
             int itemType = MimeType.getItemType(bean.getMimeType());
             if (itemType == Constant.TYPE_IMAGE) {
                 avLayout.setVisibility(View.GONE);
+                audioName.setVisibility(View.GONE);
             } else {
                 avLayout.setVisibility(View.VISIBLE);
-                type.setText(itemType == Constant.TYPE_VIDEO ? R.string.string_media_picker_type_video :
-                        R.string.string_media_picker_type_audio);
                 duration.setText(getDuration(bean.getDuration()));
+
+                if (itemType == Constant.TYPE_VIDEO) {
+                    type.setText(R.string.string_media_picker_type_video);
+                    audioName.setVisibility(View.GONE);
+                } else {
+                    audioName.setText(getName(bean.getPath()));
+                    audioName.setVisibility(View.VISIBLE);
+                    type.setText(R.string.string_media_picker_type_audio);
+                }
             }
             ItemClick click = new ItemClick(this, bean);
             select.setOnClickListener(click);
             root.setOnClickListener(click);
+        }
+
+        /**
+         * 绝对路径获取名称
+         * @param path path
+         * @return name
+         *
+         */
+        private String getName(String path) {
+            int last = path.lastIndexOf('#');
+            if (last < 0) {
+                last = path.length();
+            }
+            int lasDot = path.lastIndexOf('.');
+            if (lasDot != -1 && lasDot < last){
+                last = lasDot;
+            }
+            int lastPath = path.lastIndexOf('/');
+            String ext = "";
+            if (lastPath > 0) {
+                ext = path.substring(lastPath, last);
+            }
+            return ext;
         }
 
         private class ItemClick implements View.OnClickListener {

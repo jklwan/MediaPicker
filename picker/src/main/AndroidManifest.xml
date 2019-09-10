@@ -9,9 +9,5 @@
             android:name=".ui.MediaPickerActivity"
             android:screenOrientation="portrait"
             android:theme="@style/MediaPicker" />
-        <activity
-            android:name=".ui.PreviewActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/MediaPicker" />
     </application>
 </manifest>

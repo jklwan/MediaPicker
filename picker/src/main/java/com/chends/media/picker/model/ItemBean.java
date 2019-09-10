@@ -38,10 +38,15 @@ public class ItemBean implements Parcelable {
      * @return ItemBean
      */
     public static ItemBean valueOf(Cursor cursor) {
+        long duration = 0;
+        int durationIndex = cursor.getColumnIndex(MediaStore.Video.Media.DURATION);
+        if (durationIndex != -1) {
+            duration = cursor.getLong(durationIndex);
+        }
         return new ItemBean(cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns._ID)),
                 cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DATA)),
                 cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.MIME_TYPE)),
-                cursor.getLong(cursor.getColumnIndex(MediaStore.Video.Media.DURATION)));
+                duration);
     }
 
     public String getId() {

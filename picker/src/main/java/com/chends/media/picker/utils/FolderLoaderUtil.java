@@ -82,13 +82,12 @@ public class FolderLoaderUtil implements LoaderManager.LoaderCallbacks<Cursor> {
                         }
                     }
 
-                    int count = folder.getCount() - vCount - aCount;
                     if (data.hasImage) {
                         iCount = cursor.getInt(cursor.getColumnIndex(SelectUtil.IMAGE_COUNT));
                         if (iCount > 0) {
                             imageCover = cursor.getString(cursor.getColumnIndex(SelectUtil.IMAGE_COVER));
                             imageMime = cursor.getString(cursor.getColumnIndex(SelectUtil.IMAGE_MIME_TYPE));
-                            list.add(FolderBean.valueOfTypeCount(cursor, imageCover, imageMime, count));
+                            list.add(FolderBean.valueOfTypeCount(cursor, imageCover, imageMime, iCount));
                         }
                     }
                 }
