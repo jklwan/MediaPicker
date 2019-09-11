@@ -22,5 +22,15 @@
         android:layout_marginBottom="55dp"
         android:textColor="@color/white"
         android:textStyle="bold"
+        android:visibility="gone"
         tools:text="gif info\n音乐.mp3" />
+
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/play"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_gravity="center"
+        android:padding="10dp"
+        android:src="@drawable/ic_media_picker_preview_play"
+        android:visibility="gone" />
 </FrameLayout>

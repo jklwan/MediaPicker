@@ -125,21 +125,12 @@ public class MimeType {
 
     /**
      * 图片类型
-     * @param mimeType mimeType
      * @param path     path
      * @return type
      */
-    public static int getImageType(String mimeType, String path) {
-        if (!TextUtils.isEmpty(mimeType) || !TextUtils.isEmpty(path)) {
-            if (!TextUtils.isEmpty(path)) {
-                return getImageType(path);
-            } else {
-                if (mimeType.equalsIgnoreCase(GIF)) {
-                    return Constant.TYPE_GIF;
-                } else if (mimeType.equalsIgnoreCase(WEBP)) {
-                    return Constant.TYPE_WEBP;
-                }
-            }
+    public static int getImageType(String path) {
+        if (!TextUtils.isEmpty(path)) {
+            return getImageTypeByPath(path);
         }
         return Constant.TYPE_NORMAL;
     }
@@ -151,7 +142,7 @@ public class MimeType {
      * @param path path
      * @return 图片类型
      */
-    private static int getImageType(String path) {
+    private static int getImageTypeByPath(String path) {
         int type = Constant.TYPE_NORMAL;
         try {
             FileInputStream inputStream = new FileInputStream(new File(path));

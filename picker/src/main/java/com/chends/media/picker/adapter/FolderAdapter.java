@@ -185,7 +185,7 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderHold
                 switch (itemType) {
                     case Constant.TYPE_IMAGE:
                         PickerBean.getInstance().loader.loadImageThumbnail(folderImage, bean.getCoverPath(),
-                                wh, wh, MimeType.getImageType(bean.getMimeType(), bean.getCoverPath()));
+                                wh, wh, MimeType.getImageType(bean.getCoverPath()));
                         break;
                     case Constant.TYPE_VIDEO:
                         PickerBean.getInstance().loader.loadVideoThumbnail(folderImage, bean.getCoverPath(),

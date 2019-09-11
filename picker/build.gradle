@@ -36,6 +36,4 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     compileOnly deps.appcompat_v7
     compileOnly deps.recyclerview_v7
-    api deps.annotations
-    api deps.subsampling_image
 }

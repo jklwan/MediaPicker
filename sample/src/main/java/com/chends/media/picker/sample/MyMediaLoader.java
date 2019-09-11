@@ -10,10 +10,6 @@ import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
  */
 public class MyMediaLoader extends MediaLoader {
 
-    private void loadThumbnail(ImageView view, String path, int width, int height){
-        GlideApp.with(view.getContext()).asBitmap().override(width, height).load(path).into(view);
-    }
-
     @Override
     public void loadImageThumbnail(ImageView view, String path, int width, int height, int type) {
         GlideApp.with(view.getContext())

@@ -116,7 +116,7 @@ public class ItemAdapter extends RecyclerViewCursorAdapter<ItemAdapter.ItemHolde
         }
 
         /**
-         * 绝对路径获取名称
+         * 获取名称
          * @param path path
          * @return name
          */
@@ -202,7 +202,7 @@ public class ItemAdapter extends RecyclerViewCursorAdapter<ItemAdapter.ItemHolde
                 switch (itemType) {
                     case Constant.TYPE_IMAGE:
                         PickerBean.getInstance().loader.loadImageThumbnail(image, bean.getPath(),
-                                wh, wh, MimeType.getImageType(bean.getMimeType(), bean.getPath()));
+                                wh, wh, MimeType.getImageType(bean.getPath()));
                         break;
                     case Constant.TYPE_VIDEO:
                         PickerBean.getInstance().loader.loadVideoThumbnail(image, bean.getPath(),
