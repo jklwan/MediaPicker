@@ -181,11 +181,11 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderHold
         private void loadImage(FolderBean bean) {
             folderImage.setImageResource(R.drawable.ic_media_picker_image_default);
             if (PickerBean.getInstance().loader != null) {
-                int type = MimeType.getItemType(bean.getMimeType());
-                switch (type) {
+                int itemType = MimeType.getItemType(bean.getMimeType());
+                switch (itemType) {
                     case Constant.TYPE_IMAGE:
                         PickerBean.getInstance().loader.loadImageThumbnail(folderImage, bean.getCoverPath(),
-                                wh, wh, MimeType.isGif(bean.getMimeType()));
+                                wh, wh, MimeType.getImageType(bean.getMimeType(), bean.getCoverPath()));
                         break;
                     case Constant.TYPE_VIDEO:
                         PickerBean.getInstance().loader.loadVideoThumbnail(folderImage, bean.getCoverPath(),

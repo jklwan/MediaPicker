@@ -91,7 +91,7 @@ public class ItemAdapter extends RecyclerViewCursorAdapter<ItemAdapter.ItemHolde
             if (itemType == Constant.TYPE_IMAGE) {
                 avLayout.setVisibility(View.GONE);
                 audioName.setVisibility(View.GONE);
-                if (MimeType.isGif(bean.getMimeType())){
+                if (MimeType.isGif(bean.getMimeType())) {
                     imageType.setVisibility(View.VISIBLE);
                     imageType.setText(R.string.string_media_picker_gif);
                 } else {
@@ -198,11 +198,11 @@ public class ItemAdapter extends RecyclerViewCursorAdapter<ItemAdapter.ItemHolde
         private void loadImage(ItemBean bean) {
             image.setImageResource(R.drawable.ic_media_picker_image_default);
             if (PickerBean.getInstance().loader != null) {
-                int type = MimeType.getItemType(bean.getMimeType());
-                switch (type) {
+                int itemType = MimeType.getItemType(bean.getMimeType());
+                switch (itemType) {
                     case Constant.TYPE_IMAGE:
                         PickerBean.getInstance().loader.loadImageThumbnail(image, bean.getPath(),
-                                wh, wh, MimeType.isGif(bean.getMimeType()));
+                                wh, wh, MimeType.getImageType(bean.getMimeType(), bean.getPath()));
                         break;
                     case Constant.TYPE_VIDEO:
                         PickerBean.getInstance().loader.loadVideoThumbnail(image, bean.getPath(),

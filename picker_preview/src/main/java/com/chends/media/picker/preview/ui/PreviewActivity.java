@@ -8,18 +8,19 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.chends.media.picker.R;
-import com.chends.media.picker.preview.adapter.PreviewCursorPagerAdapter;
-import com.chends.media.picker.preview.adapter.PreviewPagerAdapter;
 import com.chends.media.picker.listener.ItemLoaderCallback;
-import com.chends.media.picker.listener.PickerCallback;
 import com.chends.media.picker.model.Constant;
 import com.chends.media.picker.model.ItemBean;
 import com.chends.media.picker.model.PickerBean;
+import com.chends.media.picker.preview.R;
+import com.chends.media.picker.preview.adapter.PreviewCursorPagerAdapter;
+import com.chends.media.picker.preview.adapter.PreviewPagerAdapter;
 import com.chends.media.picker.ui.BasePickerActivity;
 import com.chends.media.picker.utils.ItemLoaderUtil;
+import com.chends.media.picker.utils.PickerUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,7 @@ import java.util.Locale;
  */
 public class PreviewActivity extends BasePickerActivity {
     private TextView title, finish;
+    private ImageView select;
     private int selectPosition;
     private ViewPager viewPager;
     private PagerAdapter mAdapter;
@@ -62,11 +64,20 @@ public class PreviewActivity extends BasePickerActivity {
         View back = findViewById(R.id.topBar_back);
         title = findViewById(R.id.topBar_title);
         finish = findViewById(R.id.topBar_finish);
+        select = findViewById(R.id.select);
+        View selectText = findViewById(R.id.select_text);
+        viewPager = findViewById(R.id.viewPager);
         PreviewClick click = new PreviewClick();
         back.setOnClickListener(click);
         finish.setOnClickListener(click);
-        updateFinish();
-        viewPager = findViewById(R.id.viewPager);
+        select.setOnClickListener(click);
+        selectText.setOnClickListener(click);
+        viewPager.setOnClickListener(click);
+        if (useCursor) {
+            mAdapter = new PreviewCursorPagerAdapter(getSupportFragmentManager(), MediaStore.MediaColumns._ID);
+        } else {
+            mAdapter = new PreviewPagerAdapter(getSupportFragmentManager(), list);
+        }
         viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
@@ -74,24 +85,6 @@ public class PreviewActivity extends BasePickerActivity {
                 updateTitle();
             }
         });
-        if (useCursor) {
-            mAdapter = new PreviewCursorPagerAdapter(getSupportFragmentManager(), MediaStore.MediaColumns._ID);
-            ((PreviewCursorPagerAdapter) mAdapter).setCallback(new PickerCallback() {
-                @Override
-                public void onChooseChange(boolean choose, String path) {
-                    updateFinish();
-                }
-            });
-        } else {
-            mAdapter = new PreviewPagerAdapter(getSupportFragmentManager(), list);
-            ((PreviewPagerAdapter) mAdapter).setCallback(new PickerCallback() {
-                @Override
-                public void onChooseChange(boolean choose, String path) {
-                    updateFinish();
-                }
-            });
-        }
-
         viewPager.setAdapter(mAdapter);
         if (useCursor) {
             util = new ItemLoaderUtil(this, new ItemLoaderCallback() {
@@ -104,6 +97,7 @@ public class PreviewActivity extends BasePickerActivity {
                         }
                         viewPager.setCurrentItem(selectPosition, false);
                         updateTitle();
+                        updateFinish();
                     }
                 }
 
@@ -115,6 +109,8 @@ public class PreviewActivity extends BasePickerActivity {
                 }
             });
             util.startLoader(folderId);
+        } else {
+            updateFinish();
         }
     }
 
@@ -128,6 +124,18 @@ public class PreviewActivity extends BasePickerActivity {
                     setResult(RESULT_OK);
                     finish();
                 }
+            } else if (v.getId() == R.id.select || v.getId() == R.id.select_text) {
+                ItemBean item;
+                if (useCursor) {
+                    item = ((PreviewCursorPagerAdapter) mAdapter).getMediaItem(selectPosition);
+                } else {
+                    item = ((PreviewPagerAdapter) mAdapter).getMediaItem(selectPosition);
+                }
+                if (item != null) {
+                    if (PickerUtil.selectPath(PreviewActivity.this, item)) {
+                        updateFinish();
+                    }
+                }
             }
         }
     }
@@ -137,8 +145,31 @@ public class PreviewActivity extends BasePickerActivity {
      */
     private void updateTitle() {
         title.setText(String.format(Locale.getDefault(), "%1$d/%2$d", selectPosition, mAdapter.getCount()));
+        updateChoose();
     }
 
+    /**
+     * 更新选中状态
+     */
+    private void updateChoose() {
+        ItemBean item;
+        if (useCursor) {
+            item = ((PreviewCursorPagerAdapter) mAdapter).getMediaItem(selectPosition);
+        } else {
+            item = ((PreviewPagerAdapter) mAdapter).getMediaItem(selectPosition);
+        }
+        if (item == null) return;
+        boolean choose = PickerBean.getInstance().chooseList.contains(item.getPath());
+        if (choose) {
+            select.setImageResource(R.drawable.ic_media_picker_checked);
+        } else {
+            select.setImageResource(R.drawable.ic_media_picker_uncheck);
+        }
+    }
+
+    /**
+     * 更新完成
+     */
     private void updateFinish() {
         if (PickerBean.getInstance().chooseList.isEmpty()) {
             finish.setText(getString(R.string.string_media_picker_finish));
@@ -147,6 +178,7 @@ public class PreviewActivity extends BasePickerActivity {
                     PickerBean.getInstance().chooseList.size(), PickerBean.getInstance().maxNum));
         }
         finish.setEnabled(!PickerBean.getInstance().chooseList.isEmpty());
+        updateChoose();
     }
 
     @Override

@@ -21,10 +21,10 @@
         android:id="@+id/topBar_title"
         android:layout_width="0dp"
         android:layout_height="match_parent"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
         android:layout_weight="1"
         android:gravity="center_vertical"
-        android:layout_marginLeft="20dp"
-        android:layout_marginStart="20dp"
         android:singleLine="true"
         android:textColor="@color/color_media_picker_title_fg"
         android:textStyle="bold"
@@ -38,6 +38,7 @@
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:textColor="@color/colors_media_picker_finish"
+        android:textStyle="bold"
         tools:enabled="true"
         tools:text="完成" />
 </LinearLayout>

@@ -15,7 +15,7 @@ public class MyMediaLoader extends MediaLoader {
     }
 
     @Override
-    public void loadImageThumbnail(ImageView view, String path, int width, int height, boolean isGif) {
+    public void loadImageThumbnail(ImageView view, String path, int width, int height, int type) {
         GlideApp.with(view.getContext())
                 .asBitmap()
                 .override(width, height)
@@ -28,7 +28,7 @@ public class MyMediaLoader extends MediaLoader {
     }
 
     @Override
-    public void loadImageFull(SubsamplingScaleImageView view, String path, int width, int height, boolean isGif) {
+    public void loadImageFull(SubsamplingScaleImageView view, String path, int width, int height, int type) {
         //MediaLoaderUtil.getInstance(view.getContext()).loadImage(path, view, width, height);
     }
 

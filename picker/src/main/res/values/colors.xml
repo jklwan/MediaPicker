@@ -14,7 +14,7 @@
     <color name="color_media_picker_bottom_text_color">#ff000000</color>
     <color name="color_media_picker_folder_color">#ff333333</color>
     <color name="color_media_picker_folder_bg">#cc000000</color>
-    <color name="color_media_picker_folder_line">#ff999999</color>
+    <color name="color_media_picker_folder_line">#ffeeeeee</color>
     <color name="color_media_picker_folder_bottom_bg">#ffffffff</color>
 
     <color name="color_media_folder_check">#ff4266ff</color>

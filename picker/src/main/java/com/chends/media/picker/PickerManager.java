@@ -81,6 +81,15 @@ public final class PickerManager {
     }
 
     /**
+     * 每行显示数量
+     * @param spanCount spanCount
+     */
+    public PickerManager setSpanCount(int spanCount) {
+        pickerBean.setSpanCount(spanCount);
+        return this;
+    }
+
+    /**
      * 开始
      * @param requestCode requestCode
      */

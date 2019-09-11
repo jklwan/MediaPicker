@@ -9,11 +9,11 @@ import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
  * @author cds created on 2019/9/8.
  */
 public abstract class MediaLoader {
-    public void loadImageThumbnail(ImageView view, String path, int width, int height, boolean isGif) {
+    public void loadImageThumbnail(ImageView view, String path, int width, int height, int type) {
 
     }
 
-    public void loadImageFull(SubsamplingScaleImageView view, String path, int width, int height, boolean isGif) {
+    public void loadImageFull(SubsamplingScaleImageView view, String path, int width, int height, int type) {
 
     }
 

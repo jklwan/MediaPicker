@@ -20,7 +20,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import com.chends.media.picker.listener.PickerCallback;
 import com.chends.media.picker.model.ItemBean;
 import com.chends.media.picker.preview.ui.PreviewFragment;
 
@@ -31,16 +30,11 @@ public class PreviewCursorPagerAdapter extends FragmentPagerAdapter {
     private Cursor cursor;
     private String columnIdName;
     private int mRowIDColumn;
-    private PickerCallback callback;
 
     public PreviewCursorPagerAdapter(FragmentManager manager, String columnIdName) {
         super(manager);
         this.columnIdName = columnIdName;
         cursor = null;
-    }
-
-    public void setCallback(PickerCallback callback) {
-        this.callback = callback;
     }
 
     @Override
@@ -52,7 +46,7 @@ public class PreviewCursorPagerAdapter extends FragmentPagerAdapter {
             throw new IllegalStateException("getItem:move cursor to position " + position);
         }
 
-        return PreviewFragment.newInstance(getMediaItem(position)).setCallback(callback);
+        return PreviewFragment.newInstance(getMediaItem(position));
     }
 
     @Override

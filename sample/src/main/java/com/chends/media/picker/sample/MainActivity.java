@@ -114,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
                         .addTypes(MimeType.all())
                         .addTypes(allAudio())
                         .maxNum(9)
+                        //.setSpanCount(4)
                         .chooseList(choose)
                         .setLoader(new MyMediaLoader())
                         .start(chooseCode);

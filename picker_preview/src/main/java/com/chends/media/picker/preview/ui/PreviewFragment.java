@@ -5,19 +5,17 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.chends.media.picker.MimeType;
-import com.chends.media.picker.R;
-import com.chends.media.picker.listener.PickerCallback;
 import com.chends.media.picker.model.Constant;
 import com.chends.media.picker.model.ItemBean;
 import com.chends.media.picker.model.PickerBean;
-import com.chends.media.picker.utils.PickerUtil;
+import com.chends.media.picker.preview.R;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 
 /**
@@ -28,24 +26,20 @@ public class PreviewFragment extends Fragment {
     private static final String BUNDLE_DATA = "path";
     private int w, h;
     private ItemBean item;
-    private ImageView select;
-    private PickerCallback callback;
+    private ImageView gifImage;
+    private TextView imageInfo;
 
-    public PreviewFragment(){
+    public PreviewFragment() {
         w = Resources.getSystem().getDisplayMetrics().widthPixels;
         h = Resources.getSystem().getDisplayMetrics().heightPixels;
     }
+
     public static PreviewFragment newInstance(ItemBean item) {
         PreviewFragment result = new PreviewFragment();
         Bundle args = new Bundle();
         args.putParcelable(BUNDLE_DATA, item);
         result.setArguments(args);
         return result;
-    }
-
-    public PreviewFragment setCallback(PickerCallback callback) {
-        this.callback = callback;
-        return this;
     }
 
     @Override
@@ -60,50 +54,27 @@ public class PreviewFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_media_picker_preview, container, false);
-
         if (savedInstanceState != null) {
             if (item == null && savedInstanceState.containsKey(BUNDLE_DATA)) {
                 item = savedInstanceState.getParcelable(BUNDLE_DATA);
             }
         }
-        select = rootView.findViewById(R.id.select);
+        gifImage = rootView.findViewById(R.id.gifImage);
+        imageInfo = rootView.findViewById(R.id.imageInfo);
         if (item != null) {
             SubsamplingScaleImageView imageView = rootView.findViewById(R.id.imageView);
             int type = MimeType.getItemType(item.getMimeType());
-
             if (PickerBean.getInstance().loader != null) {
                 if (type == Constant.TYPE_IMAGE) {
-                    PickerBean.getInstance().loader.loadImageFull(imageView,
-                            item.getPath(), w, h, MimeType.isGif(item.getMimeType()));
+                    PickerBean.getInstance().loader.loadImageFull(imageView, item.getPath(), w, h,
+                            MimeType.getImageType(item.getMimeType(), item.getPath()));
                 } else if (type == Constant.TYPE_VIDEO) {
-                    PickerBean.getInstance().loader.loadVideoFull(imageView,
-                            item.getPath(), w, h);
+                    PickerBean.getInstance().loader.loadVideoFull(imageView, item.getPath(), w, h);
                 } else if (type == Constant.TYPE_AUDIO) {
-                    PickerBean.getInstance().loader.loadVideoFull(imageView,
-                            item.getPath(), w, h);
+                    PickerBean.getInstance().loader.loadVideoFull(imageView, item.getPath(), w, h);
                 }
             }
-            select.setImageResource(PickerBean.getInstance().chooseList.contains(item.getPath()) ?
-                    R.drawable.ic_media_picker_checked : R.drawable.ic_media_picker_uncheck);
         }
-        select.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (item != null && !TextUtils.isEmpty(item.getPath())) {
-                    if (PickerUtil.selectPath(getActivity(), item)) {
-                        boolean choose = PickerBean.getInstance().chooseList.contains(item.getPath());
-                        if (choose) {
-                            select.setImageResource(R.drawable.ic_media_picker_checked);
-                        } else {
-                            select.setImageResource(R.drawable.ic_media_picker_uncheck);
-                        }
-                        if (callback != null) {
-                            callback.onChooseChange(choose, item.getPath());
-                        }
-                    }
-                }
-            }
-        });
         return rootView;
     }
 

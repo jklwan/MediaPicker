@@ -5,6 +5,9 @@ import android.text.TextUtils;
 
 import com.chends.media.picker.model.Constant;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -98,12 +101,12 @@ public class MimeType {
      * @param mimeType mimeType
      */
     @Constant.ItemType
-    public static int getItemType(String mimeType){
+    public static int getItemType(String mimeType) {
         if (TextUtils.isEmpty(mimeType)) return Constant.TYPE_IMAGE;
         String lower = mimeType.toLowerCase();
-        if (lower.startsWith(Constant.IMAGE_START)){
+        if (lower.startsWith(Constant.IMAGE_START)) {
             return Constant.TYPE_IMAGE;
-        } else if (lower.startsWith(Constant.VIDEO_START)){
+        } else if (lower.startsWith(Constant.VIDEO_START)) {
             return Constant.TYPE_VIDEO;
         } else {
             return Constant.TYPE_AUDIO;
@@ -115,8 +118,87 @@ public class MimeType {
      * @param mimeType mimeType
      * @return is gif
      */
-    public static boolean isGif(String mimeType){
+    public static boolean isGif(String mimeType) {
         if (TextUtils.isEmpty(mimeType)) return false;
         return mimeType.equalsIgnoreCase(GIF);
+    }
+
+    /**
+     * 图片类型
+     * @param mimeType mimeType
+     * @param path     path
+     * @return type
+     */
+    public static int getImageType(String mimeType, String path) {
+        if (!TextUtils.isEmpty(mimeType) || !TextUtils.isEmpty(path)) {
+            if (!TextUtils.isEmpty(path)) {
+                return getImageType(path);
+            } else {
+                if (mimeType.equalsIgnoreCase(GIF)) {
+                    return Constant.TYPE_GIF;
+                } else if (mimeType.equalsIgnoreCase(WEBP)) {
+                    return Constant.TYPE_WEBP;
+                }
+            }
+        }
+        return Constant.TYPE_NORMAL;
+    }
+
+    private static final int ANIMATED_WEBP_MASK = 0x02;
+
+    /**
+     * 获取图片类型
+     * @param path path
+     * @return 图片类型
+     */
+    private static int getImageType(String path) {
+        int type = Constant.TYPE_NORMAL;
+        try {
+            FileInputStream inputStream = new FileInputStream(new File(path));
+
+            byte[] header = new byte[20];
+            int read = inputStream.read(header);
+            if (read >= 3 && isGifHeader(header)) {
+                type = Constant.TYPE_GIF;
+            } else if (read >= 12 && isWebpHeader(header)) {
+                if (read >= 17 && isExtendedWebp(header)
+                        && (header[16] & ANIMATED_WEBP_MASK) != 0) {
+                    type = Constant.TYPE_ANIMATED_WEBP;
+                } else {
+                    type = Constant.TYPE_WEBP;
+                }
+            }
+            inputStream.close();
+        } catch (IOException ignore) {
+        }
+        return type;
+    }
+
+    /**
+     * isGif
+     * @param header header
+     * @return isGif
+     */
+    private static boolean isGifHeader(byte[] header) {
+        return header[0] == 'G' && header[1] == 'I' && header[2] == 'F';
+    }
+
+    /**
+     * is Webp
+     * @param header header
+     * @return is webp
+     */
+    private static boolean isWebpHeader(byte[] header) {
+        return header[0] == 'R' && header[1] == 'I' && header[2] == 'F' && header[3] == 'F'
+                && header[8] == 'W' && header[9] == 'E' && header[10] == 'B' && header[11] == 'P';
+    }
+
+    /**
+     * is Webp
+     * @param header header
+     * @return is webp
+     */
+    private static boolean isExtendedWebp(byte[] header) {
+        return header[12] == 'V' && header[13] == 'P' && header[14] == '8' && header[15] == 'X';
     }
 }

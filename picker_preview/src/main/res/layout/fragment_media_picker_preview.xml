@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/match">
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/match"
+    android:background="@android:color/background_dark">
 
     <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
         android:id="@+id/imageView"
@@ -9,5 +11,16 @@
     <android.support.v7.widget.AppCompatImageView
         android:id="@+id/gifImage"
         style="@style/match"
-        android:visibility="gone" />
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/imageInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="55dp"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        tools:text="gif info\n音乐.mp3" />
 </FrameLayout>

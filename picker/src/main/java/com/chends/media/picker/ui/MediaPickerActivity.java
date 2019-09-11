@@ -27,7 +27,7 @@ public class MediaPickerActivity extends BasePickerActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_media_picker);
-        if (!PickerBean.getInstance().reset){
+        if (!PickerBean.getInstance().reset) {
             ToastUtils.showShort(this, "need reset");
             finish();
             return;
@@ -44,10 +44,8 @@ public class MediaPickerActivity extends BasePickerActivity {
         if (resultCode != RESULT_OK) {
             return;
         }
-        switch (requestCode) {
-            case PREVIEW_CODE:
-                sendResult(this);
-                break;
+        if (requestCode == PREVIEW_CODE) {
+            sendResult(this);
         }
     }
 

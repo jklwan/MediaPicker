@@ -163,7 +163,7 @@ public class ControlUtil implements LifecycleObserver {
                 if (checkFolderUtil()) {
                     folderUtil.setStateCurrentSelection(popupWindow.getSelection());
                 }
-                popupWindow.dismiss();
+                //popupWindow.dismiss();
             }
         }
 
@@ -217,8 +217,16 @@ public class ControlUtil implements LifecycleObserver {
                     itemAdapter.setClickListener(callBack);
                     recyclerView.setAdapter(itemAdapter);
                 } else {
+                    recyclerView.scrollToPosition(0);
                     itemAdapter.swapCursor(cursor);
                 }
+                // after refresh finish
+                recyclerView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        popupWindow.dismiss();
+                    }
+                });
             }
         }
 

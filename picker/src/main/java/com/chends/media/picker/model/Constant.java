@@ -52,4 +52,18 @@ public class Constant {
      * 选择position
      */
     public static final String EXTRA_POSITION = "extra_position";
+
+    public static final int TYPE_NORMAL = 10;
+    public static final int TYPE_GIF = TYPE_NORMAL + 1;
+    public static final int TYPE_APNG = TYPE_GIF + 1;
+    public static final int TYPE_WEBP = TYPE_APNG + 1;
+    public static final int TYPE_ANIMATED_WEBP = TYPE_WEBP + 1;
+
+    /**
+     * 图片类型
+     */
+    @IntDef({TYPE_NORMAL, TYPE_GIF, TYPE_APNG, TYPE_WEBP, TYPE_ANIMATED_WEBP})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ImageType {
+    }
 }
