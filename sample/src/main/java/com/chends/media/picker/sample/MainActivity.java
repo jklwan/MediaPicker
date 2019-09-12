@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.LoaderManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
@@ -34,7 +33,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         BigImageViewer.initialize(GlideImageLoader.with(getApplicationContext()));
-        LoaderManager.enableDebugLogging(BuildConfig.DEBUG);
         setContentView(R.layout.activity_main);
         view = findViewById(R.id.text);
     }

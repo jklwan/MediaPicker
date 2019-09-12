@@ -41,7 +41,4 @@ dependencies {
     implementation(deps.glide) {
         exclude group: "$android_support"
     }
-    implementation deps.glide_loader
-    implementation deps.glide_factory
-    implementation deps.okhttp
 }

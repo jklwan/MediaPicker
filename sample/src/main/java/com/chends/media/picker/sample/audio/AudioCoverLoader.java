@@ -50,5 +50,4 @@ public class AudioCoverLoader implements ModelLoader<AudioCoverModel, InputStrea
 
         }
     }
-
 }

@@ -23,7 +23,6 @@ import android.widget.ImageView;
 
 import com.chends.media.picker.model.Constant;
 import com.chends.media.picker.sample.R;
-import com.github.piasy.biv.view.BigImageView;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -281,14 +280,6 @@ public class MediaLoaderUtil implements ComponentCallbacks2 {
      */
     public void loadAudio(String path, ImageView imageView, int width, int height) {
         load(path, imageView, width, height, Constant.TYPE_AUDIO);
-    }
-
-    public void loadVideoFull(String path, BigImageView view) {
-
-    }
-
-    public void loadAudioFull(String path, BigImageView view) {
-
     }
 
     /**
