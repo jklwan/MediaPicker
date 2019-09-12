@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.chends.media.picker.MediaPicker;
 import com.chends.media.picker.MimeType;
+import com.chends.media.picker.sample.util.PermissionUtil;
 import com.chends.media.picker.utils.ToastUtils;
 import com.github.piasy.biv.BigImageViewer;
 import com.github.piasy.biv.loader.glide.GlideImageLoader;

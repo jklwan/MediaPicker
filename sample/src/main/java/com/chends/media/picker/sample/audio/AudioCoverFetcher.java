@@ -1,4 +1,4 @@
-package com.chends.media.picker.sample;
+package com.chends.media.picker.sample.audio;
 
 import android.content.Context;
 import android.media.MediaMetadataRetriever;
@@ -8,6 +8,8 @@ import android.text.TextUtils;
 import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.data.DataFetcher;
+import com.chends.media.picker.sample.util.FileUtil;
+import com.chends.media.picker.sample.util.LogUtil;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -42,9 +44,8 @@ public class AudioCoverFetcher implements DataFetcher<InputStream> {
                     return;
                 }
             } catch (Exception e) {
-                callback.onLoadFailed(e);
+                LogUtil.d("getAudioThumbnail", "path is not null:" + e.getMessage() + ", path:" + model.getPath());
             }
-            return;
         }
         MediaMetadataRetriever retriever = null;
         try {
@@ -56,9 +57,11 @@ public class AudioCoverFetcher implements DataFetcher<InputStream> {
                 callback.onDataReady(stream);
             } else {
                 callback.onLoadFailed(new FileNotFoundException());
+                LogUtil.d("getEmbeddedPicture", "is null, path:" + model.getPath());
             }
         } catch (Exception e) {
             callback.onLoadFailed(e);
+            LogUtil.d("onLoadFailed", e.getMessage() + ", path:" + model.getPath());
         } finally {
             if (retriever != null) {
                 retriever.release();

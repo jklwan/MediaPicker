@@ -1,4 +1,4 @@
-package com.chends.media.picker.sample;
+package com.chends.media.picker.sample.util;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -190,20 +190,20 @@ public class FileUtil {
     public static String getVideoThumbnail(Context context, String videoPath) {
         // MediaStore.Video.Thumbnails.DATA:视频缩略图的文件路径
         String[] videoColumns = {MediaStore.Video.Media._ID};
-        String[] tColumns = {MediaStore.Video.Thumbnails.DATA};
+        String[] vColumns = {MediaStore.Video.Thumbnails.DATA};
 
-        Cursor cursor = null, tCursor = null;
+        Cursor cursor = null, vCursor = null;
         try {
             cursor = context.getContentResolver().query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
                     videoColumns, MediaStore.Video.Media.DATA + "=?",
                     new String[]{videoPath}, null);
             if (cursor != null && cursor.moveToFirst()) {
                 int id = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID));
-                tCursor = context.getContentResolver().query(MediaStore.Video.Thumbnails.EXTERNAL_CONTENT_URI,
-                        tColumns, MediaStore.Video.Thumbnails.VIDEO_ID + "=" + id,
+                vCursor = context.getContentResolver().query(MediaStore.Video.Thumbnails.EXTERNAL_CONTENT_URI,
+                        vColumns, MediaStore.Video.Thumbnails.VIDEO_ID + "=" + id,
                         null, null);
-                if (tCursor != null && tCursor.moveToFirst()) {
-                    return tCursor.getString(tCursor.getColumnIndex(MediaStore.Video.Thumbnails.DATA));
+                if (vCursor != null && vCursor.moveToFirst()) {
+                    return vCursor.getString(vCursor.getColumnIndex(MediaStore.Video.Thumbnails.DATA));
                 }
             }
         } catch (Exception e) {
@@ -213,8 +213,8 @@ public class FileUtil {
                 if (cursor != null) {
                     cursor.close();
                 }
-                if (tCursor != null) {
-                    tCursor.close();
+                if (vCursor != null) {
+                    vCursor.close();
                 }
             } catch (Exception e) {
                 LogUtil.e(e);
@@ -231,13 +231,13 @@ public class FileUtil {
      */
     @Nullable
     public static String getAudioThumbnail(Context context, String audioPath) {
-        String[] videoColumns = {MediaStore.Audio.Media.ALBUM_ID};
+        String[] audioColumns = {MediaStore.Audio.Media.ALBUM_ID};
         String[] tColumns = {MediaStore.Audio.Albums.ALBUM_ART};
 
         Cursor cursor = null, tCursor = null;
         try {
             cursor = context.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                    videoColumns, MediaStore.Audio.Media.DATA + "=?",
+                    audioColumns, MediaStore.Audio.Media.DATA + "=?",
                     new String[]{audioPath}, null);
             if (cursor != null && cursor.getCount() > 0 && cursor.moveToFirst()) {
                 int albumId = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID));
@@ -245,7 +245,7 @@ public class FileUtil {
                         tColumns, MediaStore.Audio.Albums._ID + "=" + albumId,
                         null, null);
                 if (tCursor != null && tCursor.getCount() > 0 && tCursor.moveToFirst()) {
-                    return tCursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM_ART));
+                    return tCursor.getString(tCursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM_ART));
                 }
             }
         } catch (Exception e) {

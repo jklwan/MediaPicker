@@ -149,7 +149,7 @@ public class FolderPopupWindow extends PopupWindow {
             }
         });
         mContentView.startAnimation(animation);
-        if (listener != null){
+        if (listener != null) {
             listener.onDismiss();
         }
 

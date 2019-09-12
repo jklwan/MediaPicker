@@ -50,6 +50,8 @@ public class ControlUtil implements LifecycleObserver {
     private ItemAdapter itemAdapter;
     private FolderPopupWindow popupWindow;
     private LoaderCallBack callBack;
+    private FolderBean selectFolder;
+    private boolean changeFolder = false;
 
     public ControlUtil(AppCompatActivity activity) {
         this.reference = new WeakReference<>(activity);
@@ -154,7 +156,12 @@ public class ControlUtil implements LifecycleObserver {
 
         @Override
         public void onSelected(FolderBean bean) {
-            if (checkActivity()) {
+            if (checkActivity() && bean != null) {
+                if (bean.equals(selectFolder)) {
+                    return;
+                }
+                changeFolder = true;
+                selectFolder = bean;
                 title.setText(bean.getDisplayName());
                 folderName.setText(bean.getDisplayName());
                 if (checkItemUtil()) {
@@ -175,8 +182,10 @@ public class ControlUtil implements LifecycleObserver {
                 } else {
                     bottom.setVisibility(View.VISIBLE);
                     popupWindow.setData(list);
-                    popupWindow.setSelect(folderUtil.getCurrentSelection());
-                    title.setText(list.get(folderUtil.getCurrentSelection()).getDisplayName());
+                    int selection = folderUtil.getCurrentSelection();
+                    popupWindow.setSelect(selection);
+                    selectFolder = list.get(selection);
+                    title.setText(selectFolder.getDisplayName());
                     updateFinish();
                     folderName.setText(title.getText());
                 }
@@ -217,7 +226,10 @@ public class ControlUtil implements LifecycleObserver {
                     itemAdapter.setClickListener(callBack);
                     recyclerView.setAdapter(itemAdapter);
                 } else {
-                    recyclerView.scrollToPosition(0);
+                    if (changeFolder) {
+                        changeFolder = false;
+                        recyclerView.scrollToPosition(0);
+                    }
                     itemAdapter.swapCursor(cursor);
                 }
                 // after refresh finish
@@ -246,7 +258,8 @@ public class ControlUtil implements LifecycleObserver {
                 return;
             }
             if (PickerUtil.checkFile(reference.get(), bean)) {
-                if (!MediaPickerActivity.startPreview(reference.get(), position, bean.getId())) {
+                // 当前文件夹id
+                if (selectFolder == null || !MediaPickerActivity.startPreview(reference.get(), position, selectFolder.getId())) {
                     onItemSelectClick(bean, position);
                 }
             } else {

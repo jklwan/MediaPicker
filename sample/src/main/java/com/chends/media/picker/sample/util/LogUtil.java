@@ -1,7 +1,9 @@
-package com.chends.media.picker.sample;
+package com.chends.media.picker.sample.util;
 
 import android.text.TextUtils;
 import android.util.Log;
+
+import com.chends.media.picker.sample.BuildConfig;
 
 /**
  * LogUtil

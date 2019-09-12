@@ -16,6 +16,7 @@ import com.chends.media.picker.listener.ItemClickListener;
 import com.chends.media.picker.model.Constant;
 import com.chends.media.picker.model.ItemBean;
 import com.chends.media.picker.model.PickerBean;
+import com.chends.media.picker.utils.PickerUtil;
 
 import java.util.List;
 
@@ -100,12 +101,12 @@ public class ItemAdapter extends RecyclerViewCursorAdapter<ItemAdapter.ItemHolde
             } else {
                 imageType.setVisibility(View.GONE);
                 avLayout.setVisibility(View.VISIBLE);
-                duration.setText(getDuration(bean.getDuration()));
+                duration.setText(PickerUtil.getDuration(bean.getDuration()));
                 if (itemType == Constant.TYPE_VIDEO) {
                     type.setText(R.string.string_media_picker_type_video);
                     audioName.setVisibility(View.GONE);
                 } else {
-                    audioName.setText(getName(bean.getPath()));
+                    audioName.setText(PickerUtil.getFileNameNoExtension(bean.getPath()));
                     audioName.setVisibility(View.VISIBLE);
                     type.setText(R.string.string_media_picker_type_audio);
                 }
@@ -113,28 +114,6 @@ public class ItemAdapter extends RecyclerViewCursorAdapter<ItemAdapter.ItemHolde
             ItemClick click = new ItemClick(this, bean);
             select.setOnClickListener(click);
             root.setOnClickListener(click);
-        }
-
-        /**
-         * 获取名称
-         * @param path path
-         * @return name
-         */
-        private String getName(String path) {
-            int last = path.lastIndexOf('#');
-            if (last < 0) {
-                last = path.length();
-            }
-            int lasDot = path.lastIndexOf('.');
-            if (lasDot != -1 && lasDot < last) {
-                last = lasDot;
-            }
-            int lastPath = path.lastIndexOf('/') + 1;
-            String ext = "";
-            if (lastPath > 0) {
-                ext = path.substring(lastPath, last);
-            }
-            return ext;
         }
 
         private class ItemClick implements View.OnClickListener {
@@ -163,35 +142,6 @@ public class ItemAdapter extends RecyclerViewCursorAdapter<ItemAdapter.ItemHolde
         }
 
         /**
-         * 时间长度
-         * @param duration duration
-         * @return duration
-         */
-        private String getDuration(long duration) {
-            long durationS = (duration - 1) / 1000 + 1;
-            long second = durationS % 60;
-            long minute = durationS / 60;
-            StringBuilder builder = new StringBuilder();
-            if (minute > 0) {
-                if (minute < 10) {
-                    builder.append("0");
-                }
-                builder.append(minute).append(":");
-            } else {
-                builder.append("00:");
-            }
-            if (second > 0) {
-                if (second < 10) {
-                    builder.append("0");
-                }
-                builder.append(second);
-            } else {
-                builder.append("00");
-            }
-            return builder.toString();
-        }
-
-        /**
          * 显示image
          * @param bean bean
          */
@@ -202,7 +152,7 @@ public class ItemAdapter extends RecyclerViewCursorAdapter<ItemAdapter.ItemHolde
                 switch (itemType) {
                     case Constant.TYPE_IMAGE:
                         PickerBean.getInstance().loader.loadImageThumbnail(image, bean.getPath(),
-                                wh, wh, MimeType.getImageType(bean.getPath()));
+                                wh, wh, MimeType.getImageType(bean.getMimeType(), bean.getPath()));
                         break;
                     case Constant.TYPE_VIDEO:
                         PickerBean.getInstance().loader.loadVideoThumbnail(image, bean.getPath(),

@@ -72,7 +72,6 @@ public class PreviewActivity extends BasePickerActivity {
         finish.setOnClickListener(click);
         select.setOnClickListener(click);
         selectText.setOnClickListener(click);
-        viewPager.setOnClickListener(click);
         if (useCursor) {
             mAdapter = new PreviewCursorPagerAdapter(getSupportFragmentManager(), MediaStore.MediaColumns._ID);
         } else {
@@ -144,7 +143,7 @@ public class PreviewActivity extends BasePickerActivity {
      * 更新标题
      */
     private void updateTitle() {
-        title.setText(String.format(Locale.getDefault(), "%1$d/%2$d", selectPosition, mAdapter.getCount()));
+        title.setText(String.format(Locale.getDefault(), "%1$d/%2$d", selectPosition + 1, mAdapter.getCount()));
         updateChoose();
     }
 

@@ -125,17 +125,34 @@ public class MimeType {
 
     /**
      * 图片类型
-     * @param path     path
+     * @param path path
      * @return type
      */
-    public static int getImageType(String path) {
-        if (!TextUtils.isEmpty(path)) {
-            return getImageTypeByPath(path);
+    @Constant.ImageType
+    public static int getImageType(String mimeType, String path) {
+        if (TextUtils.isEmpty(mimeType)) {
+            if (!TextUtils.isEmpty(path)) {
+                return getImageTypeByPath(path);
+            }
+        } else {
+            if (mimeType.equalsIgnoreCase(GIF)) {
+                return Constant.TYPE_GIF;
+            } else if (mimeType.equalsIgnoreCase(SVG)) {
+                return Constant.TYPE_SVG;
+            } else if (mimeType.equalsIgnoreCase(PNG)) {
+                if (!TextUtils.isEmpty(path)){
+                    return getImageTypeByPath(path);
+                }
+            } else if (mimeType.equalsIgnoreCase(WEBP)) {
+                if (!TextUtils.isEmpty(path)){
+                    return getImageTypeByPath(path);
+                }
+            } else {
+                return Constant.TYPE_NORMAL;
+            }
         }
         return Constant.TYPE_NORMAL;
     }
-
-    private static final int ANIMATED_WEBP_MASK = 0x02;
 
     /**
      * 获取图片类型
@@ -144,23 +161,30 @@ public class MimeType {
      */
     private static int getImageTypeByPath(String path) {
         int type = Constant.TYPE_NORMAL;
+        FileInputStream inputStream = null;
         try {
-            FileInputStream inputStream = new FileInputStream(new File(path));
-
-            byte[] header = new byte[20];
+            inputStream = new FileInputStream(new File(path));
+            byte[] header = new byte[41];
             int read = inputStream.read(header);
             if (read >= 3 && isGifHeader(header)) {
                 type = Constant.TYPE_GIF;
             } else if (read >= 12 && isWebpHeader(header)) {
-                if (read >= 17 && isExtendedWebp(header)
-                        && (header[16] & ANIMATED_WEBP_MASK) != 0) {
+                if (read >= 33 && isAnimWebp(header)) {
                     type = Constant.TYPE_ANIMATED_WEBP;
                 } else {
                     type = Constant.TYPE_WEBP;
                 }
+            } else if (read >= 40 && isAPNG(header)) {
+                type = Constant.TYPE_APNG;
             }
-            inputStream.close();
         } catch (IOException ignore) {
+        } finally {
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException ignore) {
+                }
+            }
         }
         return type;
     }
@@ -185,11 +209,22 @@ public class MimeType {
     }
 
     /**
-     * is Webp
+     * is anim Webp
      * @param header header
      * @return is webp
      */
-    private static boolean isExtendedWebp(byte[] header) {
-        return header[12] == 'V' && header[13] == 'P' && header[14] == '8' && header[15] == 'X';
+    private static boolean isAnimWebp(byte[] header) {
+        return header[12] == 'V' && header[13] == 'P' && header[14] == '8' && header[15] == 'X'
+                && header[30] == 'A' && header[31] == 'N' && header[32] == 'I' && header[33] == 'M';
+    }
+
+    /**
+     * 是否apng 动图
+     * @param header header
+     * @return is apng
+     */
+    private static boolean isAPNG(byte[] header) {
+        return header[1] == 'P' && header[2] == 'N' && header[3] == 'G' &&
+                header[37] == 'a' && header[38] == 'c' && header[39] == 'T' && header[40] == 'L';
     }
 }

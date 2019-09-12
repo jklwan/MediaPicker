@@ -1,4 +1,4 @@
-package com.chends.media.picker.sample;
+package com.chends.media.picker.sample.audio;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -32,7 +32,7 @@ public class AudioCoverLoader implements ModelLoader<AudioCoverModel, InputStrea
         return true;
     }
 
-    static class Factory implements ModelLoaderFactory<AudioCoverModel, InputStream> {
+    public static class Factory implements ModelLoaderFactory<AudioCoverModel, InputStream> {
         private final Context context;
 
         public Factory(Context context) {

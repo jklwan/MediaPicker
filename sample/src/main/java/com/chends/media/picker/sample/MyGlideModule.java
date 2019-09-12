@@ -9,6 +9,8 @@ import com.bumptech.glide.GlideBuilder;
 import com.bumptech.glide.Registry;
 import com.bumptech.glide.annotation.GlideModule;
 import com.bumptech.glide.module.AppGlideModule;
+import com.chends.media.picker.sample.audio.AudioCoverLoader;
+import com.chends.media.picker.sample.audio.AudioCoverModel;
 
 import java.io.InputStream;
 

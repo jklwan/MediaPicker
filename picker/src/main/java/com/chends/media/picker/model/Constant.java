@@ -58,11 +58,12 @@ public class Constant {
     public static final int TYPE_APNG = TYPE_GIF + 1;
     public static final int TYPE_WEBP = TYPE_APNG + 1;
     public static final int TYPE_ANIMATED_WEBP = TYPE_WEBP + 1;
+    public static final int TYPE_SVG = TYPE_ANIMATED_WEBP + 1;
 
     /**
      * 图片类型
      */
-    @IntDef({TYPE_NORMAL, TYPE_GIF, TYPE_APNG, TYPE_WEBP, TYPE_ANIMATED_WEBP})
+    @IntDef({TYPE_NORMAL, TYPE_GIF, TYPE_APNG, TYPE_WEBP, TYPE_ANIMATED_WEBP, TYPE_SVG})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ImageType {
     }

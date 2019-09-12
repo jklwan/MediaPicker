@@ -165,7 +165,7 @@ public class PickerUtil {
      * @param imagePath imagePath
      * @return int[]，0：宽，1：高
      */
-    private static int[] getImageWH(String imagePath) {
+    public static int[] getImageWH(String imagePath) {
         int[] wh = new int[]{0, 0};
         try {
             BitmapFactory.Options options = new BitmapFactory.Options();
@@ -178,9 +178,60 @@ public class PickerUtil {
                 wh[1] = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_LENGTH, ExifInterface.ORIENTATION_NORMAL);//获取图片的高度
                 wh[0] = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_WIDTH, ExifInterface.ORIENTATION_NORMAL);//获取图片的宽度
             }
-        } catch (Exception ex) {
+        } catch (Exception ignore) {
         }
         return wh;
+    }
+
+    /**
+     * 时间长度
+     * @param duration duration
+     * @return duration
+     */
+    public static String getDuration(long duration) {
+        long durationS = (duration - 1) / 1000 + 1;
+        long second = durationS % 60;
+        long minute = durationS / 60;
+        StringBuilder builder = new StringBuilder();
+        if (minute > 0) {
+            if (minute < 10) {
+                builder.append("0");
+            }
+            builder.append(minute).append(":");
+        } else {
+            builder.append("00:");
+        }
+        if (second > 0) {
+            if (second < 10) {
+                builder.append("0");
+            }
+            builder.append(second);
+        } else {
+            builder.append("00");
+        }
+        return builder.toString();
+    }
+
+    /**
+     * 获取名称无扩展名
+     * @param path path
+     * @return name
+     */
+    public static String getFileNameNoExtension(String path) {
+        int last = path.lastIndexOf('#');
+        if (last < 0) {
+            last = path.length();
+        }
+        int lasDot = path.lastIndexOf('.');
+        if (lasDot != -1 && lasDot < last) {
+            last = lasDot;
+        }
+        int lastPath = path.lastIndexOf('/') + 1;
+        String ext = "";
+        if (lastPath > 0) {
+            ext = path.substring(lastPath, last);
+        }
+        return ext;
     }
 
     /**
@@ -214,7 +265,7 @@ public class PickerUtil {
      * 获取预览页
      * @return preview
      */
-    public static Class getPreview(){
+    public static Class getPreview() {
         Class cls = null;
         try {
             cls = Class.forName("com.chends.media.picker.preview.ui.PreviewActivity");

@@ -1,4 +1,4 @@
-package com.chends.media.picker.sample;
+package com.chends.media.picker.sample.audio;
 
 import android.text.TextUtils;
 

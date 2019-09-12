@@ -1,4 +1,4 @@
-package com.chends.media.picker.sample;
+package com.chends.media.picker.sample.util;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;

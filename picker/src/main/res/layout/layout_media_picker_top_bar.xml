@@ -15,6 +15,7 @@
         android:background="@drawable/bg_rippleborderless_transparent"
         android:paddingTop="15dp"
         android:paddingBottom="15dp"
+        android:scaleType="fitCenter"
         app:srcCompat="@drawable/ic_media_picker_back" />
 
     <android.support.v7.widget.AppCompatTextView

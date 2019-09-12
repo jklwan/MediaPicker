@@ -1,4 +1,4 @@
-package com.chends.media.picker.sample;
+package com.chends.media.picker.sample.util;
 
 import android.app.ActivityManager;
 import android.content.ComponentCallbacks2;
@@ -22,6 +22,7 @@ import android.webkit.URLUtil;
 import android.widget.ImageView;
 
 import com.chends.media.picker.model.Constant;
+import com.chends.media.picker.sample.R;
 import com.github.piasy.biv.view.BigImageView;
 
 import java.io.File;
