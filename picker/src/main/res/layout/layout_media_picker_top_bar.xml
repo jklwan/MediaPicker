@@ -38,6 +38,7 @@
         android:gravity="center"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
+        android:background="@drawable/bg_rippleborderless_transparent"
         android:textColor="@color/colors_media_picker_finish"
         android:textStyle="bold"
         tools:enabled="true"
