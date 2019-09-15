@@ -76,9 +76,9 @@ public class PreviewFragment extends Fragment {
         }
         if (item != null && !TextUtils.isEmpty(item.getPath())) {
             imageView = rootView.findViewById(R.id.imageView);
-            imageView.setDebug(true);
+            //imageView.setDebug(true);
             gifImage = rootView.findViewById(R.id.gifImage);
-            gifImage.setDebug(true);
+            //gifImage.setDebug(true);
             otherImage = rootView.findViewById(R.id.otherImage);
             TextView imageInfo = rootView.findViewById(R.id.imageInfo);
             View play = rootView.findViewById(R.id.play);

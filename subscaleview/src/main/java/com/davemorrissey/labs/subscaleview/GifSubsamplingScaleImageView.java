@@ -533,11 +533,11 @@ public class GifSubsamplingScaleImageView extends View {
                 TilesInitTask task = new TilesInitTask(this, getContext(), regionDecoderFactory, uri);
                 execute(task);
             } else {
-                if (this.mDecoder == null) {
-                    this.mDecoder = new GifDecoder();
+                if (mDecoder == null) {
+                    mDecoder = new GifDecoder();
                 }
                 //mDecoder.setDefaultBitmapConfig(Bitmap.Config.RGB_565);
-                // Load the bitmap as a single image.
+                // Load gif bitmap
                 GifImageLoadTask task = new GifImageLoadTask(this, getContext(), uri, false, mDecoder);
                 execute(task);
             }
@@ -1893,16 +1893,7 @@ public class GifSubsamplingScaleImageView extends View {
                 if (inputStream == null) {
                     return null;
                 }
-                /*byte[] bArr;
-                try {
-                    bArr = new byte[inputStream.available()];
-                    inputStream.read(bArr);
-                } catch (IOException e) {
-                    exception = e;
-                    return null;
-                }*/
                 gifDecoder.read(inputStream, inputStream.available());
-                //gifDecoder.read(inputStream, inputStream.available());
                 gifDecoder.advance();
                 bitmap = gifDecoder.getNextFrame();
                 if (bitmap != null) {
@@ -2025,9 +2016,9 @@ public class GifSubsamplingScaleImageView extends View {
 
     private synchronized void loadImage(Bitmap bitmap, boolean first) {
         this.bitmapIsPreview = false;
-        if (!first){
+        /*if (!first){
             recyclePreBitmap();
-        }
+        }*/
         this.bitmap = bitmap;
         this.sWidth = bitmap.getWidth();
         this.sHeight = bitmap.getHeight();
