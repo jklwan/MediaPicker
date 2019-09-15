@@ -6,13 +6,18 @@
 
     <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
         android:id="@+id/imageView"
-        style="@style/match" />
+        style="@style/match"
+        android:visibility="gone" />
 
-    <android.support.v7.widget.AppCompatImageView
+    <com.davemorrissey.labs.subscaleview.GifSubsamplingScaleImageView
         android:id="@+id/gifImage"
         style="@style/match"
-        android:visibility="gone"
-        tools:visibility="visible" />
+        android:visibility="gone" />
+
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/otherImage"
+        style="@style/match"
+        android:visibility="gone" />
 
     <android.support.v7.widget.AppCompatTextView
         android:id="@+id/imageInfo"

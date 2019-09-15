@@ -25,6 +25,7 @@ import com.chends.media.picker.preview.listener.PreviewLoaderCallback;
 import com.chends.media.picker.preview.utils.PreviewMediaLoader;
 import com.chends.media.picker.preview.utils.PreviewUtil;
 import com.chends.media.picker.utils.PickerUtil;
+import com.davemorrissey.labs.subscaleview.GifSubsamplingScaleImageView;
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.ImageViewState;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
@@ -40,7 +41,8 @@ public class PreviewFragment extends Fragment {
     private int w, h;
     private ItemBean item;
     private SubsamplingScaleImageView imageView;
-    private ImageView gifImage;
+    private GifSubsamplingScaleImageView gifImage;
+    private ImageView otherImage;
 
     public PreviewFragment() {
         w = Resources.getSystem().getDisplayMetrics().widthPixels;
@@ -74,7 +76,10 @@ public class PreviewFragment extends Fragment {
         }
         if (item != null && !TextUtils.isEmpty(item.getPath())) {
             imageView = rootView.findViewById(R.id.imageView);
+            imageView.setDebug(true);
             gifImage = rootView.findViewById(R.id.gifImage);
+            gifImage.setDebug(true);
+            otherImage = rootView.findViewById(R.id.otherImage);
             TextView imageInfo = rootView.findViewById(R.id.imageInfo);
             View play = rootView.findViewById(R.id.play);
             int type = MimeType.getItemType(item.getMimeType());
@@ -83,24 +88,27 @@ public class PreviewFragment extends Fragment {
                 loader = (PreviewMediaLoader) PickerBean.getInstance().loader;
             }
             if (loader != null) {
+                imageView.setVisibility(View.GONE);
+                gifImage.setVisibility(View.GONE);
+                otherImage.setVisibility(View.GONE);
                 if (type == Constant.TYPE_IMAGE) {
                     imageInfo.setVisibility(View.GONE);
                     play.setVisibility(View.GONE);
                     int imageType = MimeType.getImageType(item.getMimeType(), item.getPath());
                     switch (imageType) {
                         case Constant.TYPE_NORMAL:
-                            gifImage.setVisibility(View.GONE);
                             imageView.setVisibility(View.VISIBLE);
                             loadImage(item.getPath());
                             break;
                         case Constant.TYPE_GIF:
+                            gifImage.setVisibility(View.VISIBLE);
+                            loadGifImage(item.getPath());
+                            break;
                         case Constant.TYPE_APNG:
                         case Constant.TYPE_WEBP:
                         case Constant.TYPE_ANIMATED_WEBP:
                         case Constant.TYPE_SVG:
-                            gifImage.setVisibility(View.GONE);
-                            imageView.setVisibility(View.GONE);
-                            loader.loadImageFull(imageView, gifImage, item.getPath(), w, h,
+                            loader.loadImageFull(imageView, otherImage, item.getPath(), w, h,
                                     imageType, callback);
                             break;
                     }
@@ -108,15 +116,11 @@ public class PreviewFragment extends Fragment {
                     imageInfo.setVisibility(View.GONE);
                     play.setVisibility(View.VISIBLE);
                     play.setOnClickListener(new PlayClick(item.getPath(), item.getMimeType()));
-                    gifImage.setVisibility(View.GONE);
-                    imageView.setVisibility(View.VISIBLE);
                     loader.loadVideoFull(imageView, item.getPath(), w, h, callback);
                 } else if (type == Constant.TYPE_AUDIO) {
                     imageInfo.setVisibility(View.VISIBLE);
                     play.setVisibility(View.VISIBLE);
                     play.setOnClickListener(new PlayClick(item.getPath(), item.getMimeType()));
-                    gifImage.setVisibility(View.GONE);
-                    imageView.setVisibility(View.VISIBLE);
                     loader.loadAudioFull(imageView, item.getPath(), w, h, callback);
                     imageInfo.setText(PreviewUtil.getFileName(item.getPath()));
                 }
@@ -140,7 +144,6 @@ public class PreviewFragment extends Fragment {
      * @param source source
      */
     private void loadImage(int[] wh, ImageSource source) {
-        imageView.setMinimumTileDpi(160);
         float result = 0.5f;
         if (wh[0] > 0 && wh[1] > 0) {
             // 使图片横向铺满
@@ -182,22 +185,101 @@ public class PreviewFragment extends Fragment {
         imageView.setImage(source);
     }
 
+    /**
+     * 显示大图
+     * @param path path
+     */
+    private void loadGifImage(String path) {
+        int[] wh = PickerUtil.getImageWH(path);
+        ImageSource source = ImageSource.uri(Uri.fromFile(new File(path))).tilingDisabled();
+        float result = 0.5f;
+        if (wh[0] > 0 && wh[1] > 0) {
+            // 使图片横向铺满
+            boolean isPortrait = getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
+            float minScale, maxScale;
+            int realW, realH;
+            if (isPortrait) {
+                realW = w;
+                realH = h;
+            } else {
+                realW = h;
+                realH = w;
+            }
+            if (wh[0] <= wh[1]) {
+                result = (float) realW / wh[0];
+            } else {
+                result = (float) realH / wh[1];
+            }
+
+            minScale = (float) realW / wh[0];
+            if (minScale < 0.5f) {
+                // 图片大于屏幕当前宽度的2倍
+                // 最小铺满整个屏幕， 最大最大边界(1)
+                maxScale = 1f;
+            } else {
+                // 最小铺满，最大2倍
+                maxScale = 2f * minScale;
+            }
+            gifImage.setMinScale(minScale);
+            gifImage.setMaxScale(maxScale);
+            if ((isPortrait && ((wh[1] * minScale - h) > 1)) || ((wh[1] * minScale - w) > 1)) {
+                gifImage.setImage(source,
+                        new ImageViewState(minScale, new PointF(0, 0), 0));
+                gifImage.setDoubleTapZoomScale(result);
+                return;
+            }
+        }
+        gifImage.setDoubleTapZoomScale(result);
+        gifImage.setImage(source);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (gifImage.getVisibility() == View.VISIBLE){
+            gifImage.pause();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (gifImage.getVisibility() == View.VISIBLE){
+            gifImage.resume();
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        if (imageView != null){
+            imageView.recycle();
+        }
+        if (gifImage != null){
+            gifImage.setIsRun(false);
+            gifImage.recycle();
+        }
+        super.onDetach();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
     private PreviewLoaderCallback callback = new PreviewLoaderCallback() {
         @Override
         public void onLoadImage(boolean useScaleImage, Bitmap bitmap, boolean needRecycle) {
             if (isAlive()) {
                 if (useScaleImage) {
                     imageView.setVisibility(View.VISIBLE);
-                    gifImage.setVisibility(View.GONE);
                     if (bitmap != null) {
                         int[] wh = new int[]{bitmap.getWidth(), bitmap.getHeight()};
                         loadImage(wh, needRecycle ? ImageSource.bitmap(bitmap) : ImageSource.cachedBitmap(bitmap));
                     }
                 } else {
-                    imageView.setVisibility(View.GONE);
-                    gifImage.setVisibility(View.VISIBLE);
+                    otherImage.setVisibility(View.VISIBLE);
                     if (bitmap != null) {
-                        gifImage.setImageBitmap(bitmap);
+                        otherImage.setImageBitmap(bitmap);
                     }
                 }
             }
@@ -207,7 +289,6 @@ public class PreviewFragment extends Fragment {
         public void onLoadImageUseScale(File file) {
             if (isAlive()) {
                 imageView.setVisibility(View.VISIBLE);
-                gifImage.setVisibility(View.GONE);
                 loadImage(file.getAbsolutePath());
             }
         }
@@ -216,7 +297,6 @@ public class PreviewFragment extends Fragment {
         public void onLoadImageUseScale(ImageSource source) {
             if (isAlive()) {
                 imageView.setVisibility(View.VISIBLE);
-                gifImage.setVisibility(View.GONE);
                 loadImage(new int[]{0, 0}, source);
             }
         }

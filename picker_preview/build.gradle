@@ -6,11 +6,9 @@ android {
     defaultConfig {
         minSdkVersion versions.minSdk
         targetSdkVersion versions.targetSdk
-        versionCode 1
-        versionName "1.0"
+        versionName versions.pickerVersion
 
         consumerProguardFiles 'consumer-rules.pro'
-        vectorDrawables.useSupportLibrary = true
     }
 
     buildTypes {
@@ -35,6 +33,7 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     api project(':picker')
+    api project(':subscaleview')
     compileOnly deps.appcompat_v7
     api deps.annotations
     api deps.subsampling_image
