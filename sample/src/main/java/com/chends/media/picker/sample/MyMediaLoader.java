@@ -13,7 +13,7 @@ import com.chends.media.picker.model.Constant;
 import com.chends.media.picker.preview.listener.PreviewLoaderCallback;
 import com.chends.media.picker.preview.utils.PreviewMediaLoader;
 import com.chends.media.picker.sample.audio.AudioCoverModel;
-import com.davemorrissey.labs.subscaleview.ImageSource;
+import com.chends.media.picker.scaleview.ImageSource;
 
 import java.io.File;
 

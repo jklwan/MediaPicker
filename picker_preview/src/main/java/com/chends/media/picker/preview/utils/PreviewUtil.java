@@ -70,7 +70,7 @@ public class PreviewUtil {
         if (hasGifScale == null) {
             Class cls = null;
             try {
-                cls = Class.forName("com.davemorrissey.labs.subscaleview.GifSubsamplingScaleImageView");
+                cls = Class.forName("com.chends.media.picker.scaleview.gifdecoder.StandardGifDecoder");
             } catch (ClassNotFoundException ignore) {
             }
             hasGifScale = (cls != null);

@@ -1,4 +1,4 @@
-package com.davemorrissey.labs.subscaleview.gifdecoder;
+package com.chends.media.picker.scaleview.gifdecoder;
 
 import android.graphics.Bitmap;
 import android.support.annotation.IntDef;

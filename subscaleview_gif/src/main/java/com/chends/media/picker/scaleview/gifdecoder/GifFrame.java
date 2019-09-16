@@ -1,4 +1,4 @@
-package com.davemorrissey.labs.subscaleview.gifdecoder;
+package com.chends.media.picker.scaleview.gifdecoder;
 
 import android.support.annotation.ColorInt;
 import android.support.annotation.IntDef;

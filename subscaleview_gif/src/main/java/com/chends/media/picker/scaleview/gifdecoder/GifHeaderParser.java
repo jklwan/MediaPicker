@@ -1,4 +1,4 @@
-package com.davemorrissey.labs.subscaleview.gifdecoder;
+package com.chends.media.picker.scaleview.gifdecoder;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -8,9 +8,9 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 
-import static com.davemorrissey.labs.subscaleview.gifdecoder.GifDecoder.STATUS_FORMAT_ERROR;
-import static com.davemorrissey.labs.subscaleview.gifdecoder.GifFrame.DISPOSAL_NONE;
-import static com.davemorrissey.labs.subscaleview.gifdecoder.GifFrame.DISPOSAL_UNSPECIFIED;
+import static com.chends.media.picker.scaleview.gifdecoder.GifDecoder.STATUS_FORMAT_ERROR;
+import static com.chends.media.picker.scaleview.gifdecoder.GifFrame.DISPOSAL_NONE;
+import static com.chends.media.picker.scaleview.gifdecoder.GifFrame.DISPOSAL_UNSPECIFIED;
 
 /**
  * A class responsible for creating {@link GifHeader}s from data

@@ -27,11 +27,10 @@ import com.chends.media.picker.preview.R;
 import com.chends.media.picker.preview.listener.PreviewLoaderCallback;
 import com.chends.media.picker.preview.utils.PreviewMediaLoader;
 import com.chends.media.picker.preview.utils.PreviewUtil;
+import com.chends.media.picker.scaleview.ImageSource;
+import com.chends.media.picker.scaleview.ImageViewState;
+import com.chends.media.picker.scaleview.SubsamplingScaleImageView;
 import com.chends.media.picker.utils.PickerUtil;
-import com.davemorrissey.labs.subscaleview.GifSubsamplingScaleImageView;
-import com.davemorrissey.labs.subscaleview.ImageSource;
-import com.davemorrissey.labs.subscaleview.ImageViewState;
-import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 
 import java.io.File;
 
@@ -138,28 +137,35 @@ public class PreviewFragment extends Fragment {
      * @return SubsamplingScaleImageView
      */
     private SubsamplingScaleImageView createSSIV() {
+        return createSSIV(false);
+    }
+
+    /**
+     * 创建 gif SubsamplingScaleImageView
+     * @return SubsamplingScaleImageView
+     */
+    private SubsamplingScaleImageView createGifSSIV() {
+        return createSSIV(true);
+    }
+
+    /**
+     * 创建 SubsamplingScaleImageView
+     * @return SubsamplingScaleImageView
+     */
+    private SubsamplingScaleImageView createSSIV(boolean isGif) {
         if (!(imageView instanceof SubsamplingScaleImageView)) {
             frameLayout.removeView(imageView);
             imageView = new SubsamplingScaleImageView(requireActivity());
             frameLayout.addView(imageView, 0, getLayoutParams());
+            ((SubsamplingScaleImageView) imageView).setDoubleTapZoomDuration(200);
+            ((SubsamplingScaleImageView) imageView).setDoubleTapZoomStyle(SubsamplingScaleImageView.ZOOM_FOCUS_CENTER);
         }
+        if (isGif) {
+            ((SubsamplingScaleImageView) imageView).setOrientation(SubsamplingScaleImageView.ORIENTATION_USE_EXIF);
+        }
+        ((SubsamplingScaleImageView) imageView).setIsGif(isGif);
         ((SubsamplingScaleImageView) imageView).setDebug(true);
         return (SubsamplingScaleImageView) imageView;
-    }
-
-    /**
-     * 创建 GifSubsamplingScaleImageView
-     * @return GifSubsamplingScaleImageView
-     */
-    private GifSubsamplingScaleImageView createGifSSIV() {
-        if (!(imageView instanceof GifSubsamplingScaleImageView)) {
-            frameLayout.removeView(imageView);
-            imageView = new GifSubsamplingScaleImageView(requireActivity());
-            frameLayout.addView(imageView, 0, getLayoutParams());
-            ((GifSubsamplingScaleImageView) imageView).setOrientation(SubsamplingScaleImageView.ORIENTATION_USE_EXIF);
-        }
-        ((GifSubsamplingScaleImageView) imageView).setDebug(true);
-        return (GifSubsamplingScaleImageView) imageView;
     }
 
     /**
@@ -194,10 +200,11 @@ public class PreviewFragment extends Fragment {
      * @param source source
      */
     private void loadImage(int[] wh, ImageSource source, boolean isFile) {
+        SubsamplingScaleImageView imageView = createSSIV();
         if (isFile) {
-            createSSIV().setOrientation(SubsamplingScaleImageView.ORIENTATION_USE_EXIF);
+            imageView.setOrientation(SubsamplingScaleImageView.ORIENTATION_USE_EXIF);
         } else {
-            createSSIV().setOrientation(SubsamplingScaleImageView.ORIENTATION_0);
+            imageView.setOrientation(SubsamplingScaleImageView.ORIENTATION_0);
         }
         float result = 0.5f;
         if (wh[0] > 0 && wh[1] > 0) {
@@ -214,14 +221,14 @@ public class PreviewFragment extends Fragment {
             if (minScale < 0.5f) {
                 // 图片大于屏幕当前宽度的2倍
                 // 最小铺满整个屏幕， 最大最大边界(1)
-                createSSIV().setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CENTER_INSIDE);
+                imageView.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CENTER_INSIDE);
                 maxScale = 1f;
             } else if (minScale < 2f) {
                 // 最小铺满，最大2倍
-                createSSIV().setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CUSTOM);
+                imageView.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CUSTOM);
                 maxScale = 2f * minScale;
             } else {
-                createSSIV().setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CUSTOM);
+                imageView.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CUSTOM);
                 // 图片宽度不到屏幕的一半
                 // 最大屏幕宽度
                 // 最小1/2屏幕
@@ -229,16 +236,16 @@ public class PreviewFragment extends Fragment {
                 minScale = maxScale / 2f;
             }
             result = (maxScale - minScale) / 2f;
-            createSSIV().setMinScale(minScale);
-            createSSIV().setMaxScale(maxScale);
+            imageView.setMinScale(minScale);
+            imageView.setMaxScale(maxScale);
             if ((isPortrait && ((wh[1] * minScale - h) > 1)) || ((wh[1] * minScale - w) > 1)) {
-                createSSIV().setDoubleTapZoomScale(result);
-                createSSIV().setImage(source, new ImageViewState(minScale, new PointF(0, 0), 0));
+                imageView.setDoubleTapZoomScale(result);
+                imageView.setImage(source, new ImageViewState(minScale, new PointF(0, 0), 0));
                 return;
             }
         }
-        createSSIV().setDoubleTapZoomScale(result);
-        createSSIV().setImage(source);
+        imageView.setDoubleTapZoomScale(result);
+        imageView.setImage(source);
     }
 
     /**
@@ -246,6 +253,7 @@ public class PreviewFragment extends Fragment {
      * @param path path
      */
     private void loadGifImage(String path) {
+        SubsamplingScaleImageView imageView = createGifSSIV();
         int[] wh = PickerUtil.getImageWH(path);
         ImageSource source = ImageSource.uri(Uri.fromFile(new File(path))).tilingDisabled();
         float result = 0.5f;
@@ -264,14 +272,14 @@ public class PreviewFragment extends Fragment {
             if (minScale < 0.5f) {
                 // 图片大于屏幕当前宽度的2倍
                 // 最小铺满整个屏幕， 最大最大边界(1)
-                createSSIV().setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CENTER_INSIDE);
+                imageView.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CENTER_INSIDE);
                 maxScale = 1f;
             } else if (minScale < 2f) {
                 // 最小铺满，最大2倍
-                createSSIV().setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CUSTOM);
+                imageView.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CUSTOM);
                 maxScale = 2f * minScale;
             } else {
-                createSSIV().setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CUSTOM);
+                imageView.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CUSTOM);
                 // 图片宽度不到屏幕的一半
                 // 最大屏幕宽度
                 // 最小1/2屏幕
@@ -279,17 +287,17 @@ public class PreviewFragment extends Fragment {
                 minScale = maxScale / 2f;
             }
             result = (maxScale - minScale) / 2f;
-            createGifSSIV().setMinScale(minScale);
-            createGifSSIV().setMaxScale(maxScale);
+            imageView.setMinScale(minScale);
+            imageView.setMaxScale(maxScale);
             if ((isPortrait && ((wh[1] * minScale - h) > 1)) || ((wh[1] * minScale - w) > 1)) {
-                createGifSSIV().setDoubleTapZoomScale(result);
-                createGifSSIV().setImage(source,
+                imageView.setDoubleTapZoomScale(result);
+                imageView.setImage(source,
                         new ImageViewState(minScale, new PointF(0, 0), 0));
                 return;
             }
         }
-        createGifSSIV().setDoubleTapZoomScale(result);
-        createGifSSIV().setImage(source);
+        imageView.setDoubleTapZoomScale(result);
+        imageView.setImage(source);
     }
 
 
@@ -297,12 +305,6 @@ public class PreviewFragment extends Fragment {
     public void onDestroyView() {
         if (imageView instanceof SubsamplingScaleImageView) {
             ((SubsamplingScaleImageView) imageView).recycle();
-        } else {
-            if (PreviewUtil.hasGifScale()) {
-                if (imageView instanceof GifSubsamplingScaleImageView) {
-                    ((GifSubsamplingScaleImageView) imageView).recycle();
-                }
-            }
         }
         if (frameLayout != null) {
             if (imageView != null) {

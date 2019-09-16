@@ -1,4 +1,4 @@
-package com.davemorrissey.labs.subscaleview.gifdecoder;
+package com.chends.media.picker.scaleview.gifdecoder;
 
 /*
  * Copyright (c) 2013 Xcellent Creations, Inc.
@@ -37,11 +37,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 
-import static com.davemorrissey.labs.subscaleview.gifdecoder.GifFrame.DISPOSAL_BACKGROUND;
-import static com.davemorrissey.labs.subscaleview.gifdecoder.GifFrame.DISPOSAL_NONE;
-import static com.davemorrissey.labs.subscaleview.gifdecoder.GifFrame.DISPOSAL_PREVIOUS;
-import static com.davemorrissey.labs.subscaleview.gifdecoder.GifFrame.DISPOSAL_UNSPECIFIED;
-
 /**
  * Reads frame data from a GIF image source and decodes it into individual frames for animation
  * purposes.  Image data can be read from either and InputStream source or a byte[].
@@ -59,7 +54,7 @@ import static com.davemorrissey.labs.subscaleview.gifdecoder.GifFrame.DISPOSAL_U
  * Programmers</em>, republished under the MIT Open Source License
  * @see <a href="https://www.w3.org/Graphics/GIF/spec-gif89a.txt">GIF 89a Specification</a>
  */
-public class StandardGifDecoder implements com.davemorrissey.labs.subscaleview.gifdecoder.GifDecoder {
+public class StandardGifDecoder implements GifDecoder {
     private static final String TAG = StandardGifDecoder.class.getSimpleName();
 
     /**
@@ -344,7 +339,7 @@ public class StandardGifDecoder implements com.davemorrissey.labs.subscaleview.g
         // No point in specially saving an old frame if we're never going to use it.
         savePrevious = false;
         for (GifFrame frame : header.frames) {
-            if (frame.dispose == DISPOSAL_PREVIOUS) {
+            if (frame.dispose == GifFrame.DISPOSAL_PREVIOUS) {
                 savePrevious = true;
                 break;
             }
@@ -407,16 +402,16 @@ public class StandardGifDecoder implements com.davemorrissey.labs.subscaleview.g
         // clear all pixels when dispose is 3 but previousImage is null.
         // When DISPOSAL_PREVIOUS and previousImage didn't be set, new frame should draw on
         // a empty image
-        if (previousFrame != null && previousFrame.dispose == DISPOSAL_PREVIOUS
+        if (previousFrame != null && previousFrame.dispose == GifFrame.DISPOSAL_PREVIOUS
                 && previousImage == null) {
             Arrays.fill(dest, COLOR_TRANSPARENT_BLACK);
         }
 
         // fill in starting image contents based on last image's dispose code
-        if (previousFrame != null && previousFrame.dispose > DISPOSAL_UNSPECIFIED) {
+        if (previousFrame != null && previousFrame.dispose > GifFrame.DISPOSAL_UNSPECIFIED) {
             // We don't need to do anything for DISPOSAL_NONE, if it has the correct pixels so will our
             // mainScratch and therefore so will our dest array.
-            if (previousFrame.dispose == DISPOSAL_BACKGROUND) {
+            if (previousFrame.dispose == GifFrame.DISPOSAL_BACKGROUND) {
                 // Start with a canvas filled with the background color
                 @ColorInt int c = COLOR_TRANSPARENT_BLACK;
                 if (!currentFrame.transparency) {
@@ -443,7 +438,7 @@ public class StandardGifDecoder implements com.davemorrissey.labs.subscaleview.g
                         dest[pointer] = c;
                     }
                 }
-            } else if (previousFrame.dispose == DISPOSAL_PREVIOUS && previousImage != null) {
+            } else if (previousFrame.dispose == GifFrame.DISPOSAL_PREVIOUS && previousImage != null) {
                 // Start with the previous frame
                 previousImage.getPixels(dest, 0, downsampledWidth, 0, 0, downsampledWidth,
                         downsampledHeight);
@@ -460,8 +455,8 @@ public class StandardGifDecoder implements com.davemorrissey.labs.subscaleview.g
         }
 
         // Copy pixels into previous image
-        if (savePrevious && (currentFrame.dispose == DISPOSAL_UNSPECIFIED
-                || currentFrame.dispose == DISPOSAL_NONE)) {
+        if (savePrevious && (currentFrame.dispose == GifFrame.DISPOSAL_UNSPECIFIED
+                || currentFrame.dispose == GifFrame.DISPOSAL_NONE)) {
             if (previousImage == null) {
                 previousImage = getNextBitmap();
             }

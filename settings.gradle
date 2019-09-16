@@ -1,2 +1,2 @@
-include ':sample', ':picker', ':picker_preview', 'subscaleview'
+include ':sample', ':picker', ':picker_preview', 'subscaleview', 'subscaleview_gif'
 rootProject.name = 'MediaPicker'

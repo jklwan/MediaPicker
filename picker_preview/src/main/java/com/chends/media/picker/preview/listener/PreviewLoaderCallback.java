@@ -4,7 +4,7 @@ import android.graphics.Bitmap;
 import android.support.annotation.Nullable;
 import android.widget.ImageView;
 
-import com.davemorrissey.labs.subscaleview.ImageSource;
+import com.chends.media.picker.scaleview.ImageSource;
 
 import java.io.File;
 
