@@ -204,33 +204,34 @@ public class PreviewFragment extends Fragment {
             // 使图片横向铺满
             boolean isPortrait = getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
             float minScale, maxScale;
-            int realW, realH;
+            int realW;
             if (isPortrait) {
                 realW = w;
-                realH = h;
             } else {
                 realW = h;
-                realH = w;
             }
-            if (wh[0] <= wh[1]) {
-                result = (float) realW / wh[0];
-            } else {
-                result = (float) realH / wh[1];
-            }
-
             minScale = (float) realW / wh[0];
             if (minScale < 0.5f) {
                 // 图片大于屏幕当前宽度的2倍
                 // 最小铺满整个屏幕， 最大最大边界(1)
+                createSSIV().setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CENTER_INSIDE);
                 maxScale = 1f;
-            } else {
+            } else if (minScale < 2f) {
                 // 最小铺满，最大2倍
+                createSSIV().setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CUSTOM);
                 maxScale = 2f * minScale;
+            } else {
+                createSSIV().setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CUSTOM);
+                // 图片宽度不到屏幕的一半
+                // 最大屏幕宽度
+                // 最小1/2屏幕
+                maxScale = minScale;
+                minScale = maxScale / 2f;
             }
+            result = (maxScale - minScale) / 2f;
             createSSIV().setMinScale(minScale);
             createSSIV().setMaxScale(maxScale);
             if ((isPortrait && ((wh[1] * minScale - h) > 1)) || ((wh[1] * minScale - w) > 1)) {
-                createSSIV().setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CENTER_INSIDE);
                 createSSIV().setDoubleTapZoomScale(result);
                 createSSIV().setImage(source, new ImageViewState(minScale, new PointF(0, 0), 0));
                 return;
@@ -252,35 +253,38 @@ public class PreviewFragment extends Fragment {
             // 使图片横向铺满
             boolean isPortrait = getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
             float minScale, maxScale;
-            int realW, realH;
+            int realW;
             if (isPortrait) {
                 realW = w;
-                realH = h;
             } else {
                 realW = h;
-                realH = w;
-            }
-            if (wh[0] <= wh[1]) {
-                result = (float) realW / wh[0];
-            } else {
-                result = (float) realH / wh[1];
             }
 
             minScale = (float) realW / wh[0];
             if (minScale < 0.5f) {
                 // 图片大于屏幕当前宽度的2倍
                 // 最小铺满整个屏幕， 最大最大边界(1)
+                createSSIV().setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CENTER_INSIDE);
                 maxScale = 1f;
-            } else {
+            } else if (minScale < 2f) {
                 // 最小铺满，最大2倍
+                createSSIV().setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CUSTOM);
                 maxScale = 2f * minScale;
+            } else {
+                createSSIV().setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CUSTOM);
+                // 图片宽度不到屏幕的一半
+                // 最大屏幕宽度
+                // 最小1/2屏幕
+                maxScale = minScale;
+                minScale = maxScale / 2f;
             }
+            result = (maxScale - minScale) / 2f;
             createGifSSIV().setMinScale(minScale);
             createGifSSIV().setMaxScale(maxScale);
             if ((isPortrait && ((wh[1] * minScale - h) > 1)) || ((wh[1] * minScale - w) > 1)) {
+                createGifSSIV().setDoubleTapZoomScale(result);
                 createGifSSIV().setImage(source,
                         new ImageViewState(minScale, new PointF(0, 0), 0));
-                createGifSSIV().setDoubleTapZoomScale(result);
                 return;
             }
         }
