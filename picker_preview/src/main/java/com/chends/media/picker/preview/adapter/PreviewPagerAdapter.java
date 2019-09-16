@@ -33,7 +33,7 @@ public class PreviewPagerAdapter extends FragmentPagerAdapter {
 
     public PreviewPagerAdapter(FragmentManager manager, List<ItemBean> list) {
         super(manager);
-        if (list != null){
+        if (list != null) {
             mList.addAll(list);
         }
     }
@@ -50,11 +50,15 @@ public class PreviewPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public long getItemId(int position) {
-        return getMediaItem(position).hashCode();
+        ItemBean item = getMediaItem(position);
+        if (item == null) {
+            return 0;
+        }
+        return item.hashCode();
     }
 
     public ItemBean getMediaItem(int position) {
-        if (position < 0 || position >= mList.size()){
+        if (position < 0 || position >= mList.size()) {
             return null;
         }
         return mList.get(position);

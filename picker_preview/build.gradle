@@ -33,8 +33,11 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     api project(':picker')
-    api project(':subscaleview')
+    compileOnly project(':subscaleview')
     compileOnly deps.appcompat_v7
-    api deps.annotations
-    api deps.subsampling_image
+    implementation deps.annotations
+    implementation deps.exifinterface
+    api(deps.subsampling_image) {
+        exclude group: "$android_support"
+    }
 }

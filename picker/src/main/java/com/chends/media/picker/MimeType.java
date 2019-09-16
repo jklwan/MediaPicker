@@ -199,7 +199,8 @@ public class MimeType {
     }
 
     /**
-     * is Webp
+     * is Webp header<br/>
+     * <a href="https://github.com/webmproject/webp-wic-codec/blob/master/src/libwebp/dec/webp.c">libwebp</a>
      * @param header header
      * @return is webp
      */

@@ -10,7 +10,6 @@ import com.chends.media.picker.model.Constant;
 import com.chends.media.picker.model.PickerBean;
 import com.chends.media.picker.utils.ControlUtil;
 import com.chends.media.picker.utils.PickerUtil;
-import com.chends.media.picker.utils.ToastUtils;
 
 import java.util.ArrayList;
 
@@ -28,11 +27,9 @@ public class MediaPickerActivity extends BasePickerActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_media_picker);
         if (!PickerBean.getInstance().reset) {
-            ToastUtils.showShort(this, "need reset");
             finish();
             return;
         }
-        PickerBean.getInstance().reset = false;
         util = new ControlUtil(this);
         util.onRestoreInstanceState(savedInstanceState);
         util.startLoader();
@@ -41,6 +38,7 @@ public class MediaPickerActivity extends BasePickerActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        System.gc();
         if (resultCode != RESULT_OK) {
             return;
         }

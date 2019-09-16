@@ -7,7 +7,7 @@ ext {
             'compileSdk'   : 27,
             'buildTools'   : '28.0.3',
             'targetSdk'    : 27,
-            'minSdk'       : 14,
+            'minSdk'       : 19,
             'pickerVersion': '1.0'
     ]
     deps = [

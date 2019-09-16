@@ -4,7 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.bumptech.glide.request.target.CustomTarget;
@@ -14,7 +14,6 @@ import com.chends.media.picker.preview.listener.PreviewLoaderCallback;
 import com.chends.media.picker.preview.utils.PreviewMediaLoader;
 import com.chends.media.picker.sample.audio.AudioCoverModel;
 import com.davemorrissey.labs.subscaleview.ImageSource;
-import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 
 import java.io.File;
 
@@ -36,8 +35,8 @@ public class MyMediaLoader extends PreviewMediaLoader {
     }
 
     @Override
-    public void loadImageFull(final SubsamplingScaleImageView view, ImageView imageView, String path,
-                              int width, int height, @Constant.ImageType int type, final PreviewLoaderCallback callback) {
+    public void loadImageFull(FrameLayout frameLayout, String path, int width, int height,
+                              @Constant.ImageType int type, final PreviewLoaderCallback callback) {
         //MediaLoaderUtil.getInstance(view.getContext()).loadImage(path, view, width, height);
         switch (type) {
             case Constant.TYPE_NORMAL:
@@ -46,7 +45,7 @@ public class MyMediaLoader extends PreviewMediaLoader {
             case Constant.TYPE_WEBP:
             case Constant.TYPE_ANIMATED_WEBP:
             case Constant.TYPE_APNG:
-                GlideApp.with(view.getContext())
+                GlideApp.with(frameLayout)
                         .asBitmap()
                         .load(path)
                         .into(new CustomTarget<Bitmap>() {
@@ -67,14 +66,12 @@ public class MyMediaLoader extends PreviewMediaLoader {
                         });
                 break;
             case Constant.TYPE_GIF:
-                imageView.setVisibility(View.VISIBLE);
-                GlideApp.with(imageView.getContext())
-                        .asGif()
-                        .load(path)
-                        .placeholder(R.drawable.ic_image_default)
-                        .error(R.drawable.ic_image_default)
-                        .fallback(R.drawable.ic_image_default)
-                        .into(imageView);
+                if (callback.getImageView() != null) {
+                    GlideApp.with(frameLayout.getContext())
+                            .asGif()
+                            .load(path)
+                            .into(callback.getImageView());
+                }
                 break;
             case Constant.TYPE_SVG:
                 // load svg
@@ -96,9 +93,9 @@ public class MyMediaLoader extends PreviewMediaLoader {
     }
 
     @Override
-    public void loadVideoFull(SubsamplingScaleImageView view, String path, int width, int height, PreviewLoaderCallback callback) {
+    public void loadVideoFull(FrameLayout frameLayout, String path, int width, int height, PreviewLoaderCallback callback) {
         //MediaLoaderUtil.getInstance(view.getContext()).loadVideoFull(path, view);
-        LoadAV(view, true, path, callback);
+        LoadAV(frameLayout, true, path, callback);
     }
 
     @Override
@@ -116,19 +113,19 @@ public class MyMediaLoader extends PreviewMediaLoader {
     }
 
     @Override
-    public void loadAudioFull(SubsamplingScaleImageView view, String path, int width, int height, PreviewLoaderCallback callback) {
+    public void loadAudioFull(FrameLayout frameLayout, String path, int width, int height, PreviewLoaderCallback callback) {
         //MediaLoaderUtil.getInstance(view.getContext()).loadAudioFull(path, view);
-        LoadAV(view, false, path, callback);
+        LoadAV(frameLayout, false, path, callback);
     }
 
     /**
      * 加载音视频
-     * @param view    view
-     * @param isVideo 是否视频
-     * @param path    path
+     * @param frameLayout frameLayout
+     * @param isVideo     是否视频
+     * @param path        path
      */
-    private void LoadAV(final SubsamplingScaleImageView view, final boolean isVideo, String path, final PreviewLoaderCallback callback) {
-        GlideApp.with(view.getContext())
+    private void LoadAV(final FrameLayout frameLayout, final boolean isVideo, String path, final PreviewLoaderCallback callback) {
+        GlideApp.with(frameLayout.getContext())
                 .asBitmap()
                 .load(isVideo ? path : new AudioCoverModel(path))
                 .into(new CustomTarget<Bitmap>() {

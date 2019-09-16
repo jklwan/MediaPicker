@@ -9,10 +9,13 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.AppCompatImageView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -40,9 +43,8 @@ public class PreviewFragment extends Fragment {
     private static final String BUNDLE_DATA = "path";
     private int w, h;
     private ItemBean item;
-    private SubsamplingScaleImageView imageView;
-    private GifSubsamplingScaleImageView gifImage;
-    private ImageView otherImage;
+    private FrameLayout frameLayout;
+    private View imageView;
 
     public PreviewFragment() {
         w = Resources.getSystem().getDisplayMetrics().widthPixels;
@@ -74,12 +76,8 @@ public class PreviewFragment extends Fragment {
                 item = savedInstanceState.getParcelable(BUNDLE_DATA);
             }
         }
+        frameLayout = rootView.findViewById(R.id.frameLayout);
         if (item != null && !TextUtils.isEmpty(item.getPath())) {
-            imageView = rootView.findViewById(R.id.imageView);
-            //imageView.setDebug(true);
-            gifImage = rootView.findViewById(R.id.gifImage);
-            //gifImage.setDebug(true);
-            otherImage = rootView.findViewById(R.id.otherImage);
             TextView imageInfo = rootView.findViewById(R.id.imageInfo);
             View play = rootView.findViewById(R.id.play);
             int type = MimeType.getItemType(item.getMimeType());
@@ -87,46 +85,98 @@ public class PreviewFragment extends Fragment {
             if (PickerBean.getInstance().loader instanceof PreviewMediaLoader) {
                 loader = (PreviewMediaLoader) PickerBean.getInstance().loader;
             }
-            if (loader != null) {
-                imageView.setVisibility(View.GONE);
-                gifImage.setVisibility(View.GONE);
-                otherImage.setVisibility(View.GONE);
-                if (type == Constant.TYPE_IMAGE) {
-                    imageInfo.setVisibility(View.GONE);
-                    play.setVisibility(View.GONE);
-                    int imageType = MimeType.getImageType(item.getMimeType(), item.getPath());
-                    switch (imageType) {
-                        case Constant.TYPE_NORMAL:
-                            imageView.setVisibility(View.VISIBLE);
-                            loadImage(item.getPath());
-                            break;
-                        case Constant.TYPE_GIF:
-                            gifImage.setVisibility(View.VISIBLE);
+            if (type == Constant.TYPE_IMAGE) {
+                imageInfo.setVisibility(View.GONE);
+                play.setVisibility(View.GONE);
+                int imageType = MimeType.getImageType(item.getMimeType(), item.getPath());
+                switch (imageType) {
+                    case Constant.TYPE_NORMAL:
+                        loadImage(item.getPath());
+                        break;
+                    case Constant.TYPE_GIF:
+                        if (PreviewUtil.hasGifScale()) {
                             loadGifImage(item.getPath());
-                            break;
-                        case Constant.TYPE_APNG:
-                        case Constant.TYPE_WEBP:
-                        case Constant.TYPE_ANIMATED_WEBP:
-                        case Constant.TYPE_SVG:
-                            loader.loadImageFull(imageView, otherImage, item.getPath(), w, h,
+                        } else {
+                            if (loader != null) {
+                                loader.loadImageFull(frameLayout, item.getPath(), w, h,
+                                        imageType, callback);
+                            }
+                        }
+                        break;
+                    case Constant.TYPE_APNG:
+                    case Constant.TYPE_WEBP:
+                    case Constant.TYPE_ANIMATED_WEBP:
+                    case Constant.TYPE_SVG:
+                        if (loader != null) {
+                            loader.loadImageFull(frameLayout, item.getPath(), w, h,
                                     imageType, callback);
-                            break;
-                    }
-                } else if (type == Constant.TYPE_VIDEO) {
-                    imageInfo.setVisibility(View.GONE);
-                    play.setVisibility(View.VISIBLE);
-                    play.setOnClickListener(new PlayClick(item.getPath(), item.getMimeType()));
-                    loader.loadVideoFull(imageView, item.getPath(), w, h, callback);
-                } else if (type == Constant.TYPE_AUDIO) {
-                    imageInfo.setVisibility(View.VISIBLE);
-                    play.setVisibility(View.VISIBLE);
-                    play.setOnClickListener(new PlayClick(item.getPath(), item.getMimeType()));
-                    loader.loadAudioFull(imageView, item.getPath(), w, h, callback);
-                    imageInfo.setText(PreviewUtil.getFileName(item.getPath()));
+                        }
+                        break;
                 }
+            } else if (type == Constant.TYPE_VIDEO) {
+                imageInfo.setVisibility(View.GONE);
+                play.setVisibility(View.VISIBLE);
+                play.setOnClickListener(new PlayClick(item.getPath(), item.getMimeType()));
+                if (loader != null) {
+                    loader.loadVideoFull(frameLayout, item.getPath(), w, h, callback);
+                }
+            } else if (type == Constant.TYPE_AUDIO) {
+                imageInfo.setVisibility(View.VISIBLE);
+                play.setVisibility(View.VISIBLE);
+                play.setOnClickListener(new PlayClick(item.getPath(), item.getMimeType()));
+                if (loader != null) {
+                    loader.loadAudioFull(frameLayout, item.getPath(), w, h, callback);
+                }
+                imageInfo.setText(PreviewUtil.getFileName(item.getPath()));
             }
         }
         return rootView;
+    }
+
+    /**
+     * 创建 SubsamplingScaleImageView
+     * @return SubsamplingScaleImageView
+     */
+    private SubsamplingScaleImageView createSSIV() {
+        if (!(imageView instanceof SubsamplingScaleImageView)) {
+            frameLayout.removeView(imageView);
+            imageView = new SubsamplingScaleImageView(requireActivity());
+            frameLayout.addView(imageView, 0, getLayoutParams());
+        }
+        ((SubsamplingScaleImageView) imageView).setDebug(true);
+        return (SubsamplingScaleImageView) imageView;
+    }
+
+    /**
+     * 创建 GifSubsamplingScaleImageView
+     * @return GifSubsamplingScaleImageView
+     */
+    private GifSubsamplingScaleImageView createGifSSIV() {
+        if (!(imageView instanceof GifSubsamplingScaleImageView)) {
+            frameLayout.removeView(imageView);
+            imageView = new GifSubsamplingScaleImageView(requireActivity());
+            frameLayout.addView(imageView, 0, getLayoutParams());
+            ((GifSubsamplingScaleImageView) imageView).setOrientation(SubsamplingScaleImageView.ORIENTATION_USE_EXIF);
+        }
+        ((GifSubsamplingScaleImageView) imageView).setDebug(true);
+        return (GifSubsamplingScaleImageView) imageView;
+    }
+
+    /**
+     * 创建 ImageView
+     * @return ImageView
+     */
+    private ImageView createImageView() {
+        if (!(imageView instanceof AppCompatImageView)) {
+            frameLayout.removeView(imageView);
+            imageView = new AppCompatImageView(requireActivity());
+            frameLayout.addView(imageView, 0, getLayoutParams());
+        }
+        return (ImageView) imageView;
+    }
+
+    private ViewGroup.LayoutParams getLayoutParams() {
+        return new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
     }
 
     /**
@@ -135,7 +185,7 @@ public class PreviewFragment extends Fragment {
      */
     private void loadImage(String path) {
         int[] wh = PickerUtil.getImageWH(path);
-        loadImage(wh, ImageSource.uri(Uri.fromFile(new File(path))));
+        loadImage(wh, ImageSource.uri(Uri.fromFile(new File(path))).tilingDisabled(), true);
     }
 
     /**
@@ -143,7 +193,12 @@ public class PreviewFragment extends Fragment {
      * @param wh     wh
      * @param source source
      */
-    private void loadImage(int[] wh, ImageSource source) {
+    private void loadImage(int[] wh, ImageSource source, boolean isFile) {
+        if (isFile) {
+            createSSIV().setOrientation(SubsamplingScaleImageView.ORIENTATION_USE_EXIF);
+        } else {
+            createSSIV().setOrientation(SubsamplingScaleImageView.ORIENTATION_0);
+        }
         float result = 0.5f;
         if (wh[0] > 0 && wh[1] > 0) {
             // 使图片横向铺满
@@ -172,17 +227,17 @@ public class PreviewFragment extends Fragment {
                 // 最小铺满，最大2倍
                 maxScale = 2f * minScale;
             }
-            imageView.setMinScale(minScale);
-            imageView.setMaxScale(maxScale);
+            createSSIV().setMinScale(minScale);
+            createSSIV().setMaxScale(maxScale);
             if ((isPortrait && ((wh[1] * minScale - h) > 1)) || ((wh[1] * minScale - w) > 1)) {
-                imageView.setImage(source,
-                        new ImageViewState(minScale, new PointF(0, 0), 0));
-                imageView.setDoubleTapZoomScale(result);
+                createSSIV().setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CENTER_INSIDE);
+                createSSIV().setDoubleTapZoomScale(result);
+                createSSIV().setImage(source, new ImageViewState(minScale, new PointF(0, 0), 0));
                 return;
             }
         }
-        imageView.setDoubleTapZoomScale(result);
-        imageView.setImage(source);
+        createSSIV().setDoubleTapZoomScale(result);
+        createSSIV().setImage(source);
     }
 
     /**
@@ -220,50 +275,39 @@ public class PreviewFragment extends Fragment {
                 // 最小铺满，最大2倍
                 maxScale = 2f * minScale;
             }
-            gifImage.setMinScale(minScale);
-            gifImage.setMaxScale(maxScale);
+            createGifSSIV().setMinScale(minScale);
+            createGifSSIV().setMaxScale(maxScale);
             if ((isPortrait && ((wh[1] * minScale - h) > 1)) || ((wh[1] * minScale - w) > 1)) {
-                gifImage.setImage(source,
+                createGifSSIV().setImage(source,
                         new ImageViewState(minScale, new PointF(0, 0), 0));
-                gifImage.setDoubleTapZoomScale(result);
+                createGifSSIV().setDoubleTapZoomScale(result);
                 return;
             }
         }
-        gifImage.setDoubleTapZoomScale(result);
-        gifImage.setImage(source);
+        createGifSSIV().setDoubleTapZoomScale(result);
+        createGifSSIV().setImage(source);
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (gifImage.getVisibility() == View.VISIBLE){
-            gifImage.pause();
-        }
-    }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        if (gifImage.getVisibility() == View.VISIBLE){
-            gifImage.resume();
+    public void onDestroyView() {
+        if (imageView instanceof SubsamplingScaleImageView) {
+            ((SubsamplingScaleImageView) imageView).recycle();
+        } else {
+            if (PreviewUtil.hasGifScale()) {
+                if (imageView instanceof GifSubsamplingScaleImageView) {
+                    ((GifSubsamplingScaleImageView) imageView).recycle();
+                }
+            }
         }
-    }
-
-    @Override
-    public void onDetach() {
-        if (imageView != null){
-            imageView.recycle();
+        if (frameLayout != null) {
+            if (imageView != null) {
+                frameLayout.removeView(imageView);
+            }
         }
-        if (gifImage != null){
-            gifImage.setIsRun(false);
-            gifImage.recycle();
-        }
-        super.onDetach();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
+        imageView = null;
+        Log.d("preview", "onDestroyView");
+        super.onDestroyView();
     }
 
     private PreviewLoaderCallback callback = new PreviewLoaderCallback() {
@@ -271,15 +315,14 @@ public class PreviewFragment extends Fragment {
         public void onLoadImage(boolean useScaleImage, Bitmap bitmap, boolean needRecycle) {
             if (isAlive()) {
                 if (useScaleImage) {
-                    imageView.setVisibility(View.VISIBLE);
                     if (bitmap != null) {
                         int[] wh = new int[]{bitmap.getWidth(), bitmap.getHeight()};
-                        loadImage(wh, needRecycle ? ImageSource.bitmap(bitmap) : ImageSource.cachedBitmap(bitmap));
+                        loadImage(wh, needRecycle ? ImageSource.bitmap(bitmap) : ImageSource.cachedBitmap(bitmap),
+                                false);
                     }
                 } else {
-                    otherImage.setVisibility(View.VISIBLE);
                     if (bitmap != null) {
-                        otherImage.setImageBitmap(bitmap);
+                        createImageView().setImageBitmap(bitmap);
                     }
                 }
             }
@@ -288,7 +331,6 @@ public class PreviewFragment extends Fragment {
         @Override
         public void onLoadImageUseScale(File file) {
             if (isAlive()) {
-                imageView.setVisibility(View.VISIBLE);
                 loadImage(file.getAbsolutePath());
             }
         }
@@ -296,14 +338,19 @@ public class PreviewFragment extends Fragment {
         @Override
         public void onLoadImageUseScale(ImageSource source) {
             if (isAlive()) {
-                imageView.setVisibility(View.VISIBLE);
-                loadImage(new int[]{0, 0}, source);
+                loadImage(new int[]{0, 0}, source, false);
             }
+        }
+
+        @Nullable
+        @Override
+        public ImageView getImageView() {
+            return createImageView();
         }
     };
 
     private boolean isAlive() {
-        return !isDetached() && getActivity() != null && imageView != null;
+        return !isDetached() && getActivity() != null && frameLayout != null;
     }
 
     /**

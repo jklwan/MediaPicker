@@ -1,6 +1,8 @@
 package com.chends.media.picker.preview.listener;
 
 import android.graphics.Bitmap;
+import android.support.annotation.Nullable;
+import android.widget.ImageView;
 
 import com.davemorrissey.labs.subscaleview.ImageSource;
 
@@ -33,4 +35,8 @@ public class PreviewLoaderCallback {
     public void onLoadImageUseScale(ImageSource source) {
     }
 
+    @Nullable
+    public ImageView getImageView() {
+        return null;
+    }
 }

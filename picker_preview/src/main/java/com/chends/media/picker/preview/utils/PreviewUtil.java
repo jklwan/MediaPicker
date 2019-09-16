@@ -15,13 +15,6 @@ import java.io.File;
 public class PreviewUtil {
 
     /**
-     *
-     */
-    public void loadImage() {
-
-    }
-
-    /**
      * 获取文件全名称
      * @param path path
      * @return name
@@ -66,5 +59,22 @@ public class PreviewUtil {
             context.startActivity(intent);
         } catch (Exception ignore) {
         }
+    }
+
+    private static Boolean hasGifScale = null;
+
+    /**
+     * 是否有gif scale
+     */
+    public static boolean hasGifScale() {
+        if (hasGifScale == null) {
+            Class cls = null;
+            try {
+                cls = Class.forName("com.davemorrissey.labs.subscaleview.GifSubsamplingScaleImageView");
+            } catch (ClassNotFoundException ignore) {
+            }
+            hasGifScale = (cls != null);
+        }
+        return hasGifScale;
     }
 }

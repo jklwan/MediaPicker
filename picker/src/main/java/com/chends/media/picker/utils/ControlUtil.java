@@ -157,10 +157,7 @@ public class ControlUtil implements LifecycleObserver {
         @Override
         public void onSelected(FolderBean bean) {
             if (checkActivity() && bean != null) {
-                if (bean.equals(selectFolder)) {
-                    return;
-                }
-                changeFolder = true;
+                changeFolder = !bean.equals(selectFolder);
                 selectFolder = bean;
                 title.setText(bean.getDisplayName());
                 folderName.setText(bean.getDisplayName());
@@ -227,7 +224,6 @@ public class ControlUtil implements LifecycleObserver {
                     recyclerView.setAdapter(itemAdapter);
                 } else {
                     if (changeFolder) {
-                        changeFolder = false;
                         recyclerView.scrollToPosition(0);
                     }
                     itemAdapter.swapCursor(cursor);

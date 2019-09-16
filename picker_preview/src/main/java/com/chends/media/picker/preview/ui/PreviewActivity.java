@@ -42,6 +42,10 @@ public class PreviewActivity extends BasePickerActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (!PickerBean.getInstance().reset) {
+            finish();
+            return;
+        }
         setContentView(R.layout.activity_media_picker_preview);
         String folderId = getIntent().getStringExtra(Constant.EXTRA_FOLDER_ID);
         List<ItemBean> list = new ArrayList<>();
@@ -56,6 +60,7 @@ public class PreviewActivity extends BasePickerActivity {
             useCursor = true;
         }
 
+        //SubsamplingScaleImageView.setPreferredBitmapConfig(Bitmap.Config.RGB_565);
         if (savedInstanceState != null) {
             selectPosition = savedInstanceState.getInt(Constant.STATE_CURRENT_SELECTION, 0);
         } else {
