@@ -3,6 +3,7 @@ package com.chends.media.picker.preview.ui;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.PointF;
 import android.net.Uri;
 import android.os.Bundle;
@@ -205,11 +206,30 @@ public class PreviewFragment extends Fragment {
     }
 
     /**
+     * 显示大图
+     * @param bitmap bitmap
+     */
+    private void loadImage(Bitmap bitmap, boolean needRecycle){
+        int[] wh = new int[]{bitmap.getWidth(), bitmap.getHeight()};
+        if (Math.max(wh[0], wh[1]) >= PickerUtil.maxTextureSize()) {
+            // 宽高大于最大宽高，进行缩放
+            Bitmap scale = PreviewUtil.onlyScaleBitmap(bitmap, needRecycle);
+            if (scale != bitmap) {
+                wh = new int[]{scale.getWidth(), scale.getHeight()};
+                loadImage(wh, ImageSource.bitmap(scale), false);
+                return;
+            }
+        }
+        loadImage(wh, needRecycle ? ImageSource.bitmap(bitmap) :
+                ImageSource.cachedBitmap(bitmap), false);
+    }
+
+    /**
      * load image
      * @param wh     wh
      * @param source source
      */
-    private void loadImage(int[] wh, ImageSource source, boolean isFile) {
+    private void loadImage(int[] wh, @NonNull ImageSource source, boolean isFile) {
         SubsamplingScaleImageView imageView = createSSIV();
         if (isFile) {
             imageView.setOrientation(SubsamplingScaleImageView.ORIENTATION_USE_EXIF);
@@ -300,8 +320,11 @@ public class PreviewFragment extends Fragment {
         @Override
         public void onImageLoadError(Exception e) {
             // reload
-            if (!TextUtils.isEmpty(path)){
+            if (!TextUtils.isEmpty(path)) {
                 // 使用原始的加载方式
+                try {
+                    loadImage(BitmapFactory.decodeFile(path), true);
+                } catch (Exception ignore){}
             }
         }
     }
@@ -327,40 +350,25 @@ public class PreviewFragment extends Fragment {
     private PreviewLoaderCallback callback = new PreviewLoaderCallback() {
         @Override
         public void onLoadImage(boolean useScaleImage, Bitmap bitmap, boolean needRecycle) {
-            if (isAlive()) {
+            if (isAlive() && bitmap != null) {
                 if (useScaleImage) {
-                    if (bitmap != null) {
-                        int[] wh = new int[]{bitmap.getWidth(), bitmap.getHeight()};
-                        if (Math.max(wh[0], wh[1]) >= PickerUtil.maxTextureSize()) {
-                            // 宽高大于最大宽高，进行缩放
-                            Bitmap scale = PreviewUtil.onlyScaleBitmap(bitmap, needRecycle);
-                            if (scale != bitmap) {
-                                wh = new int[]{scale.getWidth(), scale.getHeight()};
-                                loadImage(wh, ImageSource.bitmap(scale), false);
-                                return;
-                            }
-                        }
-                        loadImage(wh, needRecycle ? ImageSource.bitmap(bitmap) :
-                                ImageSource.cachedBitmap(bitmap), false);
-                    }
+                    loadImage(bitmap, needRecycle);
                 } else {
-                    if (bitmap != null) {
-                        createImageView().setImageBitmap(bitmap);
-                    }
+                    createImageView().setImageBitmap(bitmap);
                 }
             }
         }
 
         @Override
         public void onLoadImageUseScale(File file) {
-            if (isAlive()) {
+            if (isAlive() && file != null) {
                 loadImage(file.getAbsolutePath());
             }
         }
 
         @Override
         public void onLoadImageUseScale(ImageSource source) {
-            if (isAlive()) {
+            if (isAlive() && source != null) {
                 loadImage(new int[]{0, 0}, source, false);
             }
         }
