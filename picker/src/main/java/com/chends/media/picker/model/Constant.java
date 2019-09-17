@@ -36,9 +36,13 @@ public class Constant {
     }
 
     /**
-     * 保存状态
+     * 保存选项
      */
     public static final String STATE_CURRENT_SELECTION = "state_current_selection";
+    /**
+     * 保存数据
+     */
+    public static final String SAVE_DATA = "save_data";
 
     /**
      * extra data

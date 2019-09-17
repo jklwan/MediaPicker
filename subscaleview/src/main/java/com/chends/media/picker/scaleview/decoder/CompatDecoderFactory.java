@@ -10,7 +10,6 @@ import java.lang.reflect.InvocationTargetException;
  * Compatibility factory to instantiate decoders with empty public constructors.
  * @param <T> The base type of the decoder this factory will produce.
  */
-@SuppressWarnings("WeakerAccess")
 public class CompatDecoderFactory<T> implements DecoderFactory<T> {
 
     private final Class<? extends T> clazz;

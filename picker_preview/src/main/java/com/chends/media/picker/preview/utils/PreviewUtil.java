@@ -2,10 +2,13 @@ package com.chends.media.picker.preview.utils;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
+
+import com.chends.media.picker.utils.PickerUtil;
 
 import java.io.File;
 
@@ -76,5 +79,34 @@ public class PreviewUtil {
             hasGifScale = (cls != null);
         }
         return hasGifScale;
+    }
+
+    /**
+     * 查看大图时图片缩放，只进行缩放，不截取
+     * @param source source
+     * @return bitmap
+     */
+    public static Bitmap onlyScaleBitmap(Bitmap source, boolean recycle) {
+        int sourceWidth = source.getWidth(), sourceHeight = source.getHeight();
+        int maxTextureSize = PickerUtil.maxTextureSize() - 10;
+        Bitmap result;
+        int targetWidth, targetHeight;
+        if (sourceHeight > maxTextureSize || sourceWidth > maxTextureSize) {
+            // 宽或高大于最大高度
+            if (sourceWidth > sourceHeight) {
+                targetWidth = maxTextureSize;
+                targetHeight = (sourceHeight * maxTextureSize) / sourceWidth;
+            } else {
+                targetHeight = maxTextureSize;
+                targetWidth = (sourceWidth * maxTextureSize) / sourceHeight;
+            }
+            result = Bitmap.createScaledBitmap(source, targetWidth, targetHeight, false);
+        } else {
+            result = source;
+        }
+        if (recycle && result != source) {
+            source.recycle();
+        }
+        return result;
     }
 }

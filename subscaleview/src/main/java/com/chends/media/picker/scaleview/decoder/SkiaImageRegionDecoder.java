@@ -91,7 +91,6 @@ public class SkiaImageRegionDecoder implements ImageRegionDecoder {
                 } catch (NumberFormatException ignored) {
                 }
             }
-
             decoder = BitmapRegionDecoder.newInstance(context.getResources().openRawResource(id), false);
         } else if (uriString.startsWith(ASSET_PREFIX)) {
             String assetName = uriString.substring(ASSET_PREFIX.length());

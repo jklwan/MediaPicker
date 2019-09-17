@@ -18,6 +18,7 @@ package com.chends.media.picker.preview.adapter;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.view.View;
 
 import com.chends.media.picker.model.ItemBean;
 import com.chends.media.picker.preview.ui.PreviewFragment;
@@ -30,6 +31,7 @@ import java.util.List;
  */
 public class PreviewPagerAdapter extends FragmentPagerAdapter {
     private List<ItemBean> mList = new ArrayList<>();
+    private View.OnClickListener listener;
 
     public PreviewPagerAdapter(FragmentManager manager, List<ItemBean> list) {
         super(manager);
@@ -38,9 +40,14 @@ public class PreviewPagerAdapter extends FragmentPagerAdapter {
         }
     }
 
+    public PreviewPagerAdapter setListener(View.OnClickListener listener) {
+        this.listener = listener;
+        return this;
+    }
+
     @Override
     public Fragment getItem(int position) {
-        return PreviewFragment.newInstance(getMediaItem(position));
+        return PreviewFragment.newInstance(getMediaItem(position)).setClickListener(listener);
     }
 
     @Override

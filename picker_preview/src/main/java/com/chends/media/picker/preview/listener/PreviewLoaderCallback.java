@@ -1,7 +1,7 @@
 package com.chends.media.picker.preview.listener;
 
 import android.graphics.Bitmap;
-import android.support.annotation.Nullable;
+import android.support.annotation.NonNull;
 import android.widget.ImageView;
 
 import com.chends.media.picker.scaleview.ImageSource;
@@ -11,7 +11,7 @@ import java.io.File;
 /**
  * @author chends create on 2019/9/12.
  */
-public class PreviewLoaderCallback {
+public abstract class PreviewLoaderCallback {
     /**
      * 使用缩放布局进行加载
      * @param file file
@@ -35,8 +35,6 @@ public class PreviewLoaderCallback {
     public void onLoadImageUseScale(ImageSource source) {
     }
 
-    @Nullable
-    public ImageView getImageView() {
-        return null;
-    }
+    @NonNull
+    public abstract ImageView getImageView();
 }

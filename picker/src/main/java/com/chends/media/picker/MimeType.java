@@ -22,7 +22,7 @@ public class MimeType {
     public static final String BMP = "image/bmp";
     public static final String WEBP = "image/webp";
     public static final String GIF = "image/gif";
-    public static final String SVG = "image/svg+xm";
+    public static final String SVG = "image/svg+xml";
     public static final String MPEG = "video/mpeg";
     public static final String MP4 = "video/mp4";
     public static final String V3GP = "video/3gpp";

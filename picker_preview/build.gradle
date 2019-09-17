@@ -9,6 +9,7 @@ android {
         versionName versions.pickerVersion
 
         consumerProguardFiles 'consumer-rules.pro'
+        vectorDrawables.useSupportLibrary = true
     }
 
     buildTypes {

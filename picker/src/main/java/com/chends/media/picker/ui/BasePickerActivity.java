@@ -1,15 +1,11 @@
 package com.chends.media.picker.ui;
 
 import android.os.Build;
-import android.os.Bundle;
 import android.support.annotation.ColorRes;
-import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
 import com.chends.media.picker.R;
 import com.chends.media.picker.utils.PickerUtil;
@@ -21,44 +17,23 @@ import com.chends.media.picker.utils.statusbar.StatusBarUtils;
  * @author chends create on 2019/9/6.
  */
 public abstract class BasePickerActivity extends AppCompatActivity {
-    //private View topBar; // 使用fitsSystemWindows的view
-    private boolean needFitsSystem = false;
-
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        initStatus();
-    }
 
     @Override
     public void setContentView(View view, ViewGroup.LayoutParams params) {
         super.setContentView(view, params);
-        trySetFitsSystem();
+        initStatus();
     }
 
     @Override
     public void setContentView(int layoutResID) {
         super.setContentView(layoutResID);
-        trySetFitsSystem();
+        initStatus();
     }
 
     @Override
     public void setContentView(View view) {
         super.setContentView(view);
-        trySetFitsSystem();
-    }
-
-    /**
-     * 设置fitsSystemWindows
-     */
-    private void trySetFitsSystem() {
-        if (needFitsSystem) {
-            // 使用fitsSystemWindows的view
-            View topBar = findViewById(R.id.topBar);
-            if (topBar != null) {
-                ((View) topBar.getParent()).setFitsSystemWindows(true);
-            }
-        }
+        initStatus();
     }
 
     /**
@@ -69,43 +44,22 @@ public abstract class BasePickerActivity extends AppCompatActivity {
      * <li>如果不能变黑，则使用自定义布局</li></ol>
      * </li></ol>
      */
-    private void initStatus() {
+    protected void initStatus() {
         StatusBarUtils.Builder builder = new StatusBarUtils.Builder(this);
         boolean black = FlyMeStatusBarUtils.isBlackColor(ContextCompat.getColor(this, colorPrimaryDark()), 50);
-        if (black) {
-            needFitsSystem = true;
-        } else {
-            if (StatusBarUtils.isSupportStatusBarDarkFont()) {
-                needFitsSystem = true;
-            } else {
-                needFitsSystem = false;
-                // 添加自定义布局
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    // 添加布局
-                    View mStatusBarTintView = new View(this);
-                    FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
-                            PickerUtil.getStatusHeight(this));
-                    params.gravity = Gravity.TOP;
-                    mStatusBarTintView.setLayoutParams(params);
-                    mStatusBarTintView.setVisibility(View.VISIBLE);
-                    ((ViewGroup) ((ViewGroup) getWindow().getDecorView()).getChildAt(0)).addView(mStatusBarTintView);
-                    builder.setStatusBarColor(ContextCompat.getColor(this, colorPrimaryDark()))
-                            .setStatusBarView(mStatusBarTintView);
-                }
-            }
-        }
-        builder.setDarkFont(!black);
+        builder.statusBarDarkFont(!black, 0.2f);
+        // 添加自定义布局
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             // 添加布局
-            View mStatusBarTintView = new View(this);
-            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
-                    PickerUtil.getStatusHeight(this));
-            params.gravity = Gravity.TOP;
-            mStatusBarTintView.setLayoutParams(params);
-            mStatusBarTintView.setVisibility(View.VISIBLE);
-            ((ViewGroup) ((ViewGroup) getWindow().getDecorView()).getChildAt(0)).addView(mStatusBarTintView);
+            View topView = findViewById(R.id.topView);
+            if (topView != null) {
+                ViewGroup.LayoutParams lp = topView.getLayoutParams();
+                lp.height = PickerUtil.getStatusHeight(this);
+                topView.setLayoutParams(lp);
+                topView.setVisibility(View.VISIBLE);
+            }
             builder.setStatusBarColor(ContextCompat.getColor(this, colorPrimaryDark()))
-                    .setStatusBarView(mStatusBarTintView);
+                    .setStatusBarView(topView);
         }
         builder.builder().init();
     }

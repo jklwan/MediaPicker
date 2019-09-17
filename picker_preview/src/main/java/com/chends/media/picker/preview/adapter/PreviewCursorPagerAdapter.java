@@ -19,6 +19,7 @@ import android.database.Cursor;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.view.View;
 
 import com.chends.media.picker.model.ItemBean;
 import com.chends.media.picker.preview.ui.PreviewFragment;
@@ -30,11 +31,17 @@ public class PreviewCursorPagerAdapter extends FragmentPagerAdapter {
     private Cursor cursor;
     private String columnIdName;
     private int mRowIDColumn;
+    private View.OnClickListener listener;
 
     public PreviewCursorPagerAdapter(FragmentManager manager, String columnIdName) {
         super(manager);
         this.columnIdName = columnIdName;
         cursor = null;
+    }
+
+    public PreviewCursorPagerAdapter setListener(View.OnClickListener listener) {
+        this.listener = listener;
+        return this;
     }
 
     @Override
@@ -46,7 +53,7 @@ public class PreviewCursorPagerAdapter extends FragmentPagerAdapter {
             throw new IllegalStateException("getItem:move cursor to position " + position);
         }
 
-        return PreviewFragment.newInstance(getMediaItem(position));
+        return PreviewFragment.newInstance(getMediaItem(position)).setClickListener(listener);
     }
 
     @Override

@@ -2,45 +2,57 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/topBar"
+    android:id="@+id/topLayout"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/dimen_media_picker_top_bar"
-    android:background="@color/color_media_picker_top_bg"
-    android:orientation="horizontal">
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
-    <android.support.v7.widget.AppCompatImageView
-        android:id="@+id/topBar_back"
-        android:layout_width="@dimen/dimen_media_picker_top_bar"
-        android:layout_height="match_parent"
-        android:background="@drawable/bg_rippleborderless_transparent"
-        android:paddingTop="15dp"
-        android:paddingBottom="15dp"
-        android:scaleType="fitCenter"
-        app:srcCompat="@drawable/ic_media_picker_back" />
+    <View
+        android:id="@+id/topView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp" />
 
-    <android.support.v7.widget.AppCompatTextView
-        android:id="@+id/topBar_title"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_marginStart="10dp"
-        android:layout_marginLeft="10dp"
-        android:layout_weight="1"
-        android:gravity="center_vertical"
-        android:singleLine="true"
-        android:textColor="@color/color_media_picker_title_fg"
-        android:textStyle="bold"
-        tools:text="title" />
+    <LinearLayout
+        android:id="@+id/topBar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dimen_media_picker_top_bar"
+        android:background="@color/color_media_picker_top_bg"
+        android:orientation="horizontal">
 
-    <android.support.v7.widget.AppCompatTextView
-        android:id="@+id/topBar_finish"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:background="@drawable/bg_rippleborderless_transparent"
-        android:textColor="@color/colors_media_picker_finish"
-        android:textStyle="bold"
-        tools:enabled="true"
-        tools:text="完成" />
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/topBar_back"
+            android:layout_width="@dimen/dimen_media_picker_top_bar"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_rippleborderless_transparent"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/ic_media_picker_back" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/topBar_title"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:singleLine="true"
+            android:textColor="@color/color_media_picker_title_fg"
+            android:textStyle="bold"
+            tools:text="title" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/topBar_finish"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_rippleborderless_transparent"
+            android:gravity="center"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:textColor="@color/colors_media_picker_finish"
+            android:textStyle="bold"
+            tools:enabled="true"
+            tools:text="完成" />
+    </LinearLayout>
 </LinearLayout>

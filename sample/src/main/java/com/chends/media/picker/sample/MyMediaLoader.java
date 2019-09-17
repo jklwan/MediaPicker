@@ -31,13 +31,11 @@ public class MyMediaLoader extends PreviewMediaLoader {
                 .error(R.drawable.ic_image_default)
                 .fallback(R.drawable.ic_image_default)
                 .into(view);
-        //MediaLoaderUtil.getInstance(view.getContext()).loadImage(path, view, width, height);
     }
 
     @Override
     public void loadImageFull(FrameLayout frameLayout, String path, int width, int height,
                               @Constant.ImageType int type, final PreviewLoaderCallback callback) {
-        //MediaLoaderUtil.getInstance(view.getContext()).loadImage(path, view, width, height);
         switch (type) {
             case Constant.TYPE_NORMAL:
                 callback.onLoadImageUseScale(new File(path));
@@ -66,12 +64,11 @@ public class MyMediaLoader extends PreviewMediaLoader {
                         });
                 break;
             case Constant.TYPE_GIF:
-                if (callback.getImageView() != null) {
-                    GlideApp.with(frameLayout.getContext())
-                            .asGif()
-                            .load(path)
-                            .into(callback.getImageView());
-                }
+                callback.getImageView();
+                GlideApp.with(frameLayout.getContext())
+                        .asGif()
+                        .load(path)
+                        .into(callback.getImageView());
                 break;
             case Constant.TYPE_SVG:
                 // load svg
@@ -89,12 +86,10 @@ public class MyMediaLoader extends PreviewMediaLoader {
                 .error(R.drawable.ic_video_default)
                 .fallback(R.drawable.ic_video_default)
                 .into(view);
-        //MediaLoaderUtil.getInstance(view.getContext()).loadVideo(path, view, width, height);
     }
 
     @Override
     public void loadVideoFull(FrameLayout frameLayout, String path, int width, int height, PreviewLoaderCallback callback) {
-        //MediaLoaderUtil.getInstance(view.getContext()).loadVideoFull(path, view);
         LoadAV(frameLayout, true, path, callback);
     }
 
@@ -108,13 +103,10 @@ public class MyMediaLoader extends PreviewMediaLoader {
                 .error(R.drawable.ic_audio_default)
                 .fallback(R.drawable.ic_audio_default)
                 .into(view);
-        //loadThumbnail(view, path, width, height);
-        //MediaLoaderUtil.getInstance(view.getContext()).loadAudio(path, view, width, height);
     }
 
     @Override
     public void loadAudioFull(FrameLayout frameLayout, String path, int width, int height, PreviewLoaderCallback callback) {
-        //MediaLoaderUtil.getInstance(view.getContext()).loadAudioFull(path, view);
         LoadAV(frameLayout, false, path, callback);
     }
 

@@ -44,6 +44,7 @@ public class PreviewFragment extends Fragment {
     private ItemBean item;
     private FrameLayout frameLayout;
     private View imageView;
+    private View.OnClickListener listener;
 
     public PreviewFragment() {
         w = Resources.getSystem().getDisplayMetrics().widthPixels;
@@ -56,6 +57,11 @@ public class PreviewFragment extends Fragment {
         args.putParcelable(BUNDLE_DATA, item);
         result.setArguments(args);
         return result;
+    }
+
+    public PreviewFragment setClickListener(View.OnClickListener listener) {
+        this.listener = listener;
+        return this;
     }
 
     @Override
@@ -158,8 +164,10 @@ public class PreviewFragment extends Fragment {
             imageView = new SubsamplingScaleImageView(requireActivity());
             frameLayout.addView(imageView, 0, getLayoutParams());
             ((SubsamplingScaleImageView) imageView).setDoubleTapZoomDuration(200);
-            ((SubsamplingScaleImageView) imageView).setDoubleTapZoomStyle(SubsamplingScaleImageView.ZOOM_FOCUS_CENTER);
+            ((SubsamplingScaleImageView) imageView).setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CUSTOM);
+            ((SubsamplingScaleImageView) imageView).setDoubleTapZoomStyle(SubsamplingScaleImageView.ZOOM_FOCUS_CUSTOM);
         }
+        imageView.setOnClickListener(listener);
         if (isGif) {
             ((SubsamplingScaleImageView) imageView).setOrientation(SubsamplingScaleImageView.ORIENTATION_USE_EXIF);
         }
@@ -178,6 +186,7 @@ public class PreviewFragment extends Fragment {
             imageView = new AppCompatImageView(requireActivity());
             frameLayout.addView(imageView, 0, getLayoutParams());
         }
+        imageView.setOnClickListener(listener);
         return (ImageView) imageView;
     }
 
@@ -191,7 +200,8 @@ public class PreviewFragment extends Fragment {
      */
     private void loadImage(String path) {
         int[] wh = PickerUtil.getImageWH(path);
-        loadImage(wh, ImageSource.uri(Uri.fromFile(new File(path))).tilingDisabled(), true);
+        createSSIV().setOnImageEventListener(new TryReloadBitmap(path));
+        loadImage(wh, ImageSource.uri(Uri.fromFile(new File(path))), true);
     }
 
     /**
@@ -203,49 +213,11 @@ public class PreviewFragment extends Fragment {
         SubsamplingScaleImageView imageView = createSSIV();
         if (isFile) {
             imageView.setOrientation(SubsamplingScaleImageView.ORIENTATION_USE_EXIF);
+
         } else {
             imageView.setOrientation(SubsamplingScaleImageView.ORIENTATION_0);
         }
-        float result = 0.5f;
-        if (wh[0] > 0 && wh[1] > 0) {
-            // 使图片横向铺满
-            boolean isPortrait = getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
-            float minScale, maxScale;
-            int realW;
-            if (isPortrait) {
-                realW = w;
-            } else {
-                realW = h;
-            }
-            minScale = (float) realW / wh[0];
-            if (minScale < 0.5f) {
-                // 图片大于屏幕当前宽度的2倍
-                // 最小铺满整个屏幕， 最大最大边界(1)
-                imageView.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CENTER_INSIDE);
-                maxScale = 1f;
-            } else if (minScale < 2f) {
-                // 最小铺满，最大2倍
-                imageView.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CUSTOM);
-                maxScale = 2f * minScale;
-            } else {
-                imageView.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CUSTOM);
-                // 图片宽度不到屏幕的一半
-                // 最大屏幕宽度
-                // 最小1/2屏幕
-                maxScale = minScale;
-                minScale = maxScale / 2f;
-            }
-            result = (maxScale - minScale) / 2f;
-            imageView.setMinScale(minScale);
-            imageView.setMaxScale(maxScale);
-            if ((isPortrait && ((wh[1] * minScale - h) > 1)) || ((wh[1] * minScale - w) > 1)) {
-                imageView.setDoubleTapZoomScale(result);
-                imageView.setImage(source, new ImageViewState(minScale, new PointF(0, 0), 0));
-                return;
-            }
-        }
-        imageView.setDoubleTapZoomScale(result);
-        imageView.setImage(source);
+        loadImage(imageView, wh, source);
     }
 
     /**
@@ -256,50 +228,83 @@ public class PreviewFragment extends Fragment {
         SubsamplingScaleImageView imageView = createGifSSIV();
         int[] wh = PickerUtil.getImageWH(path);
         ImageSource source = ImageSource.uri(Uri.fromFile(new File(path))).tilingDisabled();
+        loadImage(imageView, wh, source);
+    }
+
+    /**
+     * 显示图片，设置缩放级别
+     * @param view   view
+     * @param wh     wh
+     * @param source source
+     */
+    private void loadImage(SubsamplingScaleImageView view, int[] wh, ImageSource source) {
+        ImageViewState state = null;
         float result = 0.5f;
+        /*if (Math.max(wh[0], wh[1]) >= PickerUtil.maxTextureSize()){
+            //view.setBitmapDecoderClass();
+        }*/
         if (wh[0] > 0 && wh[1] > 0) {
             // 使图片横向铺满
             boolean isPortrait = getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
             float minScale, maxScale;
-            int realW;
+            int realW, realH;
             if (isPortrait) {
                 realW = w;
+                realH = h;
             } else {
                 realW = h;
+                realH = h;
             }
-
-            minScale = (float) realW / wh[0];
+            float wScale = (float) realW / wh[0], hScale = (float) realH / wh[1];
+            minScale = Math.min(wScale, hScale);
+            maxScale = Math.max(wScale, hScale);
             if (minScale < 0.5f) {
-                // 图片大于屏幕当前宽度的2倍
-                // 最小铺满整个屏幕， 最大最大边界(1)
-                imageView.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CENTER_INSIDE);
-                maxScale = 1f;
+                // 默认铺满显示
+                state = new ImageViewState(maxScale, new PointF(0, 0), 0);
+                // 图片一边大于屏幕当前宽度的2倍
+                // 最小：居中铺满， 最大：小边铺满或大边最大显示
+                maxScale = Math.max(1f, 1 / minScale);
             } else if (minScale < 2f) {
-                // 最小铺满，最大2倍
-                imageView.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CUSTOM);
+                // 最小：居中铺满，最大：短边铺满
                 maxScale = 2f * minScale;
+                state = new ImageViewState(minScale, new PointF(wh[0], wh[1]), 0);
             } else {
-                imageView.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CUSTOM);
                 // 图片宽度不到屏幕的一半
-                // 最大屏幕宽度
-                // 最小1/2屏幕
+                // 最小：居中铺满1/2屏幕，最大：居中铺满整个屏幕
                 maxScale = minScale;
                 minScale = maxScale / 2f;
+                state = new ImageViewState(maxScale, new PointF(wh[0], wh[1]), 0);
             }
             result = (maxScale - minScale) / 2f;
-            imageView.setMinScale(minScale);
-            imageView.setMaxScale(maxScale);
-            if ((isPortrait && ((wh[1] * minScale - h) > 1)) || ((wh[1] * minScale - w) > 1)) {
-                imageView.setDoubleTapZoomScale(result);
-                imageView.setImage(source,
-                        new ImageViewState(minScale, new PointF(0, 0), 0));
-                return;
-            }
+            view.setMinScale(minScale);
+            view.setMaxScale(maxScale);
         }
-        imageView.setDoubleTapZoomScale(result);
-        imageView.setImage(source);
+        view.setDoubleTapZoomScale(result);
+        if (state != null) {
+            view.setImage(source, state);
+        } else {
+            view.setImage(source);
+        }
     }
 
+    /**
+     * 使用文件方式加载失败重试（可能的原因：BitmapRegionDecoder创建失败（skia没有更新）
+     */
+    private class TryReloadBitmap extends SubsamplingScaleImageView.DefaultOnImageEventListener {
+        private String path;
+
+        public TryReloadBitmap(String path) {
+            this.path = path;
+        }
+
+        @Override
+        public void onImageLoadError(Exception e) {
+            // reload
+            if (!TextUtils.isEmpty(path)){
+                // 使用原始的加载方式
+            }
+        }
+    }
 
     @Override
     public void onDestroyView() {
@@ -316,6 +321,9 @@ public class PreviewFragment extends Fragment {
         super.onDestroyView();
     }
 
+    /**
+     * callback
+     */
     private PreviewLoaderCallback callback = new PreviewLoaderCallback() {
         @Override
         public void onLoadImage(boolean useScaleImage, Bitmap bitmap, boolean needRecycle) {
@@ -323,8 +331,17 @@ public class PreviewFragment extends Fragment {
                 if (useScaleImage) {
                     if (bitmap != null) {
                         int[] wh = new int[]{bitmap.getWidth(), bitmap.getHeight()};
-                        loadImage(wh, needRecycle ? ImageSource.bitmap(bitmap) : ImageSource.cachedBitmap(bitmap),
-                                false);
+                        if (Math.max(wh[0], wh[1]) >= PickerUtil.maxTextureSize()) {
+                            // 宽高大于最大宽高，进行缩放
+                            Bitmap scale = PreviewUtil.onlyScaleBitmap(bitmap, needRecycle);
+                            if (scale != bitmap) {
+                                wh = new int[]{scale.getWidth(), scale.getHeight()};
+                                loadImage(wh, ImageSource.bitmap(scale), false);
+                                return;
+                            }
+                        }
+                        loadImage(wh, needRecycle ? ImageSource.bitmap(bitmap) :
+                                ImageSource.cachedBitmap(bitmap), false);
                     }
                 } else {
                     if (bitmap != null) {
@@ -348,13 +365,17 @@ public class PreviewFragment extends Fragment {
             }
         }
 
-        @Nullable
+        @NonNull
         @Override
         public ImageView getImageView() {
             return createImageView();
         }
     };
 
+    /**
+     * 是否可用
+     * @return true or false
+     */
     private boolean isAlive() {
         return !isDetached() && getActivity() != null && frameLayout != null;
     }

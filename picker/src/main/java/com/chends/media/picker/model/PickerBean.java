@@ -6,6 +6,7 @@ import com.chends.media.picker.MimeType;
 import com.chends.media.picker.utils.MediaLoader;
 import com.chends.media.picker.utils.PickerUtil;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -15,7 +16,7 @@ import java.util.Set;
  * PickerBean
  * @author chends create on 2019/9/5.
  */
-public final class PickerBean {
+public final class PickerBean implements Serializable {
     public Set<String> typeSet = new HashSet<>();
     public int maxNum = 1;
     public int spanCount = 3;
@@ -178,6 +179,31 @@ public final class PickerBean {
         } else {
             hasAll = hasAudio;
         }
+    }
+
+    /**
+     * 数据恢复
+     * @param bean bean
+     */
+    public void restore(PickerBean bean) {
+        if (bean == null) return;
+        typeSet = bean.typeSet;
+        maxNum = bean.maxNum;
+        spanCount = bean.spanCount;
+        chooseList = bean.chooseList;
+        chooseItem = bean.chooseItem;
+        /*audioLimit = -1;
+        videoLimit = -1;*/
+        imageList = bean.imageList;
+        videoList = bean.videoList;
+        audioList = bean.audioList;
+        hasAll = bean.hasAll;
+        hasImage = bean.hasImage;
+        hasVideo = bean.hasVideo;
+        hasAudio = bean.hasAudio;
+        showPreview = bean.showPreview;
+        reset = bean.reset;
+        loader = bean.loader;
     }
 
 }

@@ -31,6 +31,7 @@ import java.util.Locale;
  * @author chends create on 2019/9/6.
  */
 public class PreviewActivity extends BasePickerActivity {
+    private View topLayout, bottom;
     private TextView title, finish;
     private ImageView select;
     private int selectPosition;
@@ -38,6 +39,7 @@ public class PreviewActivity extends BasePickerActivity {
     private PagerAdapter mAdapter;
     private ItemLoaderUtil util;
     private boolean useCursor = false;
+    private boolean isFull = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -59,6 +61,7 @@ public class PreviewActivity extends BasePickerActivity {
         } else {
             useCursor = true;
         }
+        initTopView();
 
         //SubsamplingScaleImageView.setPreferredBitmapConfig(Bitmap.Config.RGB_565);
         if (savedInstanceState != null) {
@@ -78,9 +81,11 @@ public class PreviewActivity extends BasePickerActivity {
         select.setOnClickListener(click);
         selectText.setOnClickListener(click);
         if (useCursor) {
-            mAdapter = new PreviewCursorPagerAdapter(getSupportFragmentManager(), MediaStore.MediaColumns._ID);
+            mAdapter = new PreviewCursorPagerAdapter(getSupportFragmentManager(), MediaStore.MediaColumns._ID)
+                    .setListener(new ChangeFull());
         } else {
-            mAdapter = new PreviewPagerAdapter(getSupportFragmentManager(), list);
+            mAdapter = new PreviewPagerAdapter(getSupportFragmentManager(), list)
+                    .setListener(new ChangeFull());
         }
         viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
@@ -183,6 +188,35 @@ public class PreviewActivity extends BasePickerActivity {
         }
         finish.setEnabled(!PickerBean.getInstance().chooseList.isEmpty());
         updateChoose();
+    }
+
+    /**
+     * 初始化
+     */
+    private void initTopView() {
+        topLayout = findViewById(R.id.topLayout);
+        bottom = findViewById(R.id.bottom);
+    }
+
+    private class ChangeFull implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            changeFull();
+        }
+    }
+
+    /**
+     * 改变全屏状态
+     */
+    private void changeFull() {
+        isFull = !isFull;
+        if (isFull) {
+            topLayout.setVisibility(View.GONE);
+            bottom.setVisibility(View.GONE);
+        } else {
+            topLayout.setVisibility(View.VISIBLE);
+            bottom.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override

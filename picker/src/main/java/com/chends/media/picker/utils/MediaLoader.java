@@ -4,11 +4,13 @@ import android.widget.ImageView;
 
 import com.chends.media.picker.model.Constant;
 
+import java.io.Serializable;
+
 /**
  * MediaLoader
  * @author cds created on 2019/9/8.
  */
-public abstract class MediaLoader {
+public abstract class MediaLoader implements Serializable {
     /**
      * 加载图片缩略图
      * @param view   view

@@ -29,7 +29,8 @@ public class ImageViewState implements Serializable {
         return scale;
     }
 
-    @NonNull public PointF getCenter() {
+    @NonNull
+    public PointF getCenter() {
         return new PointF(centerX, centerY);
     }
 
