@@ -88,7 +88,7 @@ public class PreviewUtil {
      */
     public static Bitmap onlyScaleBitmap(Bitmap source, boolean recycle) {
         int sourceWidth = source.getWidth(), sourceHeight = source.getHeight();
-        int maxTextureSize = PickerUtil.maxTextureSize() - 10;
+        int maxTextureSize = PickerUtil.maxTextureSize();
         Bitmap result;
         int targetWidth, targetHeight;
         if (sourceHeight > maxTextureSize || sourceWidth > maxTextureSize) {
@@ -108,5 +108,28 @@ public class PreviewUtil {
             source.recycle();
         }
         return result;
+    }
+
+    /**
+     * 宽高缩放
+     * @param wh wh
+     * @return wh
+     */
+    public static int[] onlyScaleWH(int[] wh){
+        int maxTextureSize = PickerUtil.maxTextureSize();
+        int targetWidth, targetHeight;
+        if (wh[0] > maxTextureSize || wh[1] > maxTextureSize) {
+            // 宽或高大于最大高度
+            if (wh[0] > wh[1]) {
+                targetWidth = maxTextureSize;
+                targetHeight = (wh[1] * maxTextureSize) / wh[0];
+            } else {
+                targetHeight = maxTextureSize;
+                targetWidth = (wh[0] * maxTextureSize) / wh[1];
+            }
+            return new int[]{targetWidth, targetHeight};
+        } else {
+            return wh;
+        }
     }
 }

@@ -1,13 +1,15 @@
 package com.chends.media.picker.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.text.TextUtils;
 
 import com.chends.media.picker.MimeType;
 import com.chends.media.picker.utils.MediaLoader;
 import com.chends.media.picker.utils.PickerUtil;
 
-import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -16,7 +18,8 @@ import java.util.Set;
  * PickerBean
  * @author chends create on 2019/9/5.
  */
-public final class PickerBean implements Serializable {
+public final class PickerBean implements Parcelable {
+
     public Set<String> typeSet = new HashSet<>();
     public int maxNum = 1;
     public int spanCount = 3;
@@ -206,4 +209,65 @@ public final class PickerBean implements Serializable {
         loader = bean.loader;
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        String[] type = this.typeSet.toArray(new String[typeSet.size()]);
+        dest.writeStringArray(type);
+        dest.writeInt(this.maxNum);
+        dest.writeInt(this.spanCount);
+        dest.writeStringList(this.chooseList);
+        dest.writeTypedList(this.chooseItem);
+        String[] image = this.imageList.toArray(new String[imageList.size()]);
+        dest.writeStringArray(image);
+        String[] video = this.videoList.toArray(new String[videoList.size()]);
+        dest.writeStringArray(video);
+        String[] audio = this.audioList.toArray(new String[audioList.size()]);
+        dest.writeStringArray(audio);
+        dest.writeByte(this.hasImage ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.hasVideo ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.hasAudio ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.hasAll ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.showPreview ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.reset ? (byte) 1 : (byte) 0);
+        dest.writeSerializable(this.loader);
+    }
+
+    protected PickerBean(Parcel in) {
+        String[] type = in.createStringArray();
+        this.typeSet = new HashSet<>(Arrays.asList(type));
+        this.maxNum = in.readInt();
+        this.spanCount = in.readInt();
+        this.chooseList = in.createStringArrayList();
+        this.chooseItem = in.createTypedArrayList(ItemBean.CREATOR);
+        String[] image = in.createStringArray();
+        this.imageList = new HashSet<>(Arrays.asList(image));
+        String[] video = in.createStringArray();
+        this.videoList = new HashSet<>(Arrays.asList(video));
+        String[] audio = in.createStringArray();
+        this.audioList = new HashSet<>(Arrays.asList(audio));
+        this.hasImage = in.readByte() != 0;
+        this.hasVideo = in.readByte() != 0;
+        this.hasAudio = in.readByte() != 0;
+        this.hasAll = in.readByte() != 0;
+        this.showPreview = in.readByte() != 0;
+        this.reset = in.readByte() != 0;
+        this.loader = (MediaLoader) in.readSerializable();
+    }
+
+    public static final Parcelable.Creator<PickerBean> CREATOR = new Parcelable.Creator<PickerBean>() {
+        @Override
+        public PickerBean createFromParcel(Parcel source) {
+            return new PickerBean(source);
+        }
+
+        @Override
+        public PickerBean[] newArray(int size) {
+            return new PickerBean[size];
+        }
+    };
 }

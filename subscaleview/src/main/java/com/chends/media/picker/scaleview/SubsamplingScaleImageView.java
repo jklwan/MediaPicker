@@ -340,6 +340,7 @@ public class SubsamplingScaleImageView extends View {
     private AtomicBoolean isPaused = new AtomicBoolean(false);
     private DrawThread drawThread;
     private boolean mIsRun = false, isGif = false;
+    private int maxTextureSize = 0;
 
     public SubsamplingScaleImageView(Context context) {
         this(context, null);
@@ -1049,10 +1050,17 @@ public class SubsamplingScaleImageView extends View {
                 sCenter.x = sWidth() / 2f;
                 sCenter.y = sHeight() / 2f;
             } else {
-                // 放大到铺满整个屏幕
+                // 放大
                 float targetWScale = (float) getWidth() / sWidth;
                 float targetHScale = (float) getHeight() / sHeight;
-                targetScale = Math.min(maxScale, Math.max(targetWScale, targetHScale));
+                float fix = Math.max(targetWScale, targetHScale);
+                if (fix <= minScale * 1.1f) {
+                    // 已经满屏 放大到最大
+                    targetScale = maxScale;
+                } else {
+                    // 放大到最小
+                    targetScale = Math.min(maxScale, fix);
+                }
             }
             new AnimationBuilder(targetScale, sCenter).withInterruptible(false).withDuration(doubleTapZoomDuration).withOrigin(ORIGIN_DOUBLE_TAP_ZOOM).start();
         } else if (doubleTapZoomStyle == ZOOM_FOCUS_CENTER || !zoomIn || !panEnabled) {
@@ -1070,6 +1078,9 @@ public class SubsamplingScaleImageView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        if (maxTextureSize <= 0) {
+            maxTextureSize = Math.min(canvas.getMaximumBitmapWidth(), canvas.getMaximumBitmapHeight());
+        }
         createPaints();
 
         // If image or view dimensions are not known yet, abort.
@@ -1943,6 +1954,13 @@ public class SubsamplingScaleImageView extends View {
                 gifDecoder.advance();
                 bitmap = gifDecoder.getNextFrame();
                 if (bitmap != null) {
+                    // 图片过大时进行缩放
+                    if (viewRef.get() != null) {
+                        int max = viewRef.get().maxTextureSize;
+                        if (max > 0 && (bitmap.getWidth() > max || bitmap.getHeight() > max)) {
+                            bitmap = onlyScaleBitmap(bitmap, max);
+                        }
+                    }
                     return 0;
                 } else {
                     exception = new FileNotFoundException();
@@ -1991,6 +2009,10 @@ public class SubsamplingScaleImageView extends View {
                         mDecoder.advance();
                         Bitmap bitmap = mDecoder.getNextFrame();
                         if (bitmap != null && mIsRun) {
+                            if (maxTextureSize > 0 && (bitmap.getWidth() > maxTextureSize ||
+                                    bitmap.getHeight() > maxTextureSize)) {
+                                bitmap = onlyScaleBitmap(bitmap, maxTextureSize);
+                            }
                             if (checkReady() || checkImageLoaded()) {
                                 Message msg = Message.obtain();
                                 msg.obj = bitmap;
@@ -2025,6 +2047,34 @@ public class SubsamplingScaleImageView extends View {
             }
         }
         return this.isPaused.get();
+    }
+
+    /**
+     * 查看大图时图片缩放，只进行缩放，不截取
+     * @param source source
+     * @return bitmap
+     */
+    public static Bitmap onlyScaleBitmap(Bitmap source, int maxTextureSize) {
+        int sourceWidth = source.getWidth(), sourceHeight = source.getHeight();
+        Bitmap result;
+        int targetWidth, targetHeight;
+        if (sourceHeight > maxTextureSize || sourceWidth > maxTextureSize) {
+            // 宽或高大于最大高度
+            if (sourceWidth > sourceHeight) {
+                targetWidth = maxTextureSize;
+                targetHeight = (sourceHeight * maxTextureSize) / sourceWidth;
+            } else {
+                targetHeight = maxTextureSize;
+                targetWidth = (sourceWidth * maxTextureSize) / sourceHeight;
+            }
+            result = Bitmap.createScaledBitmap(source, targetWidth, targetHeight, false);
+        } else {
+            result = source;
+        }
+        if (result != source) {
+            source.recycle();
+        }
+        return result;
     }
 
     /**

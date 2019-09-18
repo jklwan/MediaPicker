@@ -27,7 +27,7 @@ public class MediaPickerActivity extends BasePickerActivity {
         super.onCreate(bundle);
         setContentView(R.layout.activity_media_picker);
         if (bundle != null && bundle.containsKey(Constant.SAVE_DATA)) {
-            PickerBean.getInstance().restore((PickerBean) bundle.getSerializable(Constant.SAVE_DATA));
+            PickerBean.getInstance().restore((PickerBean) bundle.getParcelable(Constant.SAVE_DATA));
             PickerUtil.getInstance().init(this);
         }
         if (!PickerBean.getInstance().reset) {
@@ -110,7 +110,7 @@ public class MediaPickerActivity extends BasePickerActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putSerializable(Constant.SAVE_DATA, PickerBean.getInstance());
+        outState.putParcelable(Constant.SAVE_DATA, PickerBean.getInstance());
         if (util != null) {
             util.onSaveInstanceState(outState);
         }

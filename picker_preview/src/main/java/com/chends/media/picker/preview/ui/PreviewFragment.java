@@ -233,7 +233,6 @@ public class PreviewFragment extends Fragment {
         SubsamplingScaleImageView imageView = createSSIV();
         if (isFile) {
             imageView.setOrientation(SubsamplingScaleImageView.ORIENTATION_USE_EXIF);
-
         } else {
             imageView.setOrientation(SubsamplingScaleImageView.ORIENTATION_0);
         }
@@ -246,7 +245,12 @@ public class PreviewFragment extends Fragment {
      */
     private void loadGifImage(String path) {
         SubsamplingScaleImageView imageView = createGifSSIV();
+        imageView.setOnImageEventListener(new TryReloadBitmap(path));
         int[] wh = PickerUtil.getImageWH(path);
+        if (Math.max(wh[0], wh[1]) >= PickerUtil.maxTextureSize()) {
+            // 宽高大于最大宽高，进行缩放
+            wh = PreviewUtil.onlyScaleWH(wh);
+        }
         ImageSource source = ImageSource.uri(Uri.fromFile(new File(path))).tilingDisabled();
         loadImage(imageView, wh, source);
     }
@@ -283,7 +287,7 @@ public class PreviewFragment extends Fragment {
                 state = new ImageViewState(maxScale, new PointF(0, 0), 0);
                 // 图片一边大于屏幕当前宽度的2倍
                 // 最小：居中铺满， 最大：小边铺满或大边最大显示
-                maxScale = Math.max(1f, 1 / minScale);
+                maxScale = Math.max(maxScale, 1 / minScale);
             } else if (minScale < 2f) {
                 // 最小：居中铺满，最大：短边铺满
                 maxScale = 2f * minScale;

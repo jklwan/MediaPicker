@@ -8,10 +8,14 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.chends.media.picker.listener.ItemLoaderCallback;
+import com.chends.media.picker.listener.SimpleAnimationListener;
 import com.chends.media.picker.model.Constant;
 import com.chends.media.picker.model.ItemBean;
 import com.chends.media.picker.model.PickerBean;
@@ -40,6 +44,7 @@ public class PreviewActivity extends BasePickerActivity {
     private ItemLoaderUtil util;
     private boolean useCursor = false;
     private boolean isFull = false;
+    private Animation topAnim, bottomAnim;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -196,6 +201,8 @@ public class PreviewActivity extends BasePickerActivity {
     private void initTopView() {
         topLayout = findViewById(R.id.topLayout);
         bottom = findViewById(R.id.bottom);
+        topLayout.setOnClickListener(null);
+        bottom.setOnClickListener(null);
     }
 
     private class ChangeFull implements View.OnClickListener {
@@ -211,13 +218,39 @@ public class PreviewActivity extends BasePickerActivity {
     private void changeFull() {
         isFull = !isFull;
         if (isFull) {
-            topLayout.setVisibility(View.GONE);
-            bottom.setVisibility(View.GONE);
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         } else {
-            topLayout.setVisibility(View.VISIBLE);
-            bottom.setVisibility(View.VISIBLE);
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }
+        if (topAnim != null && !topAnim.hasEnded()) {
+            topAnim.cancel();
+        }
+        topAnim = AnimationUtils.loadAnimation(this, isFull ? R.anim.top_slide_out :
+                R.anim.top_slide_in);
+        topAnim.setAnimationListener(topListener);
+        if (bottomAnim != null && !bottomAnim.hasEnded()) {
+            bottomAnim.cancel();
+        }
+        bottomAnim = AnimationUtils.loadAnimation(this, isFull ? R.anim.folder_slide_out :
+                R.anim.folder_slide_in);
+        bottomAnim.setAnimationListener(bottomListener);
+        topLayout.startAnimation(topAnim);
+        bottom.startAnimation(bottomAnim);
     }
+
+    private SimpleAnimationListener topListener = new SimpleAnimationListener() {
+        @Override
+        public void onAnimationEnd(Animation animation) {
+            topLayout.setVisibility(isFull ? View.GONE : View.VISIBLE);
+        }
+    };
+
+    private SimpleAnimationListener bottomListener = new SimpleAnimationListener() {
+        @Override
+        public void onAnimationEnd(Animation animation) {
+            bottom.setVisibility(isFull ? View.GONE : View.VISIBLE);
+        }
+    };
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {

@@ -18,6 +18,7 @@ import com.chends.media.picker.R;
 import com.chends.media.picker.adapter.FolderAdapter;
 import com.chends.media.picker.listener.FolderPopupListener;
 import com.chends.media.picker.listener.FolderSelectedListener;
+import com.chends.media.picker.listener.SimpleAnimationListener;
 import com.chends.media.picker.model.FolderBean;
 
 import java.util.List;
@@ -132,28 +133,16 @@ public class FolderPopupWindow extends PopupWindow {
     public void dismiss() {
         cancelAnim();
         animation = AnimationUtils.loadAnimation(context, R.anim.folder_slide_out);
-        animation.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
+        animation.setAnimationListener(new SimpleAnimationListener() {
             @Override
             public void onAnimationEnd(Animation animation) {
                 FolderPopupWindow.super.dismiss();
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
             }
         });
         mContentView.startAnimation(animation);
         if (listener != null) {
             listener.onDismiss();
         }
-
     }
-
 
 }
