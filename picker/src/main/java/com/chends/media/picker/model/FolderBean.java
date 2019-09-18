@@ -62,21 +62,6 @@ public class FolderBean {
                 cursor.getInt(cursor.getColumnIndex(SelectUtil.COLUMN_COUNT)));
     }
 
-    /**
-     * folderBean
-     * @param cursor    cursor
-     * @param coverPath 封面
-     * @param mimeType  封面类型
-     * @param count     总数
-     * @return FolderBean
-     */
-    public static FolderBean valueOfTypeCount(Cursor cursor, String coverPath, String mimeType, int count) {
-        return new FolderBean(coverPath, mimeType,
-                cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_ID)),
-                cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME)),
-                count);
-    }
-
     public int getCount() {
         return mCount;
     }

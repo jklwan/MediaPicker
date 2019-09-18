@@ -112,7 +112,6 @@ public class PreviewFragment extends Fragment {
                     case Constant.TYPE_APNG:
                     case Constant.TYPE_WEBP:
                     case Constant.TYPE_ANIMATED_WEBP:
-                    case Constant.TYPE_SVG:
                         if (loader != null) {
                             loader.loadImageFull(frameLayout, item.getPath(), w, h,
                                     imageType, callback);
@@ -202,41 +201,40 @@ public class PreviewFragment extends Fragment {
     private void loadImage(String path) {
         int[] wh = PickerUtil.getImageWH(path);
         createSSIV().setOnImageEventListener(new TryReloadBitmap(path));
-        loadImage(wh, ImageSource.uri(Uri.fromFile(new File(path))), true);
+        loadImage(wh, ImageSource.uri(Uri.fromFile(new File(path))),
+                SubsamplingScaleImageView.ORIENTATION_USE_EXIF);
     }
 
     /**
      * 显示大图
-     * @param bitmap bitmap
+     * @param bitmap      bitmap
+     * @param needRecycle 是否需要销毁
+     * @param orientation orientation
      */
-    private void loadImage(Bitmap bitmap, boolean needRecycle){
+    private void loadImage(Bitmap bitmap, boolean needRecycle, int orientation) {
         int[] wh = new int[]{bitmap.getWidth(), bitmap.getHeight()};
         if (Math.max(wh[0], wh[1]) >= PickerUtil.maxTextureSize()) {
             // 宽高大于最大宽高，进行缩放
             Bitmap scale = PreviewUtil.onlyScaleBitmap(bitmap, needRecycle);
             if (scale != bitmap) {
                 wh = new int[]{scale.getWidth(), scale.getHeight()};
-                loadImage(wh, ImageSource.bitmap(scale), false);
+                loadImage(wh, ImageSource.bitmap(scale), orientation);
                 return;
             }
         }
         loadImage(wh, needRecycle ? ImageSource.bitmap(bitmap) :
-                ImageSource.cachedBitmap(bitmap), false);
+                ImageSource.cachedBitmap(bitmap), orientation);
     }
 
     /**
      * load image
-     * @param wh     wh
-     * @param source source
+     * @param wh          wh
+     * @param source      source
+     * @param orientation orientation
      */
-    private void loadImage(int[] wh, @NonNull ImageSource source, boolean isFile) {
+    private void loadImage(int[] wh, @NonNull ImageSource source, int orientation) {
         SubsamplingScaleImageView imageView = createSSIV();
-        if (isFile) {
-            imageView.setOrientation(SubsamplingScaleImageView.ORIENTATION_USE_EXIF);
-        } else {
-            imageView.setOrientation(SubsamplingScaleImageView.ORIENTATION_0);
-        }
-        loadImage(imageView, wh, source);
+        loadImage(imageView, wh, source, orientation);
     }
 
     /**
@@ -252,21 +250,23 @@ public class PreviewFragment extends Fragment {
             wh = PreviewUtil.onlyScaleWH(wh);
         }
         ImageSource source = ImageSource.uri(Uri.fromFile(new File(path))).tilingDisabled();
-        loadImage(imageView, wh, source);
+        loadImage(imageView, wh, source, 0);
     }
 
     /**
      * 显示图片，设置缩放级别
-     * @param view   view
-     * @param wh     wh
-     * @param source source
+     * @param view        view
+     * @param wh          wh
+     * @param source      source
+     * @param orientation orientation
      */
-    private void loadImage(SubsamplingScaleImageView view, int[] wh, ImageSource source) {
+    private void loadImage(SubsamplingScaleImageView view, int[] wh, ImageSource source, int orientation) {
         ImageViewState state = null;
         float result = 0.5f;
         /*if (Math.max(wh[0], wh[1]) >= PickerUtil.maxTextureSize()){
             //view.setBitmapDecoderClass();
         }*/
+        view.setOrientation(orientation);
         if (wh[0] > 0 && wh[1] > 0) {
             // 使图片横向铺满
             boolean isPortrait = getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
@@ -284,20 +284,20 @@ public class PreviewFragment extends Fragment {
             maxScale = Math.max(wScale, hScale);
             if (minScale < 0.5f) {
                 // 默认铺满显示
-                state = new ImageViewState(maxScale, new PointF(0, 0), 0);
+                state = new ImageViewState(maxScale, new PointF(0, 0), orientation);
                 // 图片一边大于屏幕当前宽度的2倍
                 // 最小：居中铺满， 最大：小边铺满或大边最大显示
                 maxScale = Math.max(maxScale, 1 / minScale);
             } else if (minScale < 2f) {
                 // 最小：居中铺满，最大：短边铺满
                 maxScale = 2f * minScale;
-                state = new ImageViewState(minScale, new PointF(wh[0], wh[1]), 0);
+                state = new ImageViewState(minScale, new PointF(wh[0], wh[1]), orientation);
             } else {
                 // 图片宽度不到屏幕的一半
                 // 最小：居中铺满1/2屏幕，最大：居中铺满整个屏幕
                 maxScale = minScale;
                 minScale = maxScale / 2f;
-                state = new ImageViewState(maxScale, new PointF(wh[0], wh[1]), 0);
+                state = new ImageViewState(maxScale, new PointF(wh[0], wh[1]), orientation);
             }
             result = (maxScale - minScale) / 2f;
             view.setMinScale(minScale);
@@ -327,8 +327,10 @@ public class PreviewFragment extends Fragment {
             if (!TextUtils.isEmpty(path)) {
                 // 使用原始的加载方式
                 try {
-                    loadImage(BitmapFactory.decodeFile(path), true);
-                } catch (Exception ignore){}
+                    // 尝试获取方向
+                    loadImage(BitmapFactory.decodeFile(path), true, PreviewUtil.getImageOrientation(path));
+                } catch (Exception ignore) {
+                }
             }
         }
     }
@@ -356,7 +358,7 @@ public class PreviewFragment extends Fragment {
         public void onLoadImage(boolean useScaleImage, Bitmap bitmap, boolean needRecycle) {
             if (isAlive() && bitmap != null) {
                 if (useScaleImage) {
-                    loadImage(bitmap, needRecycle);
+                    loadImage(bitmap, needRecycle, SubsamplingScaleImageView.ORIENTATION_0);
                 } else {
                     createImageView().setImageBitmap(bitmap);
                 }
@@ -373,7 +375,7 @@ public class PreviewFragment extends Fragment {
         @Override
         public void onLoadImageUseScale(ImageSource source) {
             if (isAlive() && source != null) {
-                loadImage(new int[]{0, 0}, source, false);
+                loadImage(new int[]{0, 0}, source, SubsamplingScaleImageView.ORIENTATION_0);
             }
         }
 

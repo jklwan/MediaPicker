@@ -70,9 +70,6 @@ public class MyMediaLoader extends PreviewMediaLoader {
                         .load(path)
                         .into(callback.getImageView());
                 break;
-            case Constant.TYPE_SVG:
-                // load svg
-                break;
         }
     }
 

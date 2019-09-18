@@ -2,14 +2,18 @@ package com.chends.media.picker;
 
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.webkit.MimeTypeMap;
 
 import com.chends.media.picker.model.Constant;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -19,15 +23,40 @@ import java.util.Set;
 public class MimeType {
     public static final String JPEG = "image/jpeg";
     public static final String PNG = "image/png";
-    public static final String BMP = "image/bmp";
+    public static final String BMP = "image/x-ms-bmp";
+    public static final String BMP2 = "image/bmp";
     public static final String WEBP = "image/webp";
     public static final String GIF = "image/gif";
-    public static final String SVG = "image/svg+xml";
     public static final String MPEG = "video/mpeg";
     public static final String MP4 = "video/mp4";
     public static final String V3GP = "video/3gpp";
     public static final String MKV = "video/x-matroska";
     public static final String AVI = "video/avi";
+
+    public static final String IMAGE = "image/*";
+    public static final String VIDEO = "video/*";
+    public static final String AUDIO = "audio/*";
+    public static final Map<String, String[]> ImageSuffix;
+    public static final Map<String, String[]> VideoSuffix;
+
+    static {
+        ImageSuffix = new HashMap<String, String[]>() {{
+            put(JPEG, new String[]{"jpg", "jpeg", "jpe"});
+            put(PNG, new String[]{"png"});
+            put(BMP, new String[]{"bmp"});
+            put(BMP2, new String[]{"bmp"});
+            put(WEBP, new String[]{"webp"});
+            put(GIF, new String[]{"gif"});
+        }};
+
+        VideoSuffix = new HashMap<String, String[]>() {{
+            put(MPEG, new String[]{"mpeg", "mpg", "mpe", "VOB"});
+            put(MP4, new String[]{"mp4"});
+            put(V3GP, new String[]{"3gpp", "3gp"});
+            put(MKV, new String[]{"mkv"});
+            put(AVI, new String[]{"avi"});
+        }};
+    }
 
     /**
      * 所有类型，包括图片和视频
@@ -49,9 +78,9 @@ public class MimeType {
             add(JPEG);
             add(PNG);
             add(BMP);
+            add(BMP2);
             add(WEBP);
             add(GIF);
-            add(SVG);
         }};
     }
 
@@ -97,6 +126,54 @@ public class MimeType {
     }
 
     /**
+     * 查询时获取后缀集合（type为*）
+     * @param types  types
+     * @param column 列
+     * @param map    map
+     * @return selections
+     */
+    public static String getSelectionSuffix(Set<String> types, String column, Map<String, String[]> map) {
+        if (types == null || types.isEmpty()) {
+            return "";
+        }
+        String suffix = null;
+        String[] suffixArr;
+        Set<String> suffixSet = new HashSet<>();
+        for (String type : types) {
+            if (TextUtils.isEmpty(type)) {
+                continue;
+            }
+            if (map != null) {
+                suffixArr = map.get(type);
+                if (suffixArr != null) {
+                    suffixSet.addAll(Arrays.asList(suffixArr));
+                } else {
+                    suffix = MimeTypeMap.getSingleton().getExtensionFromMimeType(type);
+                }
+            } else {
+                suffix = MimeTypeMap.getSingleton().getExtensionFromMimeType(type);
+            }
+            if (!TextUtils.isEmpty(suffix)) {
+                suffixSet.add(suffix);
+            }
+        }
+        StringBuilder builder = new StringBuilder("(");
+        Iterator<String> suffixIt = suffixSet.iterator();
+        while (suffixIt.hasNext()) {
+            suffix = suffixIt.next();
+            if (TextUtils.isEmpty(suffix)) {
+                continue;
+            }
+            builder.append(column).append(" like '%_%.").append(suffix).append("'");
+            if (suffixIt.hasNext()) {
+                builder.append(" or ");
+            }
+        }
+        builder.append(")");
+        return builder.toString();
+    }
+
+    /**
      * 根据mimeType获取文件type
      * @param mimeType mimeType
      */
@@ -130,21 +207,17 @@ public class MimeType {
      */
     @Constant.ImageType
     public static int getImageType(String mimeType, String path) {
-        if (TextUtils.isEmpty(mimeType)) {
-            if (!TextUtils.isEmpty(path)) {
-                return getImageTypeByPath(path);
-            }
+        if (!TextUtils.isEmpty(path)) {
+            return getImageTypeByPath(path);
         } else {
             if (mimeType.equalsIgnoreCase(GIF)) {
                 return Constant.TYPE_GIF;
-            } else if (mimeType.equalsIgnoreCase(SVG)) {
-                return Constant.TYPE_SVG;
             } else if (mimeType.equalsIgnoreCase(PNG)) {
-                if (!TextUtils.isEmpty(path)){
+                if (!TextUtils.isEmpty(path)) {
                     return getImageTypeByPath(path);
                 }
             } else if (mimeType.equalsIgnoreCase(WEBP)) {
-                if (!TextUtils.isEmpty(path)){
+                if (!TextUtils.isEmpty(path)) {
                     return getImageTypeByPath(path);
                 }
             } else {

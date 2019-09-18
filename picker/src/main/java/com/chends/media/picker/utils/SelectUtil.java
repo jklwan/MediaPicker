@@ -73,35 +73,41 @@ public class SelectUtil {
      * 查询条件：所有
      */
     private static String allSelection() {
-        StringBuilder mediaType = new StringBuilder("(");
+        StringBuilder selection = new StringBuilder("(");
         if (PickerBean.getInstance().hasImage) {
-            mediaType.append(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE);
+            selection.append("(").append(MediaStore.Files.FileColumns.MEDIA_TYPE)
+                    .append(" = ").append(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE)
+                    .append(" and ").append(imageSelection()).append(")");
         }
         if (PickerBean.getInstance().hasVideo) {
-            if (mediaType.length() > 1) {
-                mediaType.append(",");
+            if (selection.length() > 1) {
+                selection.append(" or ");
             }
-            mediaType.append(MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO);
+            selection.append("(").append(MediaStore.Files.FileColumns.MEDIA_TYPE)
+                    .append(" = ").append(MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO)
+                    .append(" and ").append(videoSelection()).append(")");
         }
         if (PickerBean.getInstance().hasAudio) {
-            if (mediaType.length() > 1) {
-                mediaType.append(",");
+            if (selection.length() > 1) {
+                selection.append(" or ");
             }
-            mediaType.append(MediaStore.Files.FileColumns.MEDIA_TYPE_AUDIO);
+            selection.append("(").append(MediaStore.Files.FileColumns.MEDIA_TYPE)
+                    .append(" = ").append(MediaStore.Files.FileColumns.MEDIA_TYPE_AUDIO)
+                    .append(" and ").append(audioSelection()).append(")");
         }
-        mediaType.append(")");
-        return "(" + MediaStore.MediaColumns.MIME_TYPE + " in " +
-                MimeType.getSelectionType(PickerBean.getInstance().typeSet) + " and " +
-                MediaStore.Files.FileColumns.MEDIA_TYPE + " in " +
-                mediaType.toString() + ")";
+        selection.append(")");
+        return selection.toString();
     }
 
     /**
-     * 查询条件：所有图片
+     * 查询条件：图片
      */
     private static String imageSelection() {
-        return MediaStore.MediaColumns.MIME_TYPE + " in " +
-                MimeType.getSelectionType(PickerBean.getInstance().imageList);
+        return "(" + MediaStore.MediaColumns.MIME_TYPE + " in " +
+                MimeType.getSelectionType(PickerBean.getInstance().imageList) + " or (" +
+                MediaStore.MediaColumns.MIME_TYPE + "= '" + MimeType.IMAGE + "' and " +
+                MimeType.getSelectionSuffix(PickerBean.getInstance().imageList,
+                        MediaStore.MediaColumns.DATA, MimeType.ImageSuffix) + "))";
     }
 
 
@@ -109,16 +115,22 @@ public class SelectUtil {
      * 查询条件：所有视频
      */
     private static String videoSelection() {
-        return MediaStore.MediaColumns.MIME_TYPE + " in " +
-                MimeType.getSelectionType(PickerBean.getInstance().videoList);
+        return "(" + MediaStore.MediaColumns.MIME_TYPE + " in " +
+                MimeType.getSelectionType(PickerBean.getInstance().videoList) + " or (" +
+                MediaStore.MediaColumns.MIME_TYPE + "= '" + MimeType.VIDEO + "' and " +
+                MimeType.getSelectionSuffix(PickerBean.getInstance().videoList,
+                        MediaStore.MediaColumns.DATA, MimeType.VideoSuffix) + "))";
     }
 
     /**
      * 查询条件：所有音频
      */
     private static String audioSelection() {
-        return MediaStore.MediaColumns.MIME_TYPE + " in " +
-                MimeType.getSelectionType(PickerBean.getInstance().audioList);
+        return "(" + MediaStore.MediaColumns.MIME_TYPE + " in " +
+                MimeType.getSelectionType(PickerBean.getInstance().audioList) + " or (" +
+                MediaStore.MediaColumns.MIME_TYPE + "= '" + MimeType.AUDIO + "' and " +
+                MimeType.getSelectionSuffix(PickerBean.getInstance().audioList,
+                        MediaStore.MediaColumns.DATA, null) + "))";
     }
 
     /**
@@ -150,7 +162,7 @@ public class SelectUtil {
         }
         selection.append(MIN_SIZE).append(GROUP_BUCKET);
         if (data.hasAll) {
-            selection.append("),(").append( MediaStore.Files.FileColumns.MEDIA_TYPE);
+            selection.append("),(").append(MediaStore.Files.FileColumns.MEDIA_TYPE);
         }
         folderSelection = selection.toString();
     }
@@ -220,7 +232,7 @@ public class SelectUtil {
      */
     public static String[] getItemSearchProjection() {
         PickerBean data = PickerBean.getInstance();
-        if (data.hasAll || data.hasVideo || data.hasAudio){
+        if (data.hasAll || data.hasVideo || data.hasAudio) {
             return ITEM_PROJECTION;
         } else {
             return new String[]{ITEM_PROJECTION[0], ITEM_PROJECTION[1], ITEM_PROJECTION[2]};
@@ -260,7 +272,6 @@ public class SelectUtil {
         StringBuilder selection = new StringBuilder(MediaStore.MediaColumns.DATA);
         selection.append(" in (");
         Iterator<String> it = PickerBean.getInstance().chooseList.iterator();
-        String item;
         if (it.hasNext()) {
             selection.append("'").append(it.next()).append("'");
             while (it.hasNext()) {

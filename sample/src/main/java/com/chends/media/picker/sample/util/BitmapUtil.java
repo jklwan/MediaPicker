@@ -15,6 +15,7 @@ import java.io.IOException;
  * Created by cds on 2017/7/6.
  */
 public class BitmapUtil {
+
     /**
      * 获取当前图片的旋转角度
      * @param path 图片路径

@@ -5,12 +5,15 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
+import android.support.media.ExifInterface;
 import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
 
+import com.chends.media.picker.scaleview.SubsamplingScaleImageView;
 import com.chends.media.picker.utils.PickerUtil;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * @author chends create on 2019/9/12.
@@ -131,5 +134,30 @@ public class PreviewUtil {
         } else {
             return wh;
         }
+    }
+
+    /**
+     * 获取当前图片的旋转角度
+     * @param path 图片路径
+     */
+    public static int getImageOrientation(String path) {
+        int orientation = SubsamplingScaleImageView.ORIENTATION_0;
+        try {
+            ExifInterface exifInterface = new ExifInterface(path);
+            int attributeInt = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+            switch (attributeInt) {
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    orientation = SubsamplingScaleImageView.ORIENTATION_90;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    orientation = SubsamplingScaleImageView.ORIENTATION_180;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    orientation = SubsamplingScaleImageView.ORIENTATION_270;
+                    break;
+            }
+        } catch (IOException ignore) {
+        }
+        return orientation;
     }
 }
