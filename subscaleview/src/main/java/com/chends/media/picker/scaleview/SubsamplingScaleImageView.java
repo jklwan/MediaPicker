@@ -33,14 +33,15 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewParent;
 
+import com.chends.media.picker.decoder.AnimDecoder;
 import com.chends.media.picker.scaleview.decoder.CompatDecoderFactory;
 import com.chends.media.picker.scaleview.decoder.DecoderFactory;
 import com.chends.media.picker.scaleview.decoder.ImageDecoder;
 import com.chends.media.picker.scaleview.decoder.ImageRegionDecoder;
 import com.chends.media.picker.scaleview.decoder.SkiaImageDecoder;
 import com.chends.media.picker.scaleview.decoder.SkiaImageRegionDecoder;
-import com.chends.media.picker.scaleview.gifdecoder.GifDecoder;
-import com.chends.media.picker.scaleview.gifdecoder.StandardGifDecoder;
+import com.chends.media.picker.gifdecoder.GifDecoder;
+import com.chends.media.picker.gifdecoder.StandardGifDecoder;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -335,7 +336,7 @@ public class SubsamplingScaleImageView extends View {
     // A global preference for bitmap format, available to decoder classes that respect it
     private static Bitmap.Config preferredBitmapConfig;
     private final Object pauseLock = new Object();
-    public GifDecoder mDecoder;
+    public AnimDecoder mDecoder;
     public Handler mHandler;
     private AtomicBoolean isPaused = new AtomicBoolean(false);
     private DrawThread drawThread;
@@ -1927,11 +1928,11 @@ public class SubsamplingScaleImageView extends View {
         private final WeakReference<SubsamplingScaleImageView> viewRef;
         private final Uri uri;
         private final boolean preview;
-        private final GifDecoder gifDecoder;
+        private final AnimDecoder gifDecoder;
         private Bitmap bitmap;
         private Exception exception;
 
-        public GifImageLoadTask(SubsamplingScaleImageView view, Uri uri, boolean preview, GifDecoder gifDecoder) {
+        public GifImageLoadTask(SubsamplingScaleImageView view, Uri uri, boolean preview, AnimDecoder gifDecoder) {
             this.viewRef = new WeakReference<>(view);
             this.uri = uri;
             this.preview = preview;

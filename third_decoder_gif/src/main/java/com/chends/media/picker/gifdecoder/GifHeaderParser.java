@@ -1,16 +1,19 @@
-package com.chends.media.picker.scaleview.gifdecoder;
+package com.chends.media.picker.gifdecoder;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+
+import com.chends.media.picker.decoder.AnimDecoder;
 
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 
-import static com.chends.media.picker.scaleview.gifdecoder.GifDecoder.STATUS_FORMAT_ERROR;
-import static com.chends.media.picker.scaleview.gifdecoder.GifFrame.DISPOSAL_NONE;
-import static com.chends.media.picker.scaleview.gifdecoder.GifFrame.DISPOSAL_UNSPECIFIED;
+import static com.chends.media.picker.decoder.AnimDecoder.STATUS_FORMAT_ERROR;
+import static com.chends.media.picker.decoder.AnimFrame.DISPOSAL_NONE;
+import static com.chends.media.picker.decoder.AnimFrame.DISPOSAL_UNSPECIFIED;
+
 
 /**
  * A class responsible for creating {@link GifHeader}s from data
@@ -44,7 +47,7 @@ public class GifHeaderParser {
 
     /**
      * Mask (bits 4-2) to extract Disposal Method of the current frame.
-     * @see GifFrame.GifDisposalMethod possible values
+     * @see GifFrame.AnimDisposalMethod possible values
      */
     private static final int GCE_MASK_DISPOSAL_METHOD = 0b00011100;
     /**
@@ -143,7 +146,7 @@ public class GifHeaderParser {
             setData(ByteBuffer.wrap(data));
         } else {
             rawData = null;
-            header.status = GifDecoder.STATUS_OPEN_ERROR;
+            header.status = AnimDecoder.STATUS_OPEN_ERROR;
         }
         return this;
     }
@@ -507,6 +510,6 @@ public class GifHeaderParser {
     }
 
     private boolean err() {
-        return header.status != GifDecoder.STATUS_OK;
+        return header.status != AnimDecoder.STATUS_OK;
     }
 }

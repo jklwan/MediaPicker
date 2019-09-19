@@ -1,4 +1,4 @@
-package com.chends.media.picker.scaleview.gifdecoder;
+package com.chends.media.picker.gifdecoder;
 
 /*
  * Copyright (c) 2013 Xcellent Creations, Inc.
@@ -30,6 +30,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.chends.media.picker.decoder.AnimDecoder;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,7 +56,7 @@ import java.util.Arrays;
  * Programmers</em>, republished under the MIT Open Source License
  * @see <a href="https://www.w3.org/Graphics/GIF/spec-gif89a.txt">GIF 89a Specification</a>
  */
-public class StandardGifDecoder implements com.chends.media.picker.scaleview.gifdecoder.GifDecoder {
+public class StandardGifDecoder implements AnimDecoder<GifHeader> {
     private static final String TAG = StandardGifDecoder.class.getSimpleName();
 
     /**
@@ -96,7 +98,7 @@ public class StandardGifDecoder implements com.chends.media.picker.scaleview.gif
      */
     private byte[] block;
 
-    private com.chends.media.picker.scaleview.gifdecoder.GifHeaderParser parser;
+    private GifHeaderParser parser;
 
     // LZW decoder working arrays.
     private short[] prefix;
@@ -107,10 +109,10 @@ public class StandardGifDecoder implements com.chends.media.picker.scaleview.gif
     private int[] mainScratch;
 
     private int framePointer;
-    private com.chends.media.picker.scaleview.gifdecoder.GifHeader header;
+    private GifHeader header;
     private Bitmap previousImage;
     private boolean savePrevious;
-    @GifDecodeStatus
+    @AnimDecodeStatus
     private int status;
     private int sampleSize;
     private int downsampledHeight;
@@ -122,41 +124,47 @@ public class StandardGifDecoder implements com.chends.media.picker.scaleview.gif
 
     // Public API.
     @SuppressWarnings("unused")
-    public StandardGifDecoder(com.chends.media.picker.scaleview.gifdecoder.GifHeader gifHeader, ByteBuffer rawData) {
+    public StandardGifDecoder(GifHeader gifHeader, ByteBuffer rawData) {
         this(gifHeader, rawData, 1 /*sampleSize*/);
     }
 
-    public StandardGifDecoder(com.chends.media.picker.scaleview.gifdecoder.GifHeader gifHeader, ByteBuffer rawData,
+    public StandardGifDecoder(GifHeader gifHeader, ByteBuffer rawData,
                               int sampleSize) {
         this();
         setData(gifHeader, rawData, sampleSize);
     }
 
     public StandardGifDecoder() {
-        header = new com.chends.media.picker.scaleview.gifdecoder.GifHeader();
+        header = new GifHeader();
     }
 
+    @Override
     public int getWidth() {
         return header.width;
     }
 
+    @Override
     public int getHeight() {
         return header.height;
     }
 
     @NonNull
+    @Override
     public ByteBuffer getData() {
         return rawData;
     }
 
+    @Override
     public int getStatus() {
         return status;
     }
 
+    @Override
     public void advance() {
         framePointer = (framePointer + 1) % header.frameCount;
     }
 
+    @Override
     public int getDelay(int n) {
         int delay = -1;
         if ((n >= 0) && (n < header.frameCount)) {
@@ -165,6 +173,7 @@ public class StandardGifDecoder implements com.chends.media.picker.scaleview.gif
         return delay;
     }
 
+    @Override
     public int getNextDelay() {
         if (header.frameCount <= 0 || framePointer < 0) {
             return 0;
@@ -172,45 +181,52 @@ public class StandardGifDecoder implements com.chends.media.picker.scaleview.gif
         return getDelay(framePointer);
     }
 
+    @Override
     public int getFrameCount() {
         return header.frameCount;
     }
 
+    @Override
     public int getCurrentFrameIndex() {
         return framePointer;
     }
 
+    @Override
     public void resetFrameIndex() {
         framePointer = INITIAL_FRAME_POINTER;
     }
 
     @Deprecated
     public int getLoopCount() {
-        if (header.loopCount == com.chends.media.picker.scaleview.gifdecoder.GifHeader.NETSCAPE_LOOP_COUNT_DOES_NOT_EXIST) {
+        if (header.loopCount == GifHeader.NETSCAPE_LOOP_COUNT_DOES_NOT_EXIST) {
             return 1;
         }
         return header.loopCount;
     }
 
+    @Override
     public int getNetscapeLoopCount() {
         return header.loopCount;
     }
 
+    @Override
     public int getTotalIterationCount() {
-        if (header.loopCount == com.chends.media.picker.scaleview.gifdecoder.GifHeader.NETSCAPE_LOOP_COUNT_DOES_NOT_EXIST) {
+        if (header.loopCount == GifHeader.NETSCAPE_LOOP_COUNT_DOES_NOT_EXIST) {
             return 1;
         }
-        if (header.loopCount == com.chends.media.picker.scaleview.gifdecoder.GifHeader.NETSCAPE_LOOP_COUNT_FOREVER) {
+        if (header.loopCount == GifHeader.NETSCAPE_LOOP_COUNT_FOREVER) {
             return TOTAL_ITERATION_COUNT_FOREVER;
         }
         return header.loopCount + 1;
     }
 
+    @Override
     public int getByteSize() {
         return rawData.limit() + mainPixels.length + (mainScratch.length * BYTES_PER_INTEGER);
     }
 
     @Nullable
+    @Override
     public synchronized Bitmap getNextFrame() {
         if (header.frameCount <= 0 || framePointer < 0) {
             status = STATUS_FORMAT_ERROR;
@@ -224,8 +240,8 @@ public class StandardGifDecoder implements com.chends.media.picker.scaleview.gif
             block = new byte[255];
         }
 
-        com.chends.media.picker.scaleview.gifdecoder.GifFrame currentFrame = header.frames.get(framePointer);
-        com.chends.media.picker.scaleview.gifdecoder.GifFrame previousFrame = null;
+        GifFrame currentFrame = header.frames.get(framePointer);
+        GifFrame previousFrame = null;
         int previousIndex = framePointer - 1;
         if (previousIndex >= 0) {
             previousFrame = header.frames.get(previousIndex);
@@ -253,6 +269,7 @@ public class StandardGifDecoder implements com.chends.media.picker.scaleview.gif
         return setPixels(currentFrame, previousFrame);
     }
 
+    @Override
     public int read(@Nullable InputStream is, int contentLength) {
         if (is != null) {
             try {
@@ -283,6 +300,7 @@ public class StandardGifDecoder implements com.chends.media.picker.scaleview.gif
         return status;
     }
 
+    @Override
     public void clear() {
         prefix = null;
         suffix = null;
@@ -305,22 +323,25 @@ public class StandardGifDecoder implements com.chends.media.picker.scaleview.gif
         if (block != null) {
             block = null;
         }
-        if (parser != null){
+        if (parser != null) {
             parser.clear();
             parser = null;
         }
         act = null;
     }
 
-    public synchronized void setData(@NonNull com.chends.media.picker.scaleview.gifdecoder.GifHeader header, @NonNull byte[] data) {
+    @Override
+    public synchronized void setData(@NonNull GifHeader header, @NonNull byte[] data) {
         setData(header, ByteBuffer.wrap(data));
     }
 
-    public synchronized void setData(@NonNull com.chends.media.picker.scaleview.gifdecoder.GifHeader header, @NonNull ByteBuffer buffer) {
+    @Override
+    public synchronized void setData(@NonNull GifHeader header, @NonNull ByteBuffer buffer) {
         setData(header, buffer, 1);
     }
 
-    public synchronized void setData(@NonNull com.chends.media.picker.scaleview.gifdecoder.GifHeader header, @NonNull ByteBuffer buffer,
+    @Override
+    public synchronized void setData(@NonNull GifHeader header, @NonNull ByteBuffer buffer,
                                      int sampleSize) {
         if (sampleSize <= 0) {
             throw new IllegalArgumentException("Sample size must be >=0, not: " + sampleSize);
@@ -337,8 +358,8 @@ public class StandardGifDecoder implements com.chends.media.picker.scaleview.gif
 
         // No point in specially saving an old frame if we're never going to use it.
         savePrevious = false;
-        for (com.chends.media.picker.scaleview.gifdecoder.GifFrame frame : header.frames) {
-            if (frame.dispose == com.chends.media.picker.scaleview.gifdecoder.GifFrame.DISPOSAL_PREVIOUS) {
+        for (GifFrame frame : header.frames) {
+            if (frame.dispose == GifFrame.DISPOSAL_PREVIOUS) {
                 savePrevious = true;
                 break;
             }
@@ -352,15 +373,17 @@ public class StandardGifDecoder implements com.chends.media.picker.scaleview.gif
         mainPixels = new byte[header.width * header.height];
         mainScratch = new int[downsampledWidth * downsampledHeight];
     }
+
     @NonNull
-    private com.chends.media.picker.scaleview.gifdecoder.GifHeaderParser getHeaderParser() {
+    private GifHeaderParser getHeaderParser() {
         if (parser == null) {
-            parser = new com.chends.media.picker.scaleview.gifdecoder.GifHeaderParser();
+            parser = new GifHeaderParser();
         }
         return parser;
     }
 
-    @GifDecodeStatus
+    @Override
+    @AnimDecodeStatus
     public synchronized int read(@Nullable byte[] data) {
         this.header = getHeaderParser().setData(data).parseHeader();
         if (data != null) {
@@ -370,6 +393,7 @@ public class StandardGifDecoder implements com.chends.media.picker.scaleview.gif
         return status;
     }
 
+    @Override
     public void setDefaultBitmapConfig(@NonNull Bitmap.Config config) {
         if (config != Bitmap.Config.ARGB_8888 && config != Bitmap.Config.RGB_565) {
             throw new IllegalArgumentException("Unsupported format: " + config
@@ -383,7 +407,7 @@ public class StandardGifDecoder implements com.chends.media.picker.scaleview.gif
      * Creates new frame image from current data (and previous frames as specified by their
      * disposition codes).
      */
-    private Bitmap setPixels(com.chends.media.picker.scaleview.gifdecoder.GifFrame currentFrame, com.chends.media.picker.scaleview.gifdecoder.GifFrame previousFrame) {
+    private Bitmap setPixels(GifFrame currentFrame, GifFrame previousFrame) {
         // Final location of blended pixels.
         final int[] dest = mainScratch;
 
@@ -401,16 +425,16 @@ public class StandardGifDecoder implements com.chends.media.picker.scaleview.gif
         // clear all pixels when dispose is 3 but previousImage is null.
         // When DISPOSAL_PREVIOUS and previousImage didn't be set, new frame should draw on
         // a empty image
-        if (previousFrame != null && previousFrame.dispose == com.chends.media.picker.scaleview.gifdecoder.GifFrame.DISPOSAL_PREVIOUS
+        if (previousFrame != null && previousFrame.dispose == GifFrame.DISPOSAL_PREVIOUS
                 && previousImage == null) {
             Arrays.fill(dest, COLOR_TRANSPARENT_BLACK);
         }
 
         // fill in starting image contents based on last image's dispose code
-        if (previousFrame != null && previousFrame.dispose > com.chends.media.picker.scaleview.gifdecoder.GifFrame.DISPOSAL_UNSPECIFIED) {
+        if (previousFrame != null && previousFrame.dispose > GifFrame.DISPOSAL_UNSPECIFIED) {
             // We don't need to do anything for DISPOSAL_NONE, if it has the correct pixels so will our
             // mainScratch and therefore so will our dest array.
-            if (previousFrame.dispose == com.chends.media.picker.scaleview.gifdecoder.GifFrame.DISPOSAL_BACKGROUND) {
+            if (previousFrame.dispose == GifFrame.DISPOSAL_BACKGROUND) {
                 // Start with a canvas filled with the background color
                 @ColorInt int c = COLOR_TRANSPARENT_BLACK;
                 if (!currentFrame.transparency) {
@@ -437,7 +461,7 @@ public class StandardGifDecoder implements com.chends.media.picker.scaleview.gif
                         dest[pointer] = c;
                     }
                 }
-            } else if (previousFrame.dispose == com.chends.media.picker.scaleview.gifdecoder.GifFrame.DISPOSAL_PREVIOUS && previousImage != null) {
+            } else if (previousFrame.dispose == GifFrame.DISPOSAL_PREVIOUS && previousImage != null) {
                 // Start with the previous frame
                 previousImage.getPixels(dest, 0, downsampledWidth, 0, 0, downsampledWidth,
                         downsampledHeight);
@@ -454,8 +478,8 @@ public class StandardGifDecoder implements com.chends.media.picker.scaleview.gif
         }
 
         // Copy pixels into previous image
-        if (savePrevious && (currentFrame.dispose == com.chends.media.picker.scaleview.gifdecoder.GifFrame.DISPOSAL_UNSPECIFIED
-                || currentFrame.dispose == com.chends.media.picker.scaleview.gifdecoder.GifFrame.DISPOSAL_NONE)) {
+        if (savePrevious && (currentFrame.dispose == GifFrame.DISPOSAL_UNSPECIFIED
+                || currentFrame.dispose == GifFrame.DISPOSAL_NONE)) {
             if (previousImage == null) {
                 previousImage = getNextBitmap();
             }
@@ -469,7 +493,7 @@ public class StandardGifDecoder implements com.chends.media.picker.scaleview.gif
         return result;
     }
 
-    private void copyIntoScratchFast(com.chends.media.picker.scaleview.gifdecoder.GifFrame currentFrame) {
+    private void copyIntoScratchFast(GifFrame currentFrame) {
         int[] dest = mainScratch;
         int downsampledIH = currentFrame.ih;
         int downsampledIY = currentFrame.iy;
@@ -515,7 +539,7 @@ public class StandardGifDecoder implements com.chends.media.picker.scaleview.gif
                 isFirstFrameTransparent == null && isFirstFrame && transparentColorIndex != -1;
     }
 
-    private void copyCopyIntoScratchRobust(com.chends.media.picker.scaleview.gifdecoder.GifFrame currentFrame) {
+    private void copyCopyIntoScratchRobust(GifFrame currentFrame) {
         int[] dest = mainScratch;
         int downsampledIH = currentFrame.ih / sampleSize;
         int downsampledIY = currentFrame.iy / sampleSize;
@@ -660,7 +684,7 @@ public class StandardGifDecoder implements com.chends.media.picker.scaleview.gif
     /**
      * Decodes LZW image data into pixel array. Adapted from John Cristy's BitmapMagick.
      */
-    private void decodeBitmapData(com.chends.media.picker.scaleview.gifdecoder.GifFrame frame) {
+    private void decodeBitmapData(GifFrame frame) {
         if (frame != null) {
             // Jump to the frame start position.
             rawData.position(frame.bufferFrameStart);

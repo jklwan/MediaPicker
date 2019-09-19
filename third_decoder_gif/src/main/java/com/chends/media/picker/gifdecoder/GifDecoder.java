@@ -1,4 +1,4 @@
-package com.chends.media.picker.scaleview.apngdecoder;
+package com.chends.media.picker.gifdecoder;
 
 import android.graphics.Bitmap;
 import android.support.annotation.IntDef;
@@ -11,8 +11,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
 
 /**
+ * Shared interface for GIF decoders.
  */
-public interface APNGDecoder {
+public interface GifDecoder {
 
   /** File read status: No errors. */
   int STATUS_OK = 0;
@@ -161,11 +162,11 @@ public interface APNGDecoder {
 
   void clear();
 
-  void setData(@NonNull com.chends.media.picker.scaleview.gifdecoder.GifHeader header, @NonNull byte[] data);
+  void setData(@NonNull GifHeader header, @NonNull byte[] data);
 
-  void setData(@NonNull com.chends.media.picker.scaleview.gifdecoder.GifHeader header, @NonNull ByteBuffer buffer);
+  void setData(@NonNull GifHeader header, @NonNull ByteBuffer buffer);
 
-  void setData(@NonNull com.chends.media.picker.scaleview.gifdecoder.GifHeader header, @NonNull ByteBuffer buffer, int sampleSize);
+  void setData(@NonNull GifHeader header, @NonNull ByteBuffer buffer, int sampleSize);
 
   /**
    * Reads GIF image from byte array.

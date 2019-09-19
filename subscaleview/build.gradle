@@ -35,4 +35,5 @@ dependencies {
     implementation deps.annotations
     implementation deps.exifinterface
     compileOnly project(':third_decoder_gif')
+    compileOnly project(':third_decoder_apng')
 }
