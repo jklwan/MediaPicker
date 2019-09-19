@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PointF;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -99,18 +100,28 @@ public class PreviewFragment extends Fragment {
                     case Constant.TYPE_NORMAL:
                         loadImage(item.getPath());
                         break;
+                    case Constant.TYPE_WEBP:
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                            // 支持webp
+                            loadImage(item.getPath());
+                        } else {
+                            loadImageFull(loader, item.getPath(), imageType);
+                        }
+                        break;
                     case Constant.TYPE_GIF:
                         if (PreviewUtil.hasGifScale()) {
                             loadGifImage(item.getPath());
                         } else {
-                            if (loader != null) {
-                                loader.loadImageFull(frameLayout, item.getPath(), w, h,
-                                        imageType, callback);
-                            }
+                            loadImageFull(loader, item.getPath(), imageType);
                         }
                         break;
                     case Constant.TYPE_APNG:
-                    case Constant.TYPE_WEBP:
+                        if (PreviewUtil.hasAPNGScale()) {
+                            loadGifImage(item.getPath());
+                        } else {
+                            loadImageFull(loader, item.getPath(), imageType);
+                        }
+                        break;
                     case Constant.TYPE_ANIMATED_WEBP:
                         if (loader != null) {
                             loader.loadImageFull(frameLayout, item.getPath(), w, h,
@@ -136,6 +147,18 @@ public class PreviewFragment extends Fragment {
             }
         }
         return rootView;
+    }
+
+    /**
+     * 加载大图
+     * @param loader    loader
+     * @param path      path
+     * @param imageType imageType
+     */
+    private void loadImageFull(PreviewMediaLoader loader, String path, @Constant.ImageType int imageType) {
+        if (loader != null) {
+            loader.loadImageFull(frameLayout, path, w, h, imageType, callback);
+        }
     }
 
     /**
@@ -238,7 +261,7 @@ public class PreviewFragment extends Fragment {
     }
 
     /**
-     * 显示大图
+     * 显示gif大图
      * @param path path
      */
     private void loadGifImage(String path) {
@@ -251,6 +274,14 @@ public class PreviewFragment extends Fragment {
         }
         ImageSource source = ImageSource.uri(Uri.fromFile(new File(path))).tilingDisabled();
         loadImage(imageView, wh, source, 0);
+    }
+
+    /**
+     * 显示apng大图
+     * @param path path
+     */
+    private void loadAPNGImage(String path){
+
     }
 
     /**

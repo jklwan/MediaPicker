@@ -379,7 +379,9 @@ public class GifHeaderParser {
         readLSD();
         if (header.gctFlag && !err()) {
             header.gct = readColorTable(header.gctSize);
-            header.bgColor = header.gct[header.bgIndex];
+            if (header.gct != null) {
+                header.bgColor = header.gct[header.bgIndex];
+            }
         }
     }
 

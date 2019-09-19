@@ -36,7 +36,7 @@ dependencies {
     // 使用预览
     implementation project(':picker_preview')
     // 使用GIF缩放
-    implementation project(':subscaleview_gif')
+    implementation project(':third_decoder_gif')
     implementation deps.appcompat_v7
     implementation deps.recyclerview_v7
     implementation deps.constraintLayout

@@ -67,10 +67,10 @@ public class PreviewUtil {
         }
     }
 
-    private static Boolean hasGifScale = null;
+    private static Boolean hasGifScale = null, hasAPNGScale = null;
 
     /**
-     * 是否有gif scale
+     * 是否有GIF scale
      */
     public static boolean hasGifScale() {
         if (hasGifScale == null) {
@@ -82,6 +82,21 @@ public class PreviewUtil {
             hasGifScale = (cls != null);
         }
         return hasGifScale;
+    }
+
+    /**
+     * 是否有APNG scale
+     */
+    public static boolean hasAPNGScale() {
+        if (hasAPNGScale == null) {
+            Class cls = null;
+            try {
+                cls = Class.forName("com.chends.media.picker.scaleview.gifdecoder.StandardGifDecoder");
+            } catch (ClassNotFoundException ignore) {
+            }
+            hasAPNGScale = (cls != null);
+        }
+        return hasAPNGScale;
     }
 
     /**
@@ -118,7 +133,7 @@ public class PreviewUtil {
      * @param wh wh
      * @return wh
      */
-    public static int[] onlyScaleWH(int[] wh){
+    public static int[] onlyScaleWH(int[] wh) {
         int maxTextureSize = PickerUtil.maxTextureSize();
         int targetWidth, targetHeight;
         if (wh[0] > maxTextureSize || wh[1] > maxTextureSize) {

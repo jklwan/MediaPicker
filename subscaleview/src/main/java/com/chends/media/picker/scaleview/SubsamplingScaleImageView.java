@@ -1950,7 +1950,11 @@ public class SubsamplingScaleImageView extends View {
                 if (inputStream == null) {
                     return null;
                 }
-                gifDecoder.read(inputStream, inputStream.available());
+                int code = gifDecoder.read(inputStream, inputStream.available());
+                if (code != GifDecoder.STATUS_OK){
+                    exception = new IllegalArgumentException("read gif file error :"+code);
+                    return null;
+                }
                 gifDecoder.advance();
                 bitmap = gifDecoder.getNextFrame();
                 if (bitmap != null) {
