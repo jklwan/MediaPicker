@@ -1,7 +1,4 @@
-package com.chends.media.picker.scaleview.apngdecoder.japng;
-
-import net.ellerton.japng.error.PngException;
-import net.ellerton.japng.error.PngIntegrityException;
+package com.chends.media.picker.apngdecoder;
 
 /**
  * PNG images support 5 colour types as defined at http://www.w3.org/TR/PNG/#11IHDR
@@ -17,14 +14,14 @@ public enum PngColourType {
     public final int componentsPerPixel;
     public final String allowedBitDepths;
     public final String name;
-    public final String descriptino;
+    public final String description;
 
-    PngColourType(int code, int componentsPerPixel, String allowedBitDepths, String name, String descriptino) {
+    PngColourType(int code, int componentsPerPixel, String allowedBitDepths, String name, String description) {
         this.code = code;
         this.componentsPerPixel = componentsPerPixel;
         this.allowedBitDepths = allowedBitDepths;
         this.name = name;
-        this.descriptino = descriptino;
+        this.description = description;
     }
 
     public boolean isIndexed() {
@@ -36,11 +33,11 @@ public enum PngColourType {
     }
 
     public boolean supportsSubByteDepth() {
-        return code==0 || code==3;
+        return code == 0 || code == 3;
     }
 
-    public static PngColourType fromByte(byte b) throws PngException {
-        switch(b) {
+    public static PngColourType fromByte(byte b) throws IllegalArgumentException {
+        switch (b) {
             case 0:
                 return PNG_GREYSCALE;
             case 2:
@@ -52,7 +49,7 @@ public enum PngColourType {
             case 6:
                 return PNG_TRUECOLOUR_WITH_ALPHA;
             default:
-                throw new PngIntegrityException(String.format("Valid PNG colour types are 0, 2, 3, 4, 6. Type '%d' is invalid", b));
+                throw new IllegalArgumentException(String.format("Valid PNG colour types are 0, 2, 3, 4, 6. Type '%d' is invalid", b));
         }
     }
 }

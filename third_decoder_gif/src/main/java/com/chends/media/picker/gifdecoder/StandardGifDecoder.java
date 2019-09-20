@@ -24,7 +24,6 @@ package com.chends.media.picker.gifdecoder;
  */
 
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.Config;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -65,10 +64,6 @@ public class StandardGifDecoder implements AnimDecoder<GifHeader> {
     private static final int MAX_STACK_SIZE = 4 * 1024;
 
     private static final int NULL_CODE = -1;
-
-    private static final int INITIAL_FRAME_POINTER = -1;
-
-    private static final int BYTES_PER_INTEGER = Integer.SIZE / 8;
 
     private static final int MASK_INT_LOWEST_BYTE = 0x000000FF;
 
@@ -120,7 +115,7 @@ public class StandardGifDecoder implements AnimDecoder<GifHeader> {
     @Nullable
     private Boolean isFirstFrameTransparent;
     @NonNull
-    private Bitmap.Config bitmapConfig = Config.ARGB_8888;
+    private Bitmap.Config bitmapConfig = Bitmap.Config.ARGB_8888;
 
     // Public API.
     @SuppressWarnings("unused")
@@ -270,6 +265,7 @@ public class StandardGifDecoder implements AnimDecoder<GifHeader> {
     }
 
     @Override
+    @AnimDecodeStatus
     public int read(@Nullable InputStream is, int contentLength) {
         if (is != null) {
             try {

@@ -36,6 +36,8 @@ dependencies {
     api project(':picker')
     api project(':subscaleview')
     compileOnly deps.appcompat_v7
+    compileOnly project(':third_decoder_gif')
+    compileOnly project(':third_decoder_apng')
     implementation deps.annotations
     implementation deps.exifinterface
 }

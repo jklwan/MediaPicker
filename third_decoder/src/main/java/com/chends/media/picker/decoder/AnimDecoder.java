@@ -15,6 +15,8 @@ import java.nio.ByteBuffer;
  * @author chends create on 2019/9/19.
  */
 public interface AnimDecoder<T extends AnimHeader> {
+    int INITIAL_FRAME_POINTER = -1;
+    int BYTES_PER_INTEGER = Integer.SIZE / 8;
     /**
      * 正常状态
      */
@@ -177,7 +179,6 @@ public interface AnimDecoder<T extends AnimHeader> {
     @AnimDecodeStatus
     int read(@Nullable byte[] data);
 
-
     /**
      * Sets the default {@link Bitmap.Config} to use when decoding frames of a Anim.
      *
@@ -193,5 +194,5 @@ public interface AnimDecoder<T extends AnimHeader> {
      * {@link Bitmap.Config#ARGB_8888} will be used anyway to support the
      * transparency.
      */
-    void setDefaultBitmapConfig(@NonNull Bitmap.Config format);
+    void setDefaultBitmapConfig(@NonNull Bitmap.Config config);
 }

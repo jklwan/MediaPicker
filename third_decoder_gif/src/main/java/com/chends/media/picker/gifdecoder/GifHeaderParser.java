@@ -4,15 +4,12 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.chends.media.picker.decoder.AnimDecoder;
+import com.chends.media.picker.decoder.AnimFrame;
 
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
-
-import static com.chends.media.picker.decoder.AnimDecoder.STATUS_FORMAT_ERROR;
-import static com.chends.media.picker.decoder.AnimFrame.DISPOSAL_NONE;
-import static com.chends.media.picker.decoder.AnimFrame.DISPOSAL_UNSPECIFIED;
 
 
 /**
@@ -164,7 +161,7 @@ public class GifHeaderParser {
     }
 
     @NonNull
-    public GifHeader parseHeader() {
+    GifHeader parseHeader() {
         if (rawData == null) {
             throw new IllegalStateException("You must call setData() before parseHeader()");
         }
@@ -176,7 +173,7 @@ public class GifHeaderParser {
         if (!err()) {
             readContents();
             if (header.frameCount < 0) {
-                header.status = STATUS_FORMAT_ERROR;
+                header.status = AnimDecoder.STATUS_FORMAT_ERROR;
             }
         }
 
@@ -260,7 +257,7 @@ public class GifHeaderParser {
                 // Bad byte, but keep going and see what happens
                 case 0x00:
                 default:
-                    header.status = STATUS_FORMAT_ERROR;
+                    header.status = AnimDecoder.STATUS_FORMAT_ERROR;
             }
         }
     }
@@ -286,9 +283,9 @@ public class GifHeaderParser {
         // Disposal method.
         //noinspection WrongConstant field has to be extracted from packed value
         header.currentFrame.dispose = (packed & GCE_MASK_DISPOSAL_METHOD) >> GCE_DISPOSAL_METHOD_SHIFT;
-        if (header.currentFrame.dispose == DISPOSAL_UNSPECIFIED) {
+        if (header.currentFrame.dispose == AnimFrame.DISPOSAL_UNSPECIFIED) {
             // Elect to keep old image if discretionary.
-            header.currentFrame.dispose = DISPOSAL_NONE;
+            header.currentFrame.dispose = AnimFrame.DISPOSAL_NONE;
         }
         header.currentFrame.transparency = (packed & GCE_MASK_TRANSPARENT_COLOR_FLAG) != 0;
         // Delay in milliseconds.
@@ -366,7 +363,6 @@ public class GifHeaderParser {
         } while ((blockSize > 0) && !err());
     }
 
-
     /**
      * Reads GIF file header information.
      */
@@ -376,7 +372,7 @@ public class GifHeaderParser {
             id.append((char) read());
         }
         if (!id.toString().startsWith("GIF")) {
-            header.status = STATUS_FORMAT_ERROR;
+            header.status = AnimDecoder.STATUS_FORMAT_ERROR;
             return;
         }
         readLSD();
@@ -439,7 +435,7 @@ public class GifHeaderParser {
                 tab[i++] = 0xFF000000 | (r << 16) | (g << 8) | b;
             }
         } catch (BufferUnderflowException e) {
-            header.status = STATUS_FORMAT_ERROR;
+            header.status = AnimDecoder.STATUS_FORMAT_ERROR;
         }
 
         return tab;
@@ -483,7 +479,7 @@ public class GifHeaderParser {
                     n += count;
                 }
             } catch (Exception e) {
-                header.status = STATUS_FORMAT_ERROR;
+                header.status = AnimDecoder.STATUS_FORMAT_ERROR;
             }
         }
     }
@@ -496,7 +492,7 @@ public class GifHeaderParser {
         try {
             currByte = rawData.get() & MASK_INT_LOWEST_BYTE;
         } catch (Exception e) {
-            header.status = STATUS_FORMAT_ERROR;
+            header.status = AnimDecoder.STATUS_FORMAT_ERROR;
         }
         return currByte;
     }

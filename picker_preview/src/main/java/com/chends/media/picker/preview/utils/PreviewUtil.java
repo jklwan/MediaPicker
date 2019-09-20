@@ -76,7 +76,7 @@ public class PreviewUtil {
         if (hasGifScale == null) {
             Class cls = null;
             try {
-                cls = Class.forName("com.chends.media.picker.scaleview.gifdecoder.StandardGifDecoder");
+                cls = Class.forName("com.chends.media.picker.gifdecoder.StandardGifDecoder");
             } catch (ClassNotFoundException ignore) {
             }
             hasGifScale = (cls != null);
@@ -91,7 +91,7 @@ public class PreviewUtil {
         if (hasAPNGScale == null) {
             Class cls = null;
             try {
-                cls = Class.forName("com.chends.media.picker.scaleview.gifdecoder.StandardGifDecoder");
+                cls = Class.forName("com.chends.media.picker.apngdecoder.StandardAPngDecoder");
             } catch (ClassNotFoundException ignore) {
             }
             hasAPNGScale = (cls != null);

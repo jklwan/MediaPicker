@@ -34,6 +34,7 @@ import android.view.View;
 import android.view.ViewParent;
 
 import com.chends.media.picker.decoder.AnimDecoder;
+import com.chends.media.picker.decoder.AnimDecoderFactory;
 import com.chends.media.picker.scaleview.decoder.CompatDecoderFactory;
 import com.chends.media.picker.scaleview.decoder.DecoderFactory;
 import com.chends.media.picker.scaleview.decoder.ImageDecoder;
@@ -340,7 +341,8 @@ public class SubsamplingScaleImageView extends View {
     public Handler mHandler;
     private AtomicBoolean isPaused = new AtomicBoolean(false);
     private DrawThread drawThread;
-    private boolean mIsRun = false, isGif = false;
+    private boolean mIsRun = false, isAnim = false;
+    private AnimDecoderFactory<? extends AnimDecoder> animDecoderFactory = new AnimDecoderFactory<>(StandardGifDecoder.class);
     private int maxTextureSize = 0;
 
     public SubsamplingScaleImageView(Context context) {
@@ -535,17 +537,9 @@ public class SubsamplingScaleImageView extends View {
                 TilesInitTask task = new TilesInitTask(this, getContext(), regionDecoderFactory, uri);
                 execute(task);
             } else {
-                if (isGif) {
-                    if (mDecoder == null) {
-                        mDecoder = new StandardGifDecoder();
-                    }
-                    Bitmap.Config config = getPreferredBitmapConfig();
-                    if (config != Bitmap.Config.ARGB_8888 && config != Bitmap.Config.RGB_565) {
-                        config = Bitmap.Config.RGB_565;
-                    }
-                    mDecoder.setDefaultBitmapConfig(config);
+                if (isAnim) {
                     // Load gif bitmap
-                    GifImageLoadTask task = new GifImageLoadTask(this, uri, false, mDecoder);
+                    AnimImageLoadTask task = new AnimImageLoadTask(this, uri, false, animDecoderFactory);
                     execute(task);
                 } else {
                     // Load the bitmap as a single image.
@@ -1391,6 +1385,7 @@ public class SubsamplingScaleImageView extends View {
         } else {
             initialiseTileMap(maxTileDimensions);
             List<Tile> baseGrid = tileMap.get(fullImageSampleSize);
+            if (baseGrid == null) return;
             for (Tile baseTile : baseGrid) {
                 TileLoadTask task = new TileLoadTask(this, decoder, baseTile);
                 execute(task);
@@ -1893,11 +1888,11 @@ public class SubsamplingScaleImageView extends View {
     }
 
     /**
-     * 是否显示gif
-     * @param isGif isGif
+     * 是否显示动画 gif apng webp
+     * @param isAnim isAnim
      */
-    public void setIsGif(boolean isGif) {
-        this.isGif = isGif;
+    public void setIsGif(boolean isAnim) {
+        this.isAnim = isAnim;
     }
 
     public void setIsRun(boolean isRun) {
@@ -1922,21 +1917,35 @@ public class SubsamplingScaleImageView extends View {
     }
 
     /**
-     * gif loader
+     * 设置动画解析器
+     * @param animDecoderClass class
      */
-    private static class GifImageLoadTask extends AsyncTask<Void, Void, Integer> {
+    public final void setAnimDecoderClass(@NonNull Class<? extends AnimDecoder> animDecoderClass) {
+        //noinspection ConstantConditions
+        if (animDecoderClass == null) {
+            throw new IllegalArgumentException("Decoder class cannot be set to null");
+        }
+        this.animDecoderFactory = new AnimDecoderFactory<>(animDecoderClass);
+    }
+
+    /**
+     * anim loader
+     */
+    private static class AnimImageLoadTask extends AsyncTask<Void, Void, Integer> {
         private final WeakReference<SubsamplingScaleImageView> viewRef;
         private final Uri uri;
         private final boolean preview;
-        private final AnimDecoder gifDecoder;
+        private AnimDecoder animDecoder;
+        private final WeakReference<AnimDecoderFactory<? extends AnimDecoder>> decoderFactoryRef;
         private Bitmap bitmap;
         private Exception exception;
 
-        public GifImageLoadTask(SubsamplingScaleImageView view, Uri uri, boolean preview, AnimDecoder gifDecoder) {
+        public AnimImageLoadTask(SubsamplingScaleImageView view, Uri uri, boolean preview,
+                                 AnimDecoderFactory<? extends AnimDecoder> factory) {
             this.viewRef = new WeakReference<>(view);
             this.uri = uri;
             this.preview = preview;
-            this.gifDecoder = gifDecoder;
+            this.decoderFactoryRef = new WeakReference<AnimDecoderFactory<? extends AnimDecoder>>(factory);
         }
 
         @Override
@@ -1951,13 +1960,23 @@ public class SubsamplingScaleImageView extends View {
                 if (inputStream == null) {
                     return null;
                 }
-                int code = gifDecoder.read(inputStream, inputStream.available());
-                if (code != GifDecoder.STATUS_OK){
-                    exception = new IllegalArgumentException("read gif file error :"+code);
+                AnimDecoderFactory factory = decoderFactoryRef.get();
+                if (factory == null) {
                     return null;
                 }
-                gifDecoder.advance();
-                bitmap = gifDecoder.getNextFrame();
+                animDecoder = factory.make();
+                Bitmap.Config config = getPreferredBitmapConfig();
+                if (config != Bitmap.Config.ARGB_8888 && config != Bitmap.Config.RGB_565) {
+                    config = Bitmap.Config.RGB_565;
+                }
+                animDecoder.setDefaultBitmapConfig(config);
+                int code = animDecoder.read(inputStream, inputStream.available());
+                if (code != GifDecoder.STATUS_OK) {
+                    exception = new IllegalArgumentException("read gif file error :" + code);
+                    return null;
+                }
+                animDecoder.advance();
+                bitmap = animDecoder.getNextFrame();
                 if (bitmap != null) {
                     // 图片过大时进行缩放
                     if (viewRef.get() != null) {
@@ -1989,7 +2008,7 @@ public class SubsamplingScaleImageView extends View {
                 if (preview) {
                     view.onPreviewLoaded(bitmap);
                 } else {
-                    view.onImageLoaded(bitmap, num, false);
+                    view.onAnimImageLoaded(bitmap, num, animDecoder);
                 }
             } else if (exception != null && view.onImageEventListener != null) {
                 if (preview) {
@@ -2103,6 +2122,11 @@ public class SubsamplingScaleImageView extends View {
         }
     }
 
+    private synchronized void onAnimImageLoaded(Bitmap bitmap, int sOrientation, AnimDecoder decoder) {
+        mDecoder = decoder;
+        onImageLoaded(bitmap, sOrientation, false);
+    }
+
     /**
      * Called by worker task when full size image bitmap is ready (tiling is disabled).
      */
@@ -2122,7 +2146,7 @@ public class SubsamplingScaleImageView extends View {
 
         this.sOrientation = sOrientation;
         this.bitmapIsCached = bitmapIsCached;
-        if (isGif) {
+        if (isAnim) {
             loadImage(bitmap, true);
             if (mDecoder != null && mDecoder.getFrameCount() > 1) {
                 setIsRun(true);

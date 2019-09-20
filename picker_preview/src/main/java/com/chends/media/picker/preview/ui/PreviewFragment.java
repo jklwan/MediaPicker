@@ -22,6 +22,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.chends.media.picker.MimeType;
+import com.chends.media.picker.apngdecoder.StandardAPngDecoder;
 import com.chends.media.picker.model.Constant;
 import com.chends.media.picker.model.ItemBean;
 import com.chends.media.picker.model.PickerBean;
@@ -117,7 +118,7 @@ public class PreviewFragment extends Fragment {
                         break;
                     case Constant.TYPE_APNG:
                         if (PreviewUtil.hasAPNGScale()) {
-                            loadGifImage(item.getPath());
+                            loadAPNGImage(item.getPath());
                         } else {
                             loadImageFull(loader, item.getPath(), imageType);
                         }
@@ -281,7 +282,16 @@ public class PreviewFragment extends Fragment {
      * @param path path
      */
     private void loadAPNGImage(String path){
-
+        SubsamplingScaleImageView imageView = createGifSSIV();
+        imageView.setAnimDecoderClass(StandardAPngDecoder.class);
+        imageView.setOnImageEventListener(new TryReloadBitmap(path));
+        int[] wh = PickerUtil.getImageWH(path);
+        if (Math.max(wh[0], wh[1]) >= PickerUtil.maxTextureSize()) {
+            // 宽高大于最大宽高，进行缩放
+            wh = PreviewUtil.onlyScaleWH(wh);
+        }
+        ImageSource source = ImageSource.uri(Uri.fromFile(new File(path))).tilingDisabled();
+        loadImage(imageView, wh, source, 0);
     }
 
     /**

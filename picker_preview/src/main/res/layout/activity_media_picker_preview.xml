@@ -15,7 +15,7 @@
         style="@style/match"
         android:layout_height="50dp"
         android:layout_gravity="bottom"
-        android:background="@color/color_media_picker_folder_bg">
+        android:background="@color/color_media_picker_bottom_bg">
 
         <android.support.v7.widget.AppCompatTextView
             android:id="@+id/select_text"
@@ -29,7 +29,7 @@
             android:paddingEnd="20dp"
             android:paddingRight="20dp"
             android:text="@string/string_media_picker_preview_select"
-            android:textColor="@color/white"
+            android:textColor="@color/color_media_picker_bottom_text_color"
             android:textStyle="bold" />
 
         <android.support.v7.widget.AppCompatImageView
