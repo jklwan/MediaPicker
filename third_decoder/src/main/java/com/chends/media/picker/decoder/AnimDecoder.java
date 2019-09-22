@@ -169,8 +169,6 @@ public interface AnimDecoder<T extends AnimHeader> {
 
     void setData(@NonNull T header, @NonNull ByteBuffer buffer);
 
-    void setData(@NonNull T header, @NonNull ByteBuffer buffer, int sampleSize);
-
     /**
      * Reads Anim image from byte array.
      * @param data containing Anim file.

@@ -2,6 +2,7 @@ package com.chends.media.picker.apngdecoder;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.chends.media.picker.decoder.AnimDecoder;
 
@@ -127,11 +128,15 @@ public class APngHeaderParser {
             type = readInt(); // chunk type
             switch (type) {
                 case APngConstant.IHDR_VALUE:
+                    if (length != APngConstant.LENGTH_IHDR){
+                        header.status = AnimDecoder.STATUS_FORMAT_ERROR;
+                        break;
+                    }
                     readIHDR();
                     break;
                 case APngConstant.acTL_VALUE:
                     done = true;
-                    if (length != APngConstant.LENGTH_acTL_CHUNK) {
+                    if (length != APngConstant.LENGTH_acTL) {
                         header.status = AnimDecoder.STATUS_FORMAT_ERROR;
                         break;
                     }
@@ -175,6 +180,7 @@ public class APngHeaderParser {
         header.compressionMethod = readByte();
         header.filterMethod = readByte();
         header.interlaceMethod = readByte();
+        Log.w("readIHDR", "header:" + header);
     }
 
     /**
@@ -191,9 +197,12 @@ public class APngHeaderParser {
      * read The Animation Data Chunk
      */
     private void readIDAT(int length) {
+        header.idatPosition = rawData.position() - APngConstant.CHUNK_TOP_LENGTH;
         if (apngSequenceExpect > 0) {
             // fcTL在IDAT之前，当做第一帧
+            header.hasFcTL = true;
             header.currentFrame.bufferFrameStart = rawData.position();
+            header.currentFrame.length = length;
         }
         skip(length);
     }
@@ -256,7 +265,7 @@ public class APngHeaderParser {
                     readPalette(length);
                     break;
                 case APngConstant.fcTL_VALUE:
-                    if (length != APngConstant.LENGTH_fcTL_CHUNK) {
+                    if (length != APngConstant.LENGTH_fcTL) {
                         header.status = AnimDecoder.STATUS_FORMAT_ERROR;
                         break;
                     }
@@ -265,29 +274,31 @@ public class APngHeaderParser {
                 case APngConstant.IDAT_VALUE:
                     readIDAT(length);
                     break;
-                case APngConstant.gAMA_VALUE:
-                    // todo
-                    skip(length);
-                    break;
                 case APngConstant.fdAT_VALUE:
                     readFdAT(length);
                     break;
-                case APngConstant.bKGD_VALUE:
-                    // todo
-                    skip(length);
-                    break;
                 case APngConstant.IEND_VALUE:
+                    header.iendPosition = rawData.position() - APngConstant.CHUNK_TOP_LENGTH;
+                    if (header.frameCount != header.frames.size()) {
+                        Log.w("apng decoder", "apng文件内容有误！");
+                        header.frameCount = header.frames.size();
+                    }
                     done = true;
                     break;
+                case APngConstant.gAMA_VALUE:
+                    // todo
+                case APngConstant.bKGD_VALUE:
+                    // todo
                 case APngConstant.tRNS_VALUE:
                     // todo
-                    skip(length);
-                    break;
                 default:
                     skip(length);
                     break;
             }
             readCRC();
+            if (!done) {
+                done = rawData.position() >= rawData.limit();
+            }
         }
     }
 
@@ -304,6 +315,8 @@ public class APngHeaderParser {
         }
         apngSequenceExpect++;
         header.currentFrame.bufferFrameStart = rawData.position();
+        header.currentFrame.length = length - 4;
+        header.currentFrame.isFdAT = true;
         // 减去sequence占用的位置
         skip(length - 4);
     }

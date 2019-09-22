@@ -9,13 +9,41 @@ public class APngConstant {
      */
     public static final int LENGTH_SIGNATURE = 8;
     /**
+     * chunk length长度
+     */
+    public static final int CHUNK_LENGTH_LENGTH = 4;
+    /**
+     * chunk type长度
+     */
+    public static final int CHUNK_TYPE_LENGTH = 4;
+    /**
+     * TOP长度
+     */
+    public static final int CHUNK_TOP_LENGTH = CHUNK_LENGTH_LENGTH + CHUNK_TYPE_LENGTH;
+    /**
+     * IHDR 长度
+     */
+    public static final int LENGTH_IHDR = 4 + 4 + 5;
+    /**
+     * CRC长度
+     */
+    public static final int LENGTH_CRC = 4;
+    /**
      * acTL长度
      */
-    public static final int LENGTH_acTL_CHUNK = 4 + 4;
+    public static final int LENGTH_acTL = 4 + 4;
+    /**
+     * acTL 块长度
+     */
+    public static final int LENGTH_acTL_CHUNK = LENGTH_acTL + CHUNK_TOP_LENGTH + LENGTH_CRC;
     /**
      * fcTL 长度
      */
-    public static final int LENGTH_fcTL_CHUNK = 4 + 4 + 4 + 4 + 4 + 2 + 2 + 1 + 1;
+    public static final int LENGTH_fcTL = 4 + 4 + 4 + 4 + 4 + 2 + 2 + 1 + 1;
+    /**
+     * fcTL 块长度
+     */
+    public static final int LENGTH_fcTL_CHUNK = LENGTH_fcTL + CHUNK_TOP_LENGTH + LENGTH_CRC;
 
     /**
      * png signature 内容

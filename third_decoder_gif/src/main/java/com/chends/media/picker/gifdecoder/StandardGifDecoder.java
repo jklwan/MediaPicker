@@ -109,9 +109,7 @@ public class StandardGifDecoder implements AnimDecoder<GifHeader> {
     private boolean savePrevious;
     @AnimDecodeStatus
     private int status;
-    private int sampleSize;
-    private int downsampledHeight;
-    private int downsampledWidth;
+    private int w, h;
     @Nullable
     private Boolean isFirstFrameTransparent;
     @NonNull
@@ -120,13 +118,8 @@ public class StandardGifDecoder implements AnimDecoder<GifHeader> {
     // Public API.
     @SuppressWarnings("unused")
     public StandardGifDecoder(GifHeader gifHeader, ByteBuffer rawData) {
-        this(gifHeader, rawData, 1 /*sampleSize*/);
-    }
-
-    public StandardGifDecoder(GifHeader gifHeader, ByteBuffer rawData,
-                              int sampleSize) {
         this();
-        setData(gifHeader, rawData, sampleSize);
+        setData(gifHeader, rawData);
     }
 
     public StandardGifDecoder() {
@@ -327,23 +320,12 @@ public class StandardGifDecoder implements AnimDecoder<GifHeader> {
     }
 
     @Override
-    public synchronized void setData(@NonNull GifHeader header, @NonNull byte[] data) {
+    public void setData(@NonNull GifHeader header, @NonNull byte[] data) {
         setData(header, ByteBuffer.wrap(data));
     }
 
     @Override
     public synchronized void setData(@NonNull GifHeader header, @NonNull ByteBuffer buffer) {
-        setData(header, buffer, 1);
-    }
-
-    @Override
-    public synchronized void setData(@NonNull GifHeader header, @NonNull ByteBuffer buffer,
-                                     int sampleSize) {
-        if (sampleSize <= 0) {
-            throw new IllegalArgumentException("Sample size must be >=0, not: " + sampleSize);
-        }
-        // Make sure sample size is a power of 2.
-        sampleSize = Integer.highestOneBit(sampleSize);
         this.status = STATUS_OK;
         this.header = header;
         framePointer = INITIAL_FRAME_POINTER;
@@ -361,14 +343,14 @@ public class StandardGifDecoder implements AnimDecoder<GifHeader> {
             }
         }
 
-        this.sampleSize = sampleSize;
-        downsampledWidth = header.width / sampleSize;
-        downsampledHeight = header.height / sampleSize;
+        w = header.width;
+        h = header.height;
         // Now that we know the size, init scratch arrays.
         // TODO Find a way to avoid this entirely or at least downsample it (either should be possible).
-        mainPixels = new byte[header.width * header.height];
-        mainScratch = new int[downsampledWidth * downsampledHeight];
+        mainPixels = new byte[w * h];
+        mainScratch = new int[w * h];
     }
+
 
     @NonNull
     private GifHeaderParser getHeaderParser() {
@@ -445,13 +427,13 @@ public class StandardGifDecoder implements AnimDecoder<GifHeader> {
                     isFirstFrameTransparent = true;
                 }
                 // The area used by the graphic must be restored to the background color.
-                int downsampledIH = previousFrame.ih / sampleSize;
-                int downsampledIY = previousFrame.iy / sampleSize;
-                int downsampledIW = previousFrame.iw / sampleSize;
-                int downsampledIX = previousFrame.ix / sampleSize;
-                int topLeft = downsampledIY * downsampledWidth + downsampledIX;
-                int bottomLeft = topLeft + downsampledIH * downsampledWidth;
-                for (int left = topLeft; left < bottomLeft; left += downsampledWidth) {
+                int downsampledIH = previousFrame.ih;
+                int downsampledIY = previousFrame.iy;
+                int downsampledIW = previousFrame.iw;
+                int downsampledIX = previousFrame.ix;
+                int topLeft = downsampledIY * w + downsampledIX;
+                int bottomLeft = topLeft + downsampledIH * w;
+                for (int left = topLeft; left < bottomLeft; left += w) {
                     int right = left + downsampledIW;
                     for (int pointer = left; pointer < right; pointer++) {
                         dest[pointer] = c;
@@ -459,15 +441,15 @@ public class StandardGifDecoder implements AnimDecoder<GifHeader> {
                 }
             } else if (previousFrame.dispose == GifFrame.DISPOSAL_PREVIOUS && previousImage != null) {
                 // Start with the previous frame
-                previousImage.getPixels(dest, 0, downsampledWidth, 0, 0, downsampledWidth,
-                        downsampledHeight);
+                previousImage.getPixels(dest, 0, w, 0, 0, w,
+                        h);
             }
         }
 
         // Decode pixels for this frame into the global pixels[] scratch.
         decodeBitmapData(currentFrame);
 
-        if (currentFrame.interlace || sampleSize != 1) {
+        if (currentFrame.interlace) {
             copyCopyIntoScratchRobust(currentFrame);
         } else {
             copyIntoScratchFast(currentFrame);
@@ -479,13 +461,13 @@ public class StandardGifDecoder implements AnimDecoder<GifHeader> {
             if (previousImage == null) {
                 previousImage = getNextBitmap();
             }
-            previousImage.setPixels(dest, 0, downsampledWidth, 0, 0, downsampledWidth,
-                    downsampledHeight);
+            previousImage.setPixels(dest, 0, w, 0, 0, w,
+                    h);
         }
 
         // Set pixels for current image.
         Bitmap result = getNextBitmap();
-        result.setPixels(dest, 0, downsampledWidth, 0, 0, downsampledWidth, downsampledHeight);
+        result.setPixels(dest, 0, w, 0, 0, w, h);
         return result;
     }
 
@@ -497,7 +479,7 @@ public class StandardGifDecoder implements AnimDecoder<GifHeader> {
         int downsampledIX = currentFrame.ix;
         // Copy each source line to the appropriate place in the destination.
         boolean isFirstFrame = framePointer == 0;
-        int width = this.downsampledWidth;
+        int width = this.w;
         byte[] mainPixels = this.mainPixels;
         int[] act = this.act;
         byte transparentColorIndex = -1;
@@ -537,18 +519,18 @@ public class StandardGifDecoder implements AnimDecoder<GifHeader> {
 
     private void copyCopyIntoScratchRobust(GifFrame currentFrame) {
         int[] dest = mainScratch;
-        int downsampledIH = currentFrame.ih / sampleSize;
-        int downsampledIY = currentFrame.iy / sampleSize;
-        int downsampledIW = currentFrame.iw / sampleSize;
-        int downsampledIX = currentFrame.ix / sampleSize;
+        int downsampledIH = currentFrame.ih;
+        int downsampledIY = currentFrame.iy;
+        int downsampledIW = currentFrame.iw;
+        int downsampledIX = currentFrame.ix;
         // Copy each source line to the appropriate place in the destination.
         int pass = 1;
         int inc = 8;
         int iline = 0;
         boolean isFirstFrame = framePointer == 0;
-        int sampleSize = this.sampleSize;
-        int downsampledWidth = this.downsampledWidth;
-        int downsampledHeight = this.downsampledHeight;
+        int sampleSize = 1;
+        int downsampledWidth = this.w;
+        int downsampledHeight = this.h;
         byte[] mainPixels = this.mainPixels;
         int[] act = this.act;
         @Nullable
@@ -578,7 +560,6 @@ public class StandardGifDecoder implements AnimDecoder<GifHeader> {
                 iline += inc;
             }
             line += downsampledIY;
-            boolean isNotDownsampling = sampleSize == 1;
             if (line < downsampledHeight) {
                 int k = line * downsampledWidth;
                 // Start of line in dest.
@@ -591,35 +572,17 @@ public class StandardGifDecoder implements AnimDecoder<GifHeader> {
                 }
                 // Start of line in source.
                 int sx = i * sampleSize * currentFrame.iw;
-                if (isNotDownsampling) {
-                    int averageColor;
-                    while (dx < dlim) {
-                        int currentColorIndex = ((int) mainPixels[sx]) & MASK_INT_LOWEST_BYTE;
-                        averageColor = act[currentColorIndex];
-                        if (averageColor != COLOR_TRANSPARENT_BLACK) {
-                            dest[dx] = averageColor;
-                        } else if (isFirstFrame && isFirstFrameTransparent == null) {
-                            isFirstFrameTransparent = true;
-                        }
-                        sx += sampleSize;
-                        dx++;
+                int averageColor;
+                while (dx < dlim) {
+                    int currentColorIndex = ((int) mainPixels[sx]) & MASK_INT_LOWEST_BYTE;
+                    averageColor = act[currentColorIndex];
+                    if (averageColor != COLOR_TRANSPARENT_BLACK) {
+                        dest[dx] = averageColor;
+                    } else if (isFirstFrame && isFirstFrameTransparent == null) {
+                        isFirstFrameTransparent = true;
                     }
-                } else {
-                    int averageColor;
-                    int maxPositionInSource = sx + ((dlim - dx) * sampleSize);
-                    while (dx < dlim) {
-                        // Map color and insert in destination.
-                        // TODO: This is substantially slower (up to 50ms per frame) than just grabbing the
-                        // current color index above, even with a sample size of 1.
-                        averageColor = averageColorsNear(sx, maxPositionInSource, currentFrame.iw);
-                        if (averageColor != COLOR_TRANSPARENT_BLACK) {
-                            dest[dx] = averageColor;
-                        } else if (isFirstFrame && isFirstFrameTransparent == null) {
-                            isFirstFrameTransparent = true;
-                        }
-                        sx += sampleSize;
-                        dx++;
-                    }
+                    sx += sampleSize;
+                    dx++;
                 }
             }
         }
@@ -630,7 +593,7 @@ public class StandardGifDecoder implements AnimDecoder<GifHeader> {
         }
     }
 
-    @ColorInt
+    /*@ColorInt
     private int averageColorsNear(int positionInMainPixels, int maxPositionInMainPixels,
                                   int currentFrameIw) {
         int alphaSum = 0;
@@ -641,7 +604,7 @@ public class StandardGifDecoder implements AnimDecoder<GifHeader> {
         int totalAdded = 0;
         // Find the pixels in the current row.
         for (int i = positionInMainPixels;
-             i < positionInMainPixels + sampleSize && i < mainPixels.length
+             i < positionInMainPixels + 1 && i < mainPixels.length
                      && i < maxPositionInMainPixels; i++) {
             int currentColorIndex = ((int) mainPixels[i]) & MASK_INT_LOWEST_BYTE;
             int currentColor = act[currentColorIndex];
@@ -655,7 +618,7 @@ public class StandardGifDecoder implements AnimDecoder<GifHeader> {
         }
         // Find the pixels in the next row.
         for (int i = positionInMainPixels + currentFrameIw;
-             i < positionInMainPixels + currentFrameIw + sampleSize && i < mainPixels.length
+             i < positionInMainPixels + currentFrameIw + 1 && i < mainPixels.length
                      && i < maxPositionInMainPixels; i++) {
             int currentColorIndex = ((int) mainPixels[i]) & MASK_INT_LOWEST_BYTE;
             int currentColor = act[currentColorIndex];
@@ -675,7 +638,7 @@ public class StandardGifDecoder implements AnimDecoder<GifHeader> {
                     | ((greenSum / totalAdded) << 8)
                     | (blueSum / totalAdded);
         }
-    }
+    }*/
 
     /**
      * Decodes LZW image data into pixel array. Adapted from John Cristy's BitmapMagick.
@@ -832,7 +795,7 @@ public class StandardGifDecoder implements AnimDecoder<GifHeader> {
     private Bitmap getNextBitmap() {
         Bitmap.Config config = isFirstFrameTransparent == null || isFirstFrameTransparent
                 ? Bitmap.Config.ARGB_8888 : bitmapConfig;
-        Bitmap result = Bitmap.createBitmap(downsampledWidth, downsampledHeight, config);
+        Bitmap result = Bitmap.createBitmap(w, h, config);
         result.setHasAlpha(true);
         return result;
     }

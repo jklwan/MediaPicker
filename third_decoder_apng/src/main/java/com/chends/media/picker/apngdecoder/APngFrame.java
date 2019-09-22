@@ -1,6 +1,7 @@
 package com.chends.media.picker.apngdecoder;
 
 import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
 
 import com.chends.media.picker.decoder.AnimFrame;
 
@@ -46,10 +47,11 @@ public class APngFrame extends AnimFrame {
     public int yOffset;
     //public short delayNumerator;
     //public short delayDenominator;
-    @AnimDisposalMethod
-    public int disposeOp;
     @APngBlendMethod
     public int blendOp;
+
+    public int length;
+    public boolean isFdAT;
 
     public static final int APNG_BLEND_OP_SOURCE = 0;
     public static final int APNG_BLEND_OP_OVER = 1;
@@ -63,16 +65,16 @@ public class APngFrame extends AnimFrame {
         // todo
         switch (disposeOp) {
             case 0:
-                this.disposeOp = DISPOSAL_NONE;
+                this.dispose = DISPOSAL_NONE;
                 break;
             case 1:
-                this.disposeOp = DISPOSAL_BACKGROUND;
+                this.dispose = DISPOSAL_BACKGROUND;
                 break;
             case 2:
-                this.disposeOp = DISPOSAL_PREVIOUS;
+                this.dispose = DISPOSAL_PREVIOUS;
                 break;
             default:
-                this.disposeOp = DISPOSAL_UNSPECIFIED;
+                this.dispose = DISPOSAL_UNSPECIFIED;
                 break;
         }
     }
@@ -101,4 +103,19 @@ public class APngFrame extends AnimFrame {
         }
     }
 
+    @NonNull
+    @Override
+    public String toString() {
+        return "sequenceNumber:" + sequenceNumber +
+                ",width:" + width +
+                ",height:" + height +
+                ", xOffset:" + xOffset +
+                ",yOffset:" + yOffset +
+                //public short delayNumerator;
+                //public short delayDenominator;
+                ",blendOp:" + blendOp +
+                ",dispose:" + dispose +
+                ",length:" + length +
+                ",isFdAT:" + isFdAT;
+    }
 }

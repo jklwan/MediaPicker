@@ -41,7 +41,6 @@ import com.chends.media.picker.scaleview.decoder.ImageDecoder;
 import com.chends.media.picker.scaleview.decoder.ImageRegionDecoder;
 import com.chends.media.picker.scaleview.decoder.SkiaImageDecoder;
 import com.chends.media.picker.scaleview.decoder.SkiaImageRegionDecoder;
-import com.chends.media.picker.gifdecoder.GifDecoder;
 import com.chends.media.picker.gifdecoder.StandardGifDecoder;
 
 import java.io.FileInputStream;
@@ -1971,7 +1970,7 @@ public class SubsamplingScaleImageView extends View {
                 }
                 animDecoder.setDefaultBitmapConfig(config);
                 int code = animDecoder.read(inputStream, inputStream.available());
-                if (code != GifDecoder.STATUS_OK) {
+                if (code != AnimDecoder.STATUS_OK) {
                     exception = new IllegalArgumentException("read gif file error :" + code);
                     return null;
                 }

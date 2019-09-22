@@ -1,5 +1,7 @@
 package com.chends.media.picker.apngdecoder;
 
+import android.support.annotation.NonNull;
+
 import com.chends.media.picker.decoder.AnimHeader;
 
 /**
@@ -73,9 +75,25 @@ public class APngHeader extends AnimHeader<APngFrame> {
     /**
      * The number of bits that comprise a single pixel in this bitmap (or every
      * frame if animated). This is distinct from bitDepth.
-     * @see  #bitDepth
+     * @see #bitDepth
      */
     public int bitsPerPixel;
     public int bytesPerRow;
     public int filterOffset;
+
+    public int idatPosition;
+    public boolean hasFcTL;
+    public int iendPosition;
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "width:" + width +
+                ",height:" + height +
+                ",bitDepth:" + bitDepth +
+                ",colourType:" + colourType +
+                ",compressionMethod:" + compressionMethod +
+                ",filterMethod:" + filterMethod +
+                ",interlaceMethod:" + interlaceMethod;
+    }
 }
