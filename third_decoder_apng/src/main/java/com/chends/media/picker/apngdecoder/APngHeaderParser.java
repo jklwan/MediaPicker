@@ -203,7 +203,7 @@ public class APngHeaderParser {
             // fcTL在IDAT之前，当做第一帧
             header.hasFcTL = true;
             header.currentFrame.bufferFrameStart = rawData.position();
-            header.currentFrame.length = length;
+            header.currentFrame.length = Math.min(length, rawData.remaining());
         }
         skip(length);
     }
@@ -280,10 +280,6 @@ public class APngHeaderParser {
                     break;
                 case APngConstant.IEND_VALUE:
                     header.iendPosition = rawData.position() - APngConstant.CHUNK_TOP_LENGTH;
-                    if (header.frameCount != header.frames.size()) {
-                        Log.w("apng decoder", "apng文件内容有误！");
-                        header.frameCount = header.frames.size();
-                    }
                     done = true;
                     break;
                 case APngConstant.gAMA_VALUE:
@@ -301,6 +297,10 @@ public class APngHeaderParser {
                 done = rawData.position() >= rawData.limit();
             }
         }
+        if (header.frameCount != header.frames.size()) {
+            Log.w("apng decoder", "apng文件内容有误！");
+            header.frameCount = header.frames.size();
+        }
     }
 
     /**
@@ -316,7 +316,8 @@ public class APngHeaderParser {
         }
         apngSequenceExpect++;
         header.currentFrame.bufferFrameStart = rawData.position();
-        header.currentFrame.length = length - 4;
+        // 长度修正
+        header.currentFrame.length = Math.min(length - 4, rawData.remaining());
         header.currentFrame.isFdAT = true;
         // 减去sequence占用的位置
         skip(length - 4);

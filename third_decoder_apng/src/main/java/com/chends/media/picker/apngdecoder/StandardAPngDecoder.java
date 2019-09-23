@@ -233,7 +233,7 @@ public class StandardAPngDecoder implements AnimDecoder<APngHeader> {
             while (rawData.position() <= end) {
                 cLength = rawData.getInt(); // 长度
                 cType = rawData.getInt(); // chunk type
-                if (cType != APngConstant.acTL_VALUE) {
+                if (cType != APngConstant.acTL_VALUE && cType != APngConstant.fcTL_VALUE) {
                     length += cLength + APngConstant.CHUNK_TOP_LENGTH + APngConstant.LENGTH_CRC;
                 }
                 rawData.position(rawData.position() + cLength + APngConstant.LENGTH_CRC);
@@ -252,11 +252,11 @@ public class StandardAPngDecoder implements AnimDecoder<APngHeader> {
             index++;
         }
         rawData.position(index);
-        if (frame == null) {
+        if (frame == null || !frame.isFdAT) {
             while (rawData.position() <= end) {
                 cLength = rawData.getInt(); // 长度
                 cType = rawData.getInt(); // chunk type
-                if (cType != APngConstant.acTL_VALUE) {
+                if (cType != APngConstant.acTL_VALUE && cType != APngConstant.fcTL_VALUE) {
                     rawData.position(rawData.position() - APngConstant.CHUNK_TOP_LENGTH);
                     rawData.get(raw, index, cLength + APngConstant.CHUNK_TOP_LENGTH + APngConstant.LENGTH_CRC);
                     index += cLength + APngConstant.CHUNK_TOP_LENGTH + APngConstant.LENGTH_CRC;
@@ -266,11 +266,10 @@ public class StandardAPngDecoder implements AnimDecoder<APngHeader> {
             }
             addIEND(raw, index);
         } else {
-            while (rawData.position() <= end) {
+            while (rawData.position() < header.idatFirstPosition) {
                 cLength = rawData.getInt(); // 长度
                 cType = rawData.getInt(); // chunk type
-                if (cType == APngConstant.acTL_VALUE || cType == APngConstant.fcTL_VALUE ||
-                        (cType == APngConstant.IDAT_VALUE && frame.isFdAT)) {
+                if (cType == APngConstant.acTL_VALUE || cType == APngConstant.fcTL_VALUE) {
                     // skip
                     rawData.position(rawData.position() + cLength + APngConstant.LENGTH_CRC);
                 } else {
@@ -296,30 +295,24 @@ public class StandardAPngDecoder implements AnimDecoder<APngHeader> {
                     index += cLength + APngConstant.CHUNK_TOP_LENGTH + APngConstant.LENGTH_CRC;
                 }
             }
-            if (frame.isFdAT) {
-                // 修改length
-                writeInt4ToBytes(frame.length, raw, index);
-                index += APngConstant.CHUNK_LENGTH_LENGTH;
-                // change fdAT to IDAT
-                raw[index] = 'I';
-                raw[index + 1] = 'D';
-                raw[index + 2] = 'A';
-                raw[index + 3] = 'T';
-                index += APngConstant.CHUNK_TYPE_LENGTH;
-                rawData.position(frame.bufferFrameStart);
-                rawData.get(raw, index, frame.length);
-                updateCRC(index - 4, raw, frame.length);
+            // 修改length
+            writeInt4ToBytes(frame.length, raw, index);
+            index += APngConstant.CHUNK_LENGTH_LENGTH;
+            // change fdAT to IDAT
+            raw[index] = 'I';
+            raw[index + 1] = 'D';
+            raw[index + 2] = 'A';
+            raw[index + 3] = 'T';
+            index += APngConstant.CHUNK_TYPE_LENGTH;
+            rawData.position(frame.bufferFrameStart);
+            rawData.get(raw, index, frame.length);
+            updateCRC(index - 4, raw, frame.length);
                 /*CRC32 crc32 = new CRC32();
                 crc32.update(raw, index - 4, 4);
                 crc32.update(raw, index, frame.length);*/
-                index += frame.length;
-                //writeInt4ToBytes((int) crc32.getValue(), raw, index);
-                index += APngConstant.LENGTH_CRC;
-            } else {
-                rawData.position(frame.bufferFrameStart - APngConstant.CHUNK_TOP_LENGTH);
-                rawData.get(raw, index, APngConstant.CHUNK_TOP_LENGTH + frame.length + APngConstant.LENGTH_CRC);
-                index += APngConstant.CHUNK_TOP_LENGTH + frame.length + APngConstant.LENGTH_CRC;
-            }
+            index += frame.length;
+            //writeInt4ToBytes((int) crc32.getValue(), raw, index);
+            index += APngConstant.LENGTH_CRC;
             addIEND(raw, index);
         }
         Bitmap bitmap = BitmapFactory.decodeByteArray(raw, 0, raw.length);
