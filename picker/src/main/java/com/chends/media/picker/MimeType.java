@@ -234,27 +234,29 @@ public class MimeType {
      */
     private static int getImageTypeByPath(String path) {
         int type = Constant.TYPE_NORMAL;
-        FileInputStream inputStream = null;
+        FileInputStream is = null;
         try {
-            inputStream = new FileInputStream(new File(path));
+            is = new FileInputStream(new File(path));
             byte[] header = new byte[41];
-            int read = inputStream.read(header);
+            int read = is.read(header);
             if (read >= 3 && isGifHeader(header)) {
                 type = Constant.TYPE_GIF;
+            } else if (read >= 8 && isPNG(header)) {
+                if (read >= 40 && isAPNG(header)) {
+                    type = Constant.TYPE_APNG;
+                }
             } else if (read >= 12 && isWebpHeader(header)) {
                 if (read >= 33 && isAnimWebp(header)) {
                     type = Constant.TYPE_ANIMATED_WEBP;
                 } else {
                     type = Constant.TYPE_WEBP;
                 }
-            } else if (read >= 40 && isAPNG(header)) {
-                type = Constant.TYPE_APNG;
             }
         } catch (IOException ignore) {
         } finally {
-            if (inputStream != null) {
+            if (is != null) {
                 try {
-                    inputStream.close();
+                    is.close();
                 } catch (IOException ignore) {
                 }
             }
@@ -293,12 +295,73 @@ public class MimeType {
     }
 
     /**
+     * 是否png
+     * @param header header
+     * @return is png  80 78 71 13 10 26 10
+     */
+    private static boolean isPNG(byte[] header) {
+        return header[0] == (byte) 0x89 && header[1] == 'P' && header[2] == 'N' && header[3] == 'G' &&
+                header[4] == (byte) 0x0D && header[5] == (byte) 0x0A && header[6] == (byte) 0x1A && header[7] == (byte) 0x0A;
+    }
+
+    /*private static final int acTL_VALUE = 'a' << 24 | 'c' << 16 | 'T' << 8 | 'L';
+    private static final int IEND_VALUE = 'I' << 24 | 'E' << 16 | 'N' << 8 | 'D';*/
+
+    /**
      * 是否apng 动图
      * @param header header
      * @return is apng
      */
     private static boolean isAPNG(byte[] header) {
-        return header[1] == 'P' && header[2] == 'N' && header[3] == 'G' &&
-                header[37] == 'a' && header[38] == 'c' && header[39] == 'T' && header[40] == 'L';
+        return header[37] == 'a' && header[38] == 'c' && header[39] == 'T' && header[40] == 'L';
+        /*boolean result = false;
+        if (is != null) {
+            try {
+                long start = SystemClock.elapsedRealtime();
+                Log.i("parseHeader", "start");
+                int capacity = is.available() + 4 * 1024;
+                ByteArrayOutputStream buffer = new ByteArrayOutputStream(capacity);
+                buffer.write(header, 0, header.length);
+                int nRead;
+                byte[] data = new byte[16 * 1024];
+                while ((nRead = is.read(data, 0, data.length)) != -1) {
+                    buffer.write(data, 0, nRead);
+                }
+                buffer.flush();
+                ByteBuffer rawData = ByteBuffer.wrap(buffer.toByteArray()).asReadOnlyBuffer();
+                rawData.position(0);
+                rawData.order(ByteOrder.BIG_ENDIAN);
+                Log.i("parseHeader", "length:" + rawData.limit());
+                rawData.position(8);
+                int length, code;
+                boolean done = false;
+                while (!done && (rawData.position() < rawData.limit())) {
+                    length = rawData.getInt();
+                    code = rawData.getInt();
+                    Log.i("parseHeader", "length: " + length + ", code:" + code + ", limit:" + rawData.limit());
+                    switch (code) {
+                        case acTL_VALUE:
+                            result = true;
+                            done = true;
+                            break;
+                        case IEND_VALUE:
+                            done = true;
+                            break;
+                        default:
+                            if (rawData.position() + length + 4 >= rawData.limit()) {
+                                done = true;
+                            } else {
+                                rawData.position(rawData.position() + length + 4);
+                            }
+                            break;
+                    }
+                }
+                Log.i("parseHeader", "end use time: " + (SystemClock.elapsedRealtime() - start) + "ms");
+            } catch (Exception e) {
+                Log.w("Exception", "Error reading data from stream", e);
+            }
+        }
+        Log.i("parseHeader", "result: " + result);
+        return result;*/
     }
 }

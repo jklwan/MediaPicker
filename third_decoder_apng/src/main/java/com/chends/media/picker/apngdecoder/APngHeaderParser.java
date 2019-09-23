@@ -1,5 +1,6 @@
 package com.chends.media.picker.apngdecoder;
 
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -54,7 +55,8 @@ public class APngHeaderParser {
         if (err()) {
             return header;
         }
-
+        long start = SystemClock.elapsedRealtime();
+        Log.i("parseHeader", "start");
         readHeader();
         if (!err()) {
             readContents();
@@ -62,6 +64,7 @@ public class APngHeaderParser {
                 header.status = AnimDecoder.STATUS_FORMAT_ERROR;
             }
         }
+        Log.i("parseHeader", "end use time: " + (SystemClock.elapsedRealtime() - start) + "ms");
         return header;
     }
 
@@ -145,7 +148,8 @@ public class APngHeaderParser {
      * <a href = "https://www.w3.org/TR/2003/REC-PNG-20031110/#5DataRep">crc</a>
      */
     private void readCRC() {
-        readInt();
+        //readInt();
+        rawData.position(Math.min(rawData.position() + 4, rawData.limit()));
     }
 
     /**
@@ -188,7 +192,7 @@ public class APngHeaderParser {
      */
     private void readIDAT(int length) {
         // 有多个idat存在的情况
-        if (header.hasFcTL){
+        if (header.idatFirstPosition != 0) {
             // 已经有idat
             header.idatLastPosition = rawData.position() - APngConstant.CHUNK_TOP_LENGTH;
         } else {

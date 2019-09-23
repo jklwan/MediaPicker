@@ -46,7 +46,7 @@ public class StandardAPngDecoder implements AnimDecoder<APngHeader> {
     @NonNull
     private Bitmap.Config bitmapConfig = Bitmap.Config.ARGB_8888;
     private List<Bitmap> bitmapList;
-    private Bitmap previousImage;
+    private Bitmap previousImage, bgImage;
 
     public StandardAPngDecoder() {
         parser = new APngHeaderParser();
@@ -162,20 +162,18 @@ public class StandardAPngDecoder implements AnimDecoder<APngHeader> {
                 previousFrame = header.frames.get(previousIndex);
             }
             Bitmap current = decodeBitmap(currentFrame);
-            if (previousFrame == null) {
-                // 第一帧
-                /*if(){
-
-                } else {
-
-                }*/
+            if (header.hasFcTL && previousFrame == null) {
                 current.getPixels(mainPixels, 0, w, 0, 0, w, h);
                 previousImage.setPixels(mainPixels, 0, w, 0, 0, w, h);
                 bitmapList.add(framePointer, current);
             } else {
                 Bitmap result = getNextBitmap();
                 Canvas canvas = new Canvas(result);
-                canvas.drawBitmap(previousImage, 0, 0, null);
+                if (previousFrame == null) {
+                    canvas.drawBitmap(bgImage, 0, 0, null);
+                } else {
+                    canvas.drawBitmap(previousImage, 0, 0, null);
+                }
                 if (currentFrame.blendOp == APngFrame.APNG_BLEND_OP_SOURCE) {
                     canvas.clipRect(currentFrame.xOffset, currentFrame.yOffset, currentFrame.xOffset + currentFrame.width,
                             currentFrame.yOffset + currentFrame.height);
@@ -201,6 +199,10 @@ public class StandardAPngDecoder implements AnimDecoder<APngHeader> {
                         }
                         break;
                     case APngFrame.DISPOSAL_PREVIOUS:
+                        if (previousFrame == null) {
+                            bgImage.getPixels(mainPixels, 0, w, 0, 0, w, h);
+                            previousImage.setPixels(mainPixels, 0, w, 0, 0, w, h);
+                        }
                         break;
                 }
                 bitmapList.add(framePointer, result);
@@ -215,22 +217,56 @@ public class StandardAPngDecoder implements AnimDecoder<APngHeader> {
      * @return bitmap
      */
     private Bitmap decodeBitmap(APngFrame frame) {
-        Bitmap bitmap = null;
-        if (frame != null) {
-            // 复制第一个IDAT之前的数据（除了acTL,fctl）
-            int length = header.idatLastPosition - APngConstant.LENGTH_acTL_CHUNK -
-                    (header.hasFcTL ? APngConstant.LENGTH_fcTL_CHUNK : 0);
-            int frameLength = APngConstant.CHUNK_TOP_LENGTH + frame.length + APngConstant.LENGTH_CRC;
-            length += frameLength + APngConstant.CHUNK_TOP_LENGTH + APngConstant.LENGTH_CRC;// add iend length
-            byte[] raw = new byte[length];
-            int index = 0;
-            for (int i = 0; i < APngConstant.LENGTH_SIGNATURE; i++) {
-                raw[index] = APngConstant.BYTES_SIGNATURE[i];
-                index++;
+        // frame 为null表示要绘制背景
+        int length, frameLength, end, cLength, cType;
+        if (header.idatLastPosition > 0) {
+            end = header.idatLastPosition;
+        } else {
+            end = header.idatFirstPosition;
+        }
+        if (frame == null || !frame.isFdAT) {
+            length = header.idatFirstPosition - APngConstant.LENGTH_acTL_CHUNK;
+            if (frame != null) {
+                length -= APngConstant.LENGTH_fcTL_CHUNK;
             }
-            rawData.position(index);
-            int cLength, cType;
-            while (rawData.position() <= header.idatLastPosition) {
+            rawData.position(header.idatFirstPosition);
+            while (rawData.position() <= end) {
+                cLength = rawData.getInt(); // 长度
+                cType = rawData.getInt(); // chunk type
+                if (cType != APngConstant.acTL_VALUE) {
+                    length += cLength + APngConstant.CHUNK_TOP_LENGTH + APngConstant.LENGTH_CRC;
+                }
+                rawData.position(rawData.position() + cLength + APngConstant.LENGTH_CRC);
+            }
+            length += APngConstant.CHUNK_TOP_LENGTH + APngConstant.LENGTH_CRC;
+        } else {
+            length = header.idatFirstPosition - APngConstant.LENGTH_acTL_CHUNK -
+                    (header.hasFcTL ? APngConstant.LENGTH_fcTL_CHUNK : 0);
+            frameLength = APngConstant.CHUNK_TOP_LENGTH + frame.length + APngConstant.LENGTH_CRC;
+            length += frameLength + APngConstant.CHUNK_TOP_LENGTH + APngConstant.LENGTH_CRC;// add iend length
+        }
+        byte[] raw = new byte[length];
+        int index = 0;
+        for (int i = 0; i < APngConstant.LENGTH_SIGNATURE; i++) {
+            raw[index] = APngConstant.BYTES_SIGNATURE[i];
+            index++;
+        }
+        rawData.position(index);
+        if (frame == null) {
+            while (rawData.position() <= end) {
+                cLength = rawData.getInt(); // 长度
+                cType = rawData.getInt(); // chunk type
+                if (cType != APngConstant.acTL_VALUE) {
+                    rawData.position(rawData.position() - APngConstant.CHUNK_TOP_LENGTH);
+                    rawData.get(raw, index, cLength + APngConstant.CHUNK_TOP_LENGTH + APngConstant.LENGTH_CRC);
+                    index += cLength + APngConstant.CHUNK_TOP_LENGTH + APngConstant.LENGTH_CRC;
+                } else {
+                    rawData.position(rawData.position() + cLength + APngConstant.LENGTH_CRC);
+                }
+            }
+            addIEND(raw, index);
+        } else {
+            while (rawData.position() <= end) {
                 cLength = rawData.getInt(); // 长度
                 cType = rawData.getInt(); // chunk type
                 if (cType == APngConstant.acTL_VALUE || cType == APngConstant.fcTL_VALUE ||
@@ -238,14 +274,6 @@ public class StandardAPngDecoder implements AnimDecoder<APngHeader> {
                     // skip
                     rawData.position(rawData.position() + cLength + APngConstant.LENGTH_CRC);
                 } else {
-                    if (cType == APngConstant.IDAT_VALUE){
-                        if (header.hasFcTL && framePointer == 0){
-
-                        } else {
-
-                        }
-                        continue;
-                    }
                     // copy
                     rawData.position(rawData.position() - APngConstant.CHUNK_TOP_LENGTH);
                     rawData.get(raw, index, cLength + APngConstant.CHUNK_TOP_LENGTH + APngConstant.LENGTH_CRC);
@@ -268,7 +296,6 @@ public class StandardAPngDecoder implements AnimDecoder<APngHeader> {
                     index += cLength + APngConstant.CHUNK_TOP_LENGTH + APngConstant.LENGTH_CRC;
                 }
             }
-
             if (frame.isFdAT) {
                 // 修改length
                 writeInt4ToBytes(frame.length, raw, index);
@@ -294,14 +321,13 @@ public class StandardAPngDecoder implements AnimDecoder<APngHeader> {
                 index += APngConstant.CHUNK_TOP_LENGTH + frame.length + APngConstant.LENGTH_CRC;
             }
             addIEND(raw, index);
+        }
+        Bitmap bitmap = BitmapFactory.decodeByteArray(raw, 0, raw.length);
 
-            bitmap = BitmapFactory.decodeByteArray(raw, 0, raw.length);
-
-            if (bitmap == null) {
-                Log.w("getNextFrame error", "framePointer:" + framePointer + ",frame:" + frame);
-            } else {
-                Log.i("getNextFrame success", "framePointer:" + framePointer + ",frame:" + frame);
-            }
+        if (bitmap == null) {
+            Log.w("getNextFrame error", "framePointer:" + framePointer + ",frame:" + frame);
+        } else {
+            Log.i("getNextFrame success", "framePointer:" + framePointer + ",frame:" + frame);
         }
         return bitmap;
     }
@@ -416,6 +442,12 @@ public class StandardAPngDecoder implements AnimDecoder<APngHeader> {
             }
             previousImage = null;
         }
+        if (bgImage != null) {
+            if (!bgImage.isRecycled()) {
+                bgImage.recycle();
+            }
+            bgImage = null;
+        }
         header = null;
         if (rawData != null) {
             rawData = null;
@@ -442,6 +474,9 @@ public class StandardAPngDecoder implements AnimDecoder<APngHeader> {
         mainPixels = new int[w * h];
         bitmapList = new ArrayList<>(Collections.nCopies(header.frameCount, (Bitmap) null));
         previousImage = getNextBitmap();
+        if (!header.hasFcTL) {
+            bgImage = decodeBitmap(null);
+        }
     }
 
     @NonNull
