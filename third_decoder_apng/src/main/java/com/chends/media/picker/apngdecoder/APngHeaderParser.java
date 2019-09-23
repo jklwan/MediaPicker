@@ -8,22 +8,14 @@ import com.chends.media.picker.decoder.AnimDecoder;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.Arrays;
 
 /**
  * @author cds created on 2019/9/19.
  */
 public class APngHeaderParser {
 
-    private static final int MASK_INT_LOWEST_BYTE = 0x000000FF;
-
-    private static final int MAX_BLOCK_SIZE = 256;
-    // Raw data read working array.
-    private final byte[] block = new byte[MAX_BLOCK_SIZE];
-
     private ByteBuffer rawData;
     private APngHeader header;
-    private int blockSize = 0;
     private int apngSequenceExpect = 0;
 
     public APngHeaderParser setData(@NonNull ByteBuffer data) {
@@ -51,9 +43,7 @@ public class APngHeaderParser {
 
     private void reset() {
         rawData = null;
-        Arrays.fill(block, (byte) 0);
         header = new APngHeader();
-        blockSize = 0;
     }
 
     @NonNull

@@ -16,6 +16,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.zip.CRC32;
 
 /**
@@ -31,6 +34,7 @@ public class StandardAPngDecoder implements AnimDecoder<APngHeader> {
     @AnimDecodeStatus
     private int status;
     private int w, h;
+    private int[] mainPixels;
     /*private boolean savePrevious = false;
     private int sampleSize;
     private int downsampledWidth;
@@ -41,6 +45,7 @@ public class StandardAPngDecoder implements AnimDecoder<APngHeader> {
     private int[] mainScratch;*/
     @NonNull
     private Bitmap.Config bitmapConfig = Bitmap.Config.ARGB_8888;
+    private List<Bitmap> bitmapList;
     private Bitmap previousImage;
 
     public StandardAPngDecoder() {
@@ -126,6 +131,11 @@ public class StandardAPngDecoder implements AnimDecoder<APngHeader> {
         return rawData.limit();
     }
 
+    @Override
+    public boolean recycle() {
+        return false;
+    }
+
     @Nullable
     @Override
     public Bitmap getNextFrame() {
@@ -135,91 +145,66 @@ public class StandardAPngDecoder implements AnimDecoder<APngHeader> {
         if (status == STATUS_FORMAT_ERROR || status == STATUS_OPEN_ERROR) {
             return null;
         }
-        status = STATUS_OK;
-        APngFrame currentFrame = header.frames.get(framePointer);
-        APngFrame previousFrame = null;
-        int previousIndex = framePointer - 1;
-        if (previousIndex >= 0) {
-            previousFrame = header.frames.get(previousIndex);
+        if (previousImage == null) {
+            previousImage = getNextBitmap();
         }
-        return build(currentFrame, previousFrame);
+        status = STATUS_OK;
+        return build();
     }
 
     /**
      * build
-     * @param currentFrame  currentFrame
-     * @param previousFrame previousFrame
      * @return bitmap
      */
-    private Bitmap build(APngFrame currentFrame, APngFrame previousFrame) {
-        Bitmap current = decodeBitmap(currentFrame);
-        Log.i(TAG, "decodeBitmap current");
-        if (previousFrame == null) {
-            if (previousImage != null && !previousImage.isRecycled()) {
-                previousImage.recycle();
-                Log.i(TAG, "recycle previousImage");
+    private Bitmap build() {
+        if (bitmapList.get(framePointer) == null) {
+            APngFrame currentFrame = header.frames.get(framePointer);
+            APngFrame previousFrame = null;
+            int previousIndex = framePointer - 1;
+            if (previousIndex >= 0) {
+                previousFrame = header.frames.get(previousIndex);
             }
-            previousImage = null;
-            previousImage = current.copy(bitmapConfig, true);
-            Log.i(TAG, "copy to previousImage");
-            return current;
-        } else {
-            Bitmap result = getNextBitmap();
-            Canvas canvas = new Canvas(result);
-            canvas.drawBitmap(previousImage, 0, 0, null);
-            Log.i(TAG, "canvas drawBitmap previousImage");
-            if (currentFrame.blendOp == APngFrame.APNG_BLEND_OP_SOURCE) {
-                canvas.clipRect(currentFrame.xOffset, currentFrame.yOffset, currentFrame.xOffset + currentFrame.width,
-                        currentFrame.yOffset + currentFrame.height);
-                canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-                canvas.clipRect(0, 0, w, h);
-            }
-            canvas.drawBitmap(current, currentFrame.xOffset, currentFrame.yOffset, null);
-            Log.i(TAG, "canvas drawBitmap current");
-            current.recycle();
-            Log.i(TAG, "recycle current");
-            switch (currentFrame.dispose) {
-                case APngFrame.DISPOSAL_BACKGROUND:
-                case APngFrame.DISPOSAL_NONE:
-                case APngFrame.DISPOSAL_UNSPECIFIED:
-                    // save previous
-                    previousImage = result.copy(bitmapConfig, true);
-                    Log.i(TAG, "copy to previousImage 2");
-                    if (currentFrame.dispose == APngFrame.DISPOSAL_BACKGROUND) {
-                        for (int x = currentFrame.xOffset; x < currentFrame.xOffset + currentFrame.width; x++) {
-                            for (int y = currentFrame.yOffset; y < currentFrame.yOffset + currentFrame.height; y++) {
-                                //clear
-                                previousImage.setPixel(x, y, Color.TRANSPARENT);
-                            }
-                        }
-                    /*Canvas tempCanvas = new Canvas(previousImage);
-                    tempCanvas.clipRect(currentFrame.xOffset, currentFrame.yOffset, currentFrame.xOffset + currentFrame.width,
+            Bitmap current = decodeBitmap(currentFrame);
+            if (previousFrame == null) {
+                current.getPixels(mainPixels, 0, w, 0, 0, w, h);
+                previousImage.setPixels(mainPixels, 0, w, 0, 0, w, h);
+                bitmapList.add(framePointer, current);
+            } else {
+                Bitmap result = getNextBitmap();
+                Canvas canvas = new Canvas(result);
+                canvas.drawBitmap(previousImage, 0, 0, null);
+                if (currentFrame.blendOp == APngFrame.APNG_BLEND_OP_SOURCE) {
+                    canvas.clipRect(currentFrame.xOffset, currentFrame.yOffset, currentFrame.xOffset + currentFrame.width,
                             currentFrame.yOffset + currentFrame.height);
-                    tempCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-                    tempCanvas.clipRect(0, 0, downsampledWidth, downsampledHeight);*/
-                    }
-                    break;
-                case APngFrame.DISPOSAL_PREVIOUS:
-                    /*APngFrame tempFrame;
-                    if (framePointer > 1) {
-                        for (int i = framePointer - 2; i >= 0; i--) {
-                            tempFrame = header.frames.get(i);
-                            if (tempFrame.dispose == AnimFrame.DISPOSAL_NONE || tempFrame.dispose == APngFrame.DISPOSAL_BACKGROUND) {
-                                if (tempFrame.dispose == AnimFrame.DISPOSAL_NONE){
-
-                                } else {
-
+                    canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+                    canvas.clipRect(0, 0, w, h);
+                }
+                canvas.drawBitmap(current, currentFrame.xOffset, currentFrame.yOffset, null);
+                current.recycle();
+                current = null;
+                switch (currentFrame.dispose) {
+                    case APngFrame.DISPOSAL_BACKGROUND:
+                    case APngFrame.DISPOSAL_NONE:
+                    case APngFrame.DISPOSAL_UNSPECIFIED:
+                        // save previous
+                        result.getPixels(mainPixels, 0, w, 0, 0, w, h);
+                        previousImage.setPixels(mainPixels, 0, w, 0, 0, w, h);
+                        if (currentFrame.dispose == APngFrame.DISPOSAL_BACKGROUND) {
+                            for (int x = currentFrame.xOffset; x < currentFrame.xOffset + currentFrame.width; x++) {
+                                for (int y = currentFrame.yOffset; y < currentFrame.yOffset + currentFrame.height; y++) {
+                                    //clear
+                                    previousImage.setPixel(x, y, Color.TRANSPARENT);
                                 }
-                                break;
                             }
                         }
-                    }
-                    break;*/
-                    // do nothing
-                    break;
+                        break;
+                    case APngFrame.DISPOSAL_PREVIOUS:
+                        break;
+                }
+                bitmapList.add(framePointer, result);
             }
-            return result;
         }
+        return bitmapList.get(framePointer);
     }
 
     /**
@@ -404,6 +389,16 @@ public class StandardAPngDecoder implements AnimDecoder<APngHeader> {
             parser.clear();
             parser = null;
         }
+        if (bitmapList != null) {
+            for (Bitmap bitmap : bitmapList) {
+                if (bitmap != null && !bitmap.isRecycled()) {
+                    bitmap.recycle();
+                }
+            }
+            bitmapList.clear();
+            bitmapList = null;
+        }
+        mainPixels = null;
         if (previousImage != null) {
             if (!previousImage.isRecycled()) {
                 previousImage.recycle();
@@ -438,6 +433,8 @@ public class StandardAPngDecoder implements AnimDecoder<APngHeader> {
 
         w = header.width;
         h = header.height;
+        mainPixels = new int[w * h];
+        bitmapList = new ArrayList<>(Collections.nCopies(header.frameCount, (Bitmap) null));
         // No point in specially saving an old frame if we're never going to use it.
         /*savePrevious = false;
         for (APngFrame frame : header.frames) {

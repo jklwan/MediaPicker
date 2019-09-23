@@ -249,7 +249,7 @@ public class ControlUtil implements LifecycleObserver {
 
         @Override
         public void onItemClick(ItemBean bean, int position) {
-            if (!PickerUtil.isFileExist(bean.getPath())) {
+            if (!PickerUtil.isFileExist(reference.get(),bean.getPath())) {
                 ToastUtils.showShort(reference.get(), reference.get().getString(R.string.string_media_picker_fileNoExist));
                 return;
             }
@@ -265,7 +265,7 @@ public class ControlUtil implements LifecycleObserver {
 
         @Override
         public void onItemSelectClick(ItemBean bean, int position) {
-            if (!PickerUtil.isFileExist(bean.getPath())) {
+            if (!PickerUtil.isFileExist(reference.get(),bean.getPath())) {
                 ToastUtils.showShort(reference.get(), reference.get().getString(R.string.string_media_picker_fileNoExist));
                 return;
             }

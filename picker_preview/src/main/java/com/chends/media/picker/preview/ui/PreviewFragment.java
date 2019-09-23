@@ -85,7 +85,7 @@ public class PreviewFragment extends Fragment {
             }
         }
         frameLayout = rootView.findViewById(R.id.frameLayout);
-        if (item != null && !TextUtils.isEmpty(item.getPath())) {
+        if (item != null && !TextUtils.isEmpty(item.getPath()) && PickerUtil.isFileExist(requireActivity(), item.getPath())) {
             TextView imageInfo = rootView.findViewById(R.id.imageInfo);
             View play = rootView.findViewById(R.id.play);
             int type = MimeType.getItemType(item.getMimeType());
@@ -281,7 +281,7 @@ public class PreviewFragment extends Fragment {
      * 显示apng大图
      * @param path path
      */
-    private void loadAPNGImage(String path){
+    private void loadAPNGImage(String path) {
         SubsamplingScaleImageView imageView = createGifSSIV();
         imageView.setAnimDecoderClass(StandardAPngDecoder.class);
         imageView.setOnImageEventListener(new TryReloadBitmap(path));

@@ -193,4 +193,10 @@ public interface AnimDecoder<T extends AnimHeader> {
      * transparency.
      */
     void setDefaultBitmapConfig(@NonNull Bitmap.Config config);
+
+    /**
+     * frame bitmap can recycle
+     * @return bitmap
+     */
+    boolean recycle();
 }

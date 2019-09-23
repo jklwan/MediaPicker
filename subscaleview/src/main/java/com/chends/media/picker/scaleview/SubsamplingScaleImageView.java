@@ -369,7 +369,9 @@ public class SubsamplingScaleImageView extends View {
         this.mHandler = new Handler(new Handler.Callback() {
             @Override
             public boolean handleMessage(Message msg) {
-                loadImage((Bitmap) msg.obj, false);
+                if (mDecoder != null) {
+                    loadImage((Bitmap) msg.obj, mDecoder.recycle());
+                }
                 return true;
             }
         });
@@ -2123,7 +2125,7 @@ public class SubsamplingScaleImageView extends View {
 
     private synchronized void onAnimImageLoaded(Bitmap bitmap, int sOrientation, AnimDecoder decoder) {
         mDecoder = decoder;
-        onImageLoaded(bitmap, sOrientation, false);
+        onImageLoaded(bitmap, sOrientation, !mDecoder.recycle());
     }
 
     /**
@@ -2146,20 +2148,20 @@ public class SubsamplingScaleImageView extends View {
         this.sOrientation = sOrientation;
         this.bitmapIsCached = bitmapIsCached;
         if (isAnim) {
-            loadImage(bitmap, true);
+            loadImage(bitmap, mDecoder.recycle());
             if (mDecoder != null && mDecoder.getFrameCount() > 1) {
                 setIsRun(true);
                 this.drawThread = new DrawThread();
                 this.drawThread.start();
             }
         } else {
-            loadImage(bitmap, false);
+            loadImage(bitmap, true);
         }
     }
 
-    private synchronized void loadImage(Bitmap bitmap, boolean first) {
+    private synchronized void loadImage(Bitmap bitmap, boolean recycle) {
         this.bitmapIsPreview = false;
-        if (!first) {
+        if (recycle) {
             recyclePreBitmap();
         }
         this.bitmap = bitmap;

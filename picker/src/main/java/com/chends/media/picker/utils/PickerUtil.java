@@ -2,10 +2,9 @@ package com.chends.media.picker.utils;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
+import android.media.MediaScannerConnection;
 import android.support.media.ExifInterface;
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
@@ -114,8 +113,8 @@ public class PickerUtil {
      * @return 文件是否有效
      */
     public static boolean checkFile(Context context, ItemBean bean) {
-        if (!isFileExist(bean.getPath())) {
-            scanMediaFile(context, new File(bean.getPath()));
+        if (!isFileExist(context, bean.getPath())) {
+            scanMediaFile(context, bean.getPath());
             return false;
         }
         int type = MimeType.getItemType(bean.getMimeType());
@@ -131,21 +130,25 @@ public class PickerUtil {
      * @param filePath path
      * @return true or false
      */
-    public static boolean isFileExist(String filePath) {
+    public static boolean isFileExist(Context context, String filePath) {
         if (TextUtils.isEmpty(filePath)) {
             return false;
         }
         File file = new File(filePath);
-        return (file.exists());
+        if (file.exists()) {
+            return true;
+        }
+        scanMediaFile(context, file.getAbsolutePath());
+        return false;
     }
 
     /**
      * 通知扫描文件
      * @param context context
-     * @param file    file
+     * @param path    path
      */
-    public static void scanMediaFile(Context context, File file) {
-        context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
+    public static void scanMediaFile(Context context, String path) {
+        MediaScannerConnection.scanFile(context, new String[]{path}, null, null);
     }
 
     /**

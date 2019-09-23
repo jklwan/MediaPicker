@@ -25,6 +25,7 @@ import com.chends.media.picker.preview.adapter.PreviewPagerAdapter;
 import com.chends.media.picker.ui.BasePickerActivity;
 import com.chends.media.picker.utils.ItemLoaderUtil;
 import com.chends.media.picker.utils.PickerUtil;
+import com.chends.media.picker.utils.ToastUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -146,8 +147,18 @@ public class PreviewActivity extends BasePickerActivity {
                     item = ((PreviewPagerAdapter) mAdapter).getMediaItem(selectPosition);
                 }
                 if (item != null) {
-                    if (PickerUtil.selectPath(PreviewActivity.this, item)) {
-                        updateFinish();
+                    if (!PickerUtil.isFileExist(PreviewActivity.this, item.getPath())) {
+                        ToastUtils.showShort(PreviewActivity.this,
+                                getString(R.string.string_media_picker_fileNoExist));
+                        return;
+                    }
+                    if (PickerUtil.checkFile(PreviewActivity.this, item)) {
+                        if (PickerUtil.selectPath(PreviewActivity.this, item)) {
+                            updateFinish();
+                        }
+                    } else {
+                        ToastUtils.showShort(PreviewActivity.this,
+                                getString(R.string.string_media_picker_fileError));
                     }
                 }
             }

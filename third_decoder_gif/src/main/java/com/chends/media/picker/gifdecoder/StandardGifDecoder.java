@@ -213,6 +213,11 @@ public class StandardGifDecoder implements AnimDecoder<GifHeader> {
         return rawData.limit() + mainPixels.length + (mainScratch.length * BYTES_PER_INTEGER);
     }
 
+    @Override
+    public boolean recycle() {
+        return true;
+    }
+
     @Nullable
     @Override
     public synchronized Bitmap getNextFrame() {
