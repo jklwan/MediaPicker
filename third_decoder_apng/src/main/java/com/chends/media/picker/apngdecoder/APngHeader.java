@@ -81,10 +81,10 @@ public class APngHeader extends AnimHeader<APngFrame> {
     public int bytesPerRow;
     public int filterOffset;
 
-    public int idatPosition;
+    public int idatFirstPosition;
+    public int idatLastPosition;
     public boolean hasFcTL;
     public int iendPosition;
-
     @NonNull
     @Override
     public String toString() {

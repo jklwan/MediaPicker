@@ -118,7 +118,7 @@ public class APngHeaderParser {
             type = readInt(); // chunk type
             switch (type) {
                 case APngConstant.IHDR_VALUE:
-                    if (length != APngConstant.LENGTH_IHDR){
+                    if (length != APngConstant.LENGTH_IHDR) {
                         header.status = AnimDecoder.STATUS_FORMAT_ERROR;
                         break;
                     }
@@ -187,7 +187,14 @@ public class APngHeaderParser {
      * read The Animation Data Chunk
      */
     private void readIDAT(int length) {
-        header.idatPosition = rawData.position() - APngConstant.CHUNK_TOP_LENGTH;
+        // 有多个idat存在的情况
+        if (header.hasFcTL){
+            // 已经有idat
+            header.idatLastPosition = rawData.position() - APngConstant.CHUNK_TOP_LENGTH;
+        } else {
+            // 第一个idat
+            header.idatFirstPosition = rawData.position() - APngConstant.CHUNK_TOP_LENGTH;
+        }
         if (apngSequenceExpect > 0) {
             // fcTL在IDAT之前，当做第一帧
             header.hasFcTL = true;

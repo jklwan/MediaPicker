@@ -145,9 +145,6 @@ public class StandardAPngDecoder implements AnimDecoder<APngHeader> {
         if (status == STATUS_FORMAT_ERROR || status == STATUS_OPEN_ERROR) {
             return null;
         }
-        if (previousImage == null) {
-            previousImage = getNextBitmap();
-        }
         status = STATUS_OK;
         return build();
     }
@@ -166,6 +163,12 @@ public class StandardAPngDecoder implements AnimDecoder<APngHeader> {
             }
             Bitmap current = decodeBitmap(currentFrame);
             if (previousFrame == null) {
+                // 第一帧
+                /*if(){
+
+                } else {
+
+                }*/
                 current.getPixels(mainPixels, 0, w, 0, 0, w, h);
                 previousImage.setPixels(mainPixels, 0, w, 0, 0, w, h);
                 bitmapList.add(framePointer, current);
@@ -181,7 +184,6 @@ public class StandardAPngDecoder implements AnimDecoder<APngHeader> {
                 }
                 canvas.drawBitmap(current, currentFrame.xOffset, currentFrame.yOffset, null);
                 current.recycle();
-                current = null;
                 switch (currentFrame.dispose) {
                     case APngFrame.DISPOSAL_BACKGROUND:
                     case APngFrame.DISPOSAL_NONE:
@@ -216,7 +218,7 @@ public class StandardAPngDecoder implements AnimDecoder<APngHeader> {
         Bitmap bitmap = null;
         if (frame != null) {
             // 复制第一个IDAT之前的数据（除了acTL,fctl）
-            int length = header.idatPosition - APngConstant.LENGTH_acTL_CHUNK -
+            int length = header.idatLastPosition - APngConstant.LENGTH_acTL_CHUNK -
                     (header.hasFcTL ? APngConstant.LENGTH_fcTL_CHUNK : 0);
             int frameLength = APngConstant.CHUNK_TOP_LENGTH + frame.length + APngConstant.LENGTH_CRC;
             length += frameLength + APngConstant.CHUNK_TOP_LENGTH + APngConstant.LENGTH_CRC;// add iend length
@@ -228,13 +230,22 @@ public class StandardAPngDecoder implements AnimDecoder<APngHeader> {
             }
             rawData.position(index);
             int cLength, cType;
-            while (rawData.position() <= header.idatPosition) {
+            while (rawData.position() <= header.idatLastPosition) {
                 cLength = rawData.getInt(); // 长度
                 cType = rawData.getInt(); // chunk type
-                if (cType == APngConstant.acTL_VALUE || cType == APngConstant.fcTL_VALUE || cType == APngConstant.IDAT_VALUE) {
+                if (cType == APngConstant.acTL_VALUE || cType == APngConstant.fcTL_VALUE ||
+                        (cType == APngConstant.IDAT_VALUE && frame.isFdAT)) {
                     // skip
                     rawData.position(rawData.position() + cLength + APngConstant.LENGTH_CRC);
                 } else {
+                    if (cType == APngConstant.IDAT_VALUE){
+                        if (header.hasFcTL && framePointer == 0){
+
+                        } else {
+
+                        }
+                        continue;
+                    }
                     // copy
                     rawData.position(rawData.position() - APngConstant.CHUNK_TOP_LENGTH);
                     rawData.get(raw, index, cLength + APngConstant.CHUNK_TOP_LENGTH + APngConstant.LENGTH_CRC);
@@ -418,11 +429,6 @@ public class StandardAPngDecoder implements AnimDecoder<APngHeader> {
 
     @Override
     public void setData(@NonNull APngHeader header, @NonNull ByteBuffer buffer) {
-        /*if (sampleSize <= 0) {
-            throw new IllegalArgumentException("Sample size must be >=0, not: " + sampleSize);
-        }*/
-        // Make sure sample size is a power of 2.
-        //sampleSize = Integer.highestOneBit(sampleSize);
         this.status = STATUS_OK;
         this.header = header;
         framePointer = INITIAL_FRAME_POINTER;
@@ -435,21 +441,7 @@ public class StandardAPngDecoder implements AnimDecoder<APngHeader> {
         h = header.height;
         mainPixels = new int[w * h];
         bitmapList = new ArrayList<>(Collections.nCopies(header.frameCount, (Bitmap) null));
-        // No point in specially saving an old frame if we're never going to use it.
-        /*savePrevious = false;
-        for (APngFrame frame : header.frames) {
-            if (frame.dispose == APngFrame.DISPOSAL_PREVIOUS) {
-                savePrevious = true;
-                break;
-            }
-        }
-
-        this.sampleSize = sampleSize;
-        downsampledWidth = header.width / sampleSize;
-        downsampledHeight = header.height / sampleSize;
-
-        mainPixels = new byte[header.width * header.height];
-        mainScratch = new int[downsampledWidth * downsampledHeight];*/
+        previousImage = getNextBitmap();
     }
 
     @NonNull
