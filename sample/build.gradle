@@ -1,13 +1,6 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion versions.compileSdk
-    defaultConfig {
-        minSdkVersion versions.minSdk
-        targetSdkVersion versions.targetSdk
-        versionCode 1
-        versionName "1.0"
-    }
     signingConfigs {
         release {
             storeFile file('media.jks')
@@ -16,14 +9,20 @@ android {
             keyPassword 'mediapicker'
         }
     }
+    compileSdkVersion versions.compileSdk
+    defaultConfig {
+        minSdkVersion versions.minSdk
+        targetSdkVersion versions.targetSdk
+        versionCode 1
+        versionName "1.0"
+        signingConfig signingConfigs.release
+    }
     buildTypes {
         debug {
-            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         release {
-            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }

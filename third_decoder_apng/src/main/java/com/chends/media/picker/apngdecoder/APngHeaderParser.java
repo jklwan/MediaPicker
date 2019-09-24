@@ -187,7 +187,7 @@ public class APngHeaderParser {
      */
     private void readCRC() {
         //readInt();
-        rawData.position(Math.min(rawData.position() + 4, rawData.limit()));
+        skip(4);
     }
 
     /**
@@ -279,12 +279,12 @@ public class APngHeaderParser {
         frame.setDelay(readUnsignedShort(), readUnsignedShort());
         frame.setDisposeOp(readByte());
         frame.setBlendOp(readByte());
-        if (rawData.position() + APngConstant.LENGTH_CRC >= rawData.limit()) {
-            // 后面再无数据则不添加
-            //Log.w("apng data error", "after fcTL have not fdAT!");
-        } else {
+        if (rawData.position() + APngConstant.LENGTH_CRC < rawData.limit()){
             header.frames.add(frame);
-        }
+        }/* else {
+            // 后面再无数据则不添加
+            Log.w("apng data error", "after fcTL have not fdAT!");
+        }*/
     }
 
     /**
