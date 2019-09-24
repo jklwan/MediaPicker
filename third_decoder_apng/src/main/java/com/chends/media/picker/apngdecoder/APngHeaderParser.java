@@ -1,9 +1,7 @@
 package com.chends.media.picker.apngdecoder;
 
-import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import com.chends.media.picker.decoder.AnimDecoder;
 
@@ -20,7 +18,7 @@ public class APngHeaderParser {
     private ByteBuffer rawData;
     private APngHeader header;
     private int apngSequenceExpect = 0;
-    private List<Integer> chunks = new ArrayList<>();
+    private List<APngChunk> chunks = new ArrayList<>();
 
     public APngHeaderParser setData(@NonNull ByteBuffer data) {
         reset();
@@ -58,22 +56,15 @@ public class APngHeaderParser {
         if (err()) {
             return header;
         }
-        long start = SystemClock.elapsedRealtime();
-        Log.i("parseHeader", "start");
-        readHeader();
-        if (!err()) {
-            readContents();
-            if (header.frameCount < 0) {
-                header.status = AnimDecoder.STATUS_FORMAT_ERROR;
-            }
+        readHeaderContents();
+        if (header.frameCount < 0) {
+            header.status = AnimDecoder.STATUS_FORMAT_ERROR;
         }
-        Log.i("parseHeader", "end use time: " + (SystemClock.elapsedRealtime() - start) + "ms");
         return header;
     }
 
     public boolean isAnimated() {
-        readHeader();
-        readContents(2);
+        readHeaderContents(2);
         return header.frameCount > 1 && apngSequenceExpect > 1;
     }
 
@@ -96,33 +87,37 @@ public class APngHeaderParser {
      * Reads APNG file header information.
      * <a href="https://www.w3.org/TR/PNG/#5DataRep">Datastream structure</a>
      */
-    private void readHeader() {
+    private void readHeaderContents() {
+        readHeaderContents(Integer.MAX_VALUE);
+    }
+
+    /*
+     * If the default image is the first frame:<br/>
+     *     Sequence number    Chunk
+     *     (none)             `acTL`
+     *     0                  `fcTL` first frame
+     *     (none)             `IDAT` first frame / default image
+     *     1                  `fcTL` second frame
+     *     2                  first `fdAT` for second frame
+     *     3                  second `fdAT` for second frame
+     *     ....
+     * If the default image is not part of the animation:<br/>
+     *     Sequence number    Chunk
+     *     (none)             `acTL`
+     *     (none)             `IDAT` default image
+     *     0                  `fcTL` first frame
+     *     1                  first `fdAT` for first frame
+     *     2                  second `fdAT` for first frame
+     *     ....
+     */
+    private void readHeaderContents(int maxFrames) {
         if (!checkSignature()) return;
-        /*
-         * If the default image is the first frame:<br/>
-         *     Sequence number    Chunk
-         *     (none)             `acTL`
-         *     0                  `fcTL` first frame
-         *     (none)             `IDAT` first frame / default image
-         *     1                  `fcTL` second frame
-         *     2                  first `fdAT` for second frame
-         *     3                  second `fdAT` for second frame
-         *     ....
-         * If the default image is not part of the animation:<br/>
-         *     Sequence number    Chunk
-         *     (none)             `acTL`
-         *     (none)             `IDAT` default image
-         *     0                  `fcTL` first frame
-         *     1                  first `fdAT` for first frame
-         *     2                  second `fdAT` for first frame
-         *     ....
-         */
-        int length, type;
         boolean done = false;
-        while (!err() && !done) {
-            length = readInt(); // 长度
-            type = readInt(); // chunk type
-            switch (type) {
+        int length, code;
+        while (!err() && !done && (apngSequenceExpect < maxFrames)) {
+            length = readInt();
+            code = readInt();
+            switch (code) {
                 case APngConstant.IHDR_VALUE:
                     if (length != APngConstant.LENGTH_IHDR) {
                         header.status = AnimDecoder.STATUS_FORMAT_ERROR;
@@ -131,18 +126,58 @@ public class APngHeaderParser {
                     readIHDR();
                     break;
                 case APngConstant.acTL_VALUE:
-                    done = true;
                     if (length != APngConstant.LENGTH_acTL) {
                         header.status = AnimDecoder.STATUS_FORMAT_ERROR;
                         break;
                     }
                     readAcTL();
                     break;
+                case APngConstant.PLTE_VALUE:
+                    readPalette(length);
+                    break;
+                case APngConstant.fcTL_VALUE:
+                    if (length != APngConstant.LENGTH_fcTL) {
+                        header.status = AnimDecoder.STATUS_FORMAT_ERROR;
+                        break;
+                    }
+                    readFcTL();
+                    break;
+                case APngConstant.IDAT_VALUE:
+                    readIDAT(length);
+                    break;
+                case APngConstant.fdAT_VALUE:
+                    readFdAT(length);
+                    break;
+                case APngConstant.IEND_VALUE:
+                    header.iendPosition = rawData.position() - APngConstant.CHUNK_TOP_LENGTH;
+                    done = true;
+                    break;
+                case APngConstant.tIME_VALUE:
+                case APngConstant.iTXt_VALUE:
+                case APngConstant.tEXt_VALUE:
+                case APngConstant.zTXt_VALUE:
+                    chunks.add(new APngChunk(length + APngConstant.CHUNK_TOP_LENGTH + APngConstant.LENGTH_CRC,
+                            rawData.position() - APngConstant.CHUNK_TOP_LENGTH));
+                    skip(length);
+                    break;
+                case APngConstant.gAMA_VALUE:
+                case APngConstant.bKGD_VALUE:
+                case APngConstant.tRNS_VALUE:
                 default:
                     skip(length);
                     break;
             }
             readCRC();
+            if (!done) {
+                done = rawData.position() >= rawData.limit();
+            }
+        }
+        if (!chunks.isEmpty()) {
+            header.otherChunk = chunks.toArray(new APngChunk[0]);
+        }
+        if (header.frameCount != header.frames.size()) {
+            //Log.w("apng decoder", "apng文件内容有误！");
+            header.frameCount = header.frames.size();
         }
     }
 
@@ -177,7 +212,6 @@ public class APngHeaderParser {
         header.compressionMethod = readByte();
         header.filterMethod = readByte();
         header.interlaceMethod = readByte();
-        Log.w("readIHDR", "header:" + header);
     }
 
     /**
@@ -245,65 +279,11 @@ public class APngHeaderParser {
         frame.setDelay(readUnsignedShort(), readUnsignedShort());
         frame.setDisposeOp(readByte());
         frame.setBlendOp(readByte());
-        header.frames.add(frame);
-    }
-
-    /**
-     * Main file parser. Reads GIF content blocks.
-     */
-    private void readContents() {
-        readContents(Integer.MAX_VALUE /* maxFrames */);
-    }
-
-    /**
-     * read content
-     * @param maxFrames maxFrames
-     */
-    private void readContents(int maxFrames) {
-        boolean done = false;
-        int length, code;
-        while (!err() && !done && (apngSequenceExpect < maxFrames)) {
-            length = readInt();
-            code = readInt();
-            switch (code) {
-                case APngConstant.PLTE_VALUE:
-                    readPalette(length);
-                    break;
-                case APngConstant.fcTL_VALUE:
-                    if (length != APngConstant.LENGTH_fcTL) {
-                        header.status = AnimDecoder.STATUS_FORMAT_ERROR;
-                        break;
-                    }
-                    readFcTL();
-                    break;
-                case APngConstant.IDAT_VALUE:
-                    readIDAT(length);
-                    break;
-                case APngConstant.fdAT_VALUE:
-                    readFdAT(length);
-                    break;
-                case APngConstant.IEND_VALUE:
-                    header.iendPosition = rawData.position() - APngConstant.CHUNK_TOP_LENGTH;
-                    done = true;
-                    break;
-                case APngConstant.gAMA_VALUE:
-                    // todo
-                case APngConstant.bKGD_VALUE:
-                    // todo
-                case APngConstant.tRNS_VALUE:
-                    // todo
-                default:
-                    skip(length);
-                    break;
-            }
-            readCRC();
-            if (!done) {
-                done = rawData.position() >= rawData.limit();
-            }
-        }
-        if (header.frameCount != header.frames.size()) {
-            Log.w("apng decoder", "apng文件内容有误！");
-            header.frameCount = header.frames.size();
+        if (rawData.position() + APngConstant.LENGTH_CRC >= rawData.limit()) {
+            // 后面再无数据则不添加
+            //Log.w("apng data error", "after fcTL have not fdAT!");
+        } else {
+            header.frames.add(frame);
         }
     }
 
@@ -318,11 +298,16 @@ public class APngHeaderParser {
             header.status = AnimDecoder.STATUS_FORMAT_ERROR;
             return;
         }
-        apngSequenceExpect++;
-        header.currentFrame.bufferFrameStart = rawData.position();
-        // 长度修正
-        header.currentFrame.length = Math.min(length - 4, rawData.remaining());
-        header.currentFrame.isFdAT = true;
+        if (length > rawData.remaining()) {
+            // 数据错误(数量不足)删除
+            header.frames.remove(header.frames.size() - 1);
+            //Log.w("apng data error", "fdAT data deficient!");
+        } else {
+            apngSequenceExpect++;
+            header.currentFrame.bufferFrameStart = rawData.position();
+            header.currentFrame.length = length - 4;
+            header.currentFrame.isFdAT = true;
+        }
         // 减去sequence占用的位置
         skip(length - 4);
     }
@@ -332,7 +317,6 @@ public class APngHeaderParser {
      * <a href = "https://www.w3.org/TR/PNG/#11PLTE">palette</a>
      */
     private void readPalette(int length) {
-        // todo
         if (length % 3 != 0) {
             header.status = AnimDecoder.STATUS_FORMAT_ERROR;
             return;
@@ -347,19 +331,6 @@ public class APngHeaderParser {
         int newPosition = Math.min(rawData.position() + length, rawData.limit());
         rawData.position(newPosition);
     }
-
-    /**
-     * Reads a single byte from the input stream.
-     */
-    /*private int read() {
-        int currByte = 0;
-        try {
-            currByte = rawData.get() & MASK_INT_LOWEST_BYTE;
-        } catch (Exception e) {
-            header.status = AnimDecoder.STATUS_FORMAT_ERROR;
-        }
-        return currByte;
-    }*/
 
     /**
      * read int

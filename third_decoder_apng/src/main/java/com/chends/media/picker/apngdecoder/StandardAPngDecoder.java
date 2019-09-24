@@ -245,6 +245,11 @@ public class StandardAPngDecoder implements AnimDecoder<APngHeader> {
             frameLength = APngConstant.CHUNK_TOP_LENGTH + frame.length + APngConstant.LENGTH_CRC;
             length += frameLength + APngConstant.CHUNK_TOP_LENGTH + APngConstant.LENGTH_CRC;// add iend length
         }
+        if (header.otherChunk != null && header.otherChunk.length > 0) {
+            for (APngChunk chunk : header.otherChunk) {
+                length += chunk.totalLength;
+            }
+        }
         byte[] raw = new byte[length];
         int index = 0;
         for (int i = 0; i < APngConstant.LENGTH_SIGNATURE; i++) {
@@ -264,7 +269,6 @@ public class StandardAPngDecoder implements AnimDecoder<APngHeader> {
                     rawData.position(rawData.position() + cLength + APngConstant.LENGTH_CRC);
                 }
             }
-            addIEND(raw, index);
         } else {
             while (rawData.position() < header.idatFirstPosition) {
                 cLength = rawData.getInt(); // 长度
@@ -313,16 +317,24 @@ public class StandardAPngDecoder implements AnimDecoder<APngHeader> {
             index += frame.length;
             //writeInt4ToBytes((int) crc32.getValue(), raw, index);
             index += APngConstant.LENGTH_CRC;
-            addIEND(raw, index);
         }
-        Bitmap bitmap = BitmapFactory.decodeByteArray(raw, 0, raw.length);
-
+        // add other thunks
+        if (header.otherChunk != null && header.otherChunk.length > 0) {
+            for (APngChunk chunk : header.otherChunk) {
+                rawData.position(chunk.positionStart);
+                rawData.get(raw, index, chunk.totalLength);
+                index += chunk.totalLength;
+            }
+        }
+        addIEND(raw, index);
+        return BitmapFactory.decodeByteArray(raw, 0, raw.length);
+        /*Bitmap bitmap = BitmapFactory.decodeByteArray(raw, 0, raw.length);
         if (bitmap == null) {
             Log.w("getNextFrame error", "framePointer:" + framePointer + ",frame:" + frame);
         } else {
             Log.i("getNextFrame success", "framePointer:" + framePointer + ",frame:" + frame);
         }
-        return bitmap;
+        return bitmap;*/
     }
 
     /**

@@ -88,7 +88,7 @@ public class APngHeader extends AnimHeader<APngFrame> {
     /**
      * idat之后出现的其他类型的chunk的position数组
      */
-    public int[] otherChunk;
+    public APngChunk[] otherChunk;
 
     @NonNull
     @Override
