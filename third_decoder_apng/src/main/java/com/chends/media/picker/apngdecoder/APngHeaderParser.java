@@ -9,6 +9,8 @@ import com.chends.media.picker.decoder.AnimDecoder;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author cds created on 2019/9/19.
@@ -18,6 +20,7 @@ public class APngHeaderParser {
     private ByteBuffer rawData;
     private APngHeader header;
     private int apngSequenceExpect = 0;
+    private List<Integer> chunks = new ArrayList<>();
 
     public APngHeaderParser setData(@NonNull ByteBuffer data) {
         reset();
@@ -199,6 +202,7 @@ public class APngHeaderParser {
             // 第一个idat
             header.idatFirstPosition = rawData.position() - APngConstant.CHUNK_TOP_LENGTH;
         }
+        chunks.clear();
         if (apngSequenceExpect > 0) {
             // fcTL在IDAT之前，当做第一帧
             header.hasFcTL = true;

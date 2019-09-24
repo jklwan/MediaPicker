@@ -85,6 +85,11 @@ public class APngHeader extends AnimHeader<APngFrame> {
     public int idatLastPosition;
     public boolean hasFcTL;
     public int iendPosition;
+    /**
+     * idat之后出现的其他类型的chunk的position数组
+     */
+    public int[] otherChunk;
+
     @NonNull
     @Override
     public String toString() {
