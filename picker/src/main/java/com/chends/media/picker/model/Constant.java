@@ -1,9 +1,9 @@
 package com.chends.media.picker.model;
 
-import android.support.annotation.IntDef;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+
+import androidx.annotation.IntDef;
 
 /**
  * @author chends create on 2019/9/5.

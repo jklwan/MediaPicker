@@ -2,7 +2,6 @@ package com.chends.media.picker.sample.audio;
 
 import android.content.Context;
 import android.media.MediaMetadataRetriever;
-import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.bumptech.glide.Priority;
@@ -17,6 +16,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+
+import androidx.annotation.NonNull;
 
 /**
  * @author chends create on 2019/9/10.

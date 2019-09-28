@@ -1,7 +1,6 @@
 package com.chends.media.picker.sample.audio;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 
 import com.bumptech.glide.load.Options;
 import com.bumptech.glide.load.model.ModelLoader;
@@ -10,6 +9,8 @@ import com.bumptech.glide.load.model.MultiModelLoaderFactory;
 import com.bumptech.glide.signature.ObjectKey;
 
 import java.io.InputStream;
+
+import androidx.annotation.NonNull;
 
 /**
  * @author chends create on 2019/9/10.

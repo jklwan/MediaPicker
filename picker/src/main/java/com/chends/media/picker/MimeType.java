@@ -1,6 +1,5 @@
 package com.chends.media.picker;
 
-import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
 
@@ -15,6 +14,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
+import androidx.annotation.Nullable;
 
 /**
  * 类型

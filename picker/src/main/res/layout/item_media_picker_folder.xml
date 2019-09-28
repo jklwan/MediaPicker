@@ -24,7 +24,7 @@
             android:layout_height="80dp"
             android:background="@drawable/bg_media_picker_folder">
 
-            <android.support.v7.widget.AppCompatImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/folder_image"
                 android:layout_width="80dp"
                 android:layout_height="80dp"
@@ -61,7 +61,7 @@
                 tools:text="0张" />
         </LinearLayout>
 
-        <android.support.v7.widget.AppCompatImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/folder_selected"
             android:layout_width="20dp"
             android:layout_height="20dp"

@@ -1,9 +1,9 @@
 package com.chends.media.picker.decoder;
 
-import android.support.annotation.IntDef;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+
+import androidx.annotation.IntDef;
 
 /**
  * Inner model class housing metadata for each frame.

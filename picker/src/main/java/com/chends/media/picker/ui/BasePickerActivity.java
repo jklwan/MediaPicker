@@ -1,9 +1,6 @@
 package com.chends.media.picker.ui;
 
 import android.os.Build;
-import android.support.annotation.ColorRes;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -11,6 +8,10 @@ import com.chends.media.picker.R;
 import com.chends.media.picker.utils.PickerUtil;
 import com.chends.media.picker.utils.statusbar.FlyMeStatusBarUtils;
 import com.chends.media.picker.utils.statusbar.StatusBarUtils;
+
+import androidx.annotation.ColorRes;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 /**
  * base Activity

@@ -1,9 +1,9 @@
 package com.chends.media.picker.gifdecoder;
 
-import android.support.annotation.ColorInt;
-
 import com.chends.media.picker.decoder.AnimDecoder;
 import com.chends.media.picker.decoder.AnimHeader;
+
+import androidx.annotation.ColorInt;
 
 /**
  * A header object containing the number of frames in an animated GIF image as well as basic

@@ -6,9 +6,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.support.annotation.NonNull;
-import android.support.annotation.StringRes;
-import android.support.v4.app.NotificationManagerCompat;
 import android.text.TextUtils;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -19,6 +16,10 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.StringRes;
+import androidx.core.app.NotificationManagerCompat;
 
 /**
  * ToastUtils

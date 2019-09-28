@@ -20,10 +20,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
 import android.provider.MediaStore;
-import android.support.annotation.AnyThread;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.media.ExifInterface;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -35,13 +31,13 @@ import android.view.ViewParent;
 
 import com.chends.media.picker.decoder.AnimDecoder;
 import com.chends.media.picker.decoder.AnimDecoderFactory;
+import com.chends.media.picker.gifdecoder.StandardGifDecoder;
 import com.chends.media.picker.scaleview.decoder.CompatDecoderFactory;
 import com.chends.media.picker.scaleview.decoder.DecoderFactory;
 import com.chends.media.picker.scaleview.decoder.ImageDecoder;
 import com.chends.media.picker.scaleview.decoder.ImageRegionDecoder;
 import com.chends.media.picker.scaleview.decoder.SkiaImageDecoder;
 import com.chends.media.picker.scaleview.decoder.SkiaImageRegionDecoder;
-import com.chends.media.picker.gifdecoder.StandardGifDecoder;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -57,6 +53,11 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import androidx.annotation.AnyThread;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.exifinterface.media.ExifInterface;
 
 /**
  * <p>

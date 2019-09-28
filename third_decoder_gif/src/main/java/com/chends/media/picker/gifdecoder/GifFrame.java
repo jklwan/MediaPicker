@@ -1,8 +1,8 @@
 package com.chends.media.picker.gifdecoder;
 
-import android.support.annotation.ColorInt;
-
 import com.chends.media.picker.decoder.AnimFrame;
+
+import androidx.annotation.ColorInt;
 
 /**
  * Inner model class housing metadata for each frame.

@@ -2,14 +2,15 @@ package com.chends.media.picker;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 
 import com.chends.media.picker.model.Constant;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Set;
+
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 /**
  * 选择器

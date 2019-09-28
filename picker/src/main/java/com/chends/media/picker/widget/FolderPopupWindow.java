@@ -3,9 +3,6 @@ package com.chends.media.picker.widget;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.math.MathUtils;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -22,6 +19,10 @@ import com.chends.media.picker.listener.SimpleAnimationListener;
 import com.chends.media.picker.model.FolderBean;
 
 import java.util.List;
+
+import androidx.core.content.ContextCompat;
+import androidx.core.math.MathUtils;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * 文件夹

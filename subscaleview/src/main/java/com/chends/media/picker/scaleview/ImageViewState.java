@@ -1,9 +1,10 @@
 package com.chends.media.picker.scaleview;
 
 import android.graphics.PointF;
-import android.support.annotation.NonNull;
 
 import java.io.Serializable;
+
+import androidx.annotation.NonNull;
 
 /**
  * Wraps the scale, center and orientation of a displayed image for easy restoration on screen rotate.

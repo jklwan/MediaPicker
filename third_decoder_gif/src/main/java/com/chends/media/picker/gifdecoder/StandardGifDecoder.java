@@ -24,9 +24,6 @@ package com.chends.media.picker.gifdecoder;
  */
 
 import android.graphics.Bitmap;
-import android.support.annotation.ColorInt;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.chends.media.picker.decoder.AnimDecoder;
@@ -37,6 +34,10 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
+
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * Reads frame data from a GIF image source and decodes it into individual frames for animation

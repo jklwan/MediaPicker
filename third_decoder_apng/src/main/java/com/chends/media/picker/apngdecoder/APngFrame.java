@@ -1,12 +1,12 @@
 package com.chends.media.picker.apngdecoder;
 
-import android.support.annotation.IntDef;
-import android.support.annotation.NonNull;
-
 import com.chends.media.picker.decoder.AnimFrame;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 
 /**
  * A PngFrameControl object contains data parsed from the ``fcTL`` chunk data

@@ -4,7 +4,7 @@
     style="@style/match"
     android:orientation="vertical">
 
-    <android.support.v4.view.ViewPager
+    <androidx.viewpager.widget.ViewPager
         android:id="@+id/viewPager"
         style="@style/match" />
 
@@ -17,7 +17,7 @@
         android:layout_gravity="bottom"
         android:background="@color/color_media_picker_bottom_bg">
 
-        <android.support.v7.widget.AppCompatTextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/select_text"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
@@ -32,7 +32,7 @@
             android:textColor="@color/color_media_picker_bottom_text_color"
             android:textStyle="bold" />
 
-        <android.support.v7.widget.AppCompatImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/select"
             android:layout_width="50dp"
             android:layout_height="50dp"

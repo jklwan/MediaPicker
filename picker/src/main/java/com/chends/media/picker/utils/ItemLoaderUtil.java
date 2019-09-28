@@ -3,15 +3,16 @@ package com.chends.media.picker.utils;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
-import android.support.v7.app.AppCompatActivity;
 
 import com.chends.media.picker.listener.ItemLoaderCallback;
 import com.chends.media.picker.loader.ItemLoader;
 import com.chends.media.picker.model.Constant;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
 
 /**
  * @author chends create on 2019/9/5.

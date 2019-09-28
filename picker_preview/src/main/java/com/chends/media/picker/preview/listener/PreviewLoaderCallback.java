@@ -1,12 +1,13 @@
 package com.chends.media.picker.preview.listener;
 
 import android.graphics.Bitmap;
-import android.support.annotation.NonNull;
 import android.widget.ImageView;
 
 import com.chends.media.picker.scaleview.ImageSource;
 
 import java.io.File;
+
+import androidx.annotation.NonNull;
 
 /**
  * @author chends create on 2019/9/12.

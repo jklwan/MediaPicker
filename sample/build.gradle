@@ -43,7 +43,5 @@ dependencies {
     implementation deps.constraintLayout
     implementation deps.exifinterface
     annotationProcessor deps.glide_compiler
-    implementation(deps.glide) {
-        exclude group: "$android_support"
-    }
+    implementation deps.glide
 }

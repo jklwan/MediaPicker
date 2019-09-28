@@ -3,7 +3,6 @@ package com.chends.media.picker.ui;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 
 import com.chends.media.picker.R;
 import com.chends.media.picker.model.Constant;
@@ -12,6 +11,8 @@ import com.chends.media.picker.utils.ControlUtil;
 import com.chends.media.picker.utils.PickerUtil;
 
 import java.util.ArrayList;
+
+import androidx.annotation.Nullable;
 
 /**
  * 选择页面

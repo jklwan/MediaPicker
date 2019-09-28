@@ -1,8 +1,8 @@
 package com.chends.media.picker.apngdecoder;
 
-import android.support.annotation.NonNull;
-
 import com.chends.media.picker.decoder.AnimHeader;
+
+import androidx.annotation.NonNull;
 
 /**
  * @author cds created on 2019/9/19.

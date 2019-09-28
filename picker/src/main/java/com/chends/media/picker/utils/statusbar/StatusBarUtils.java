@@ -3,16 +3,17 @@ package com.chends.media.picker.utils.statusbar;
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Build;
-import android.support.annotation.ColorInt;
-import android.support.annotation.FloatRange;
-import android.support.annotation.RequiresApi;
-import android.support.v4.graphics.ColorUtils;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
+
+import androidx.annotation.ColorInt;
+import androidx.annotation.FloatRange;
+import androidx.annotation.RequiresApi;
+import androidx.core.graphics.ColorUtils;
 
 /**
  * 状态栏工具

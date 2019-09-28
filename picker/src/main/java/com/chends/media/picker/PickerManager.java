@@ -2,7 +2,6 @@ package com.chends.media.picker;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.support.v4.app.Fragment;
 
 import com.chends.media.picker.model.PickerBean;
 import com.chends.media.picker.ui.MediaPickerActivity;
@@ -11,6 +10,8 @@ import com.chends.media.picker.utils.PickerUtil;
 
 import java.util.List;
 import java.util.Set;
+
+import androidx.fragment.app.Fragment;
 
 /**
  * PickerManager

@@ -5,8 +5,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
-import android.support.media.ExifInterface;
-import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
 
 import com.chends.media.picker.scaleview.SubsamplingScaleImageView;
@@ -14,6 +12,9 @@ import com.chends.media.picker.utils.PickerUtil;
 
 import java.io.File;
 import java.io.IOException;
+
+import androidx.core.content.FileProvider;
+import androidx.exifinterface.media.ExifInterface;
 
 /**
  * @author chends create on 2019/9/12.

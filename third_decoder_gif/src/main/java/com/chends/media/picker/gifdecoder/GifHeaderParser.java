@@ -1,8 +1,5 @@
 package com.chends.media.picker.gifdecoder;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-
 import com.chends.media.picker.decoder.AnimDecoder;
 import com.chends.media.picker.decoder.AnimFrame;
 
@@ -10,6 +7,9 @@ import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 
 /**

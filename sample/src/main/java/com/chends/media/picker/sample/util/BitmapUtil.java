@@ -3,12 +3,13 @@ package com.chends.media.picker.sample.util;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.support.media.ExifInterface;
 import android.text.TextUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+
+import androidx.exifinterface.media.ExifInterface;
 
 /**
  * 图片处理<br/>

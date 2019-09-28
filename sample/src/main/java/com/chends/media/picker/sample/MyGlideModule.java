@@ -1,7 +1,6 @@
 package com.chends.media.picker.sample;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.GlideBuilder;
@@ -12,6 +11,8 @@ import com.chends.media.picker.sample.audio.AudioCoverLoader;
 import com.chends.media.picker.sample.audio.AudioCoverModel;
 
 import java.io.InputStream;
+
+import androidx.annotation.NonNull;
 
 /**
  * @author chends create on 2018/7/9.

@@ -3,11 +3,12 @@ package com.chends.media.picker.loader;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.content.CursorLoader;
 
 import com.chends.media.picker.utils.SelectUtil;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.loader.content.CursorLoader;
 
 /**
  * 文件夹Loader<br/>

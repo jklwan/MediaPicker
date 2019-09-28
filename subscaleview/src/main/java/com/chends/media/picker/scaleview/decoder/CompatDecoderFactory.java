@@ -1,10 +1,11 @@
 package com.chends.media.picker.scaleview.decoder;
 
 import android.graphics.Bitmap;
-import android.support.annotation.NonNull;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+
+import androidx.annotation.NonNull;
 
 /**
  * Compatibility factory to instantiate decoders with empty public constructors.

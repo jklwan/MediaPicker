@@ -2,8 +2,6 @@ package com.chends.media.picker.sample;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
@@ -16,6 +14,9 @@ import com.chends.media.picker.sample.audio.AudioCoverModel;
 import com.chends.media.picker.scaleview.ImageSource;
 
 import java.io.File;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * @author chends create on 2019/9/9.

@@ -1,6 +1,6 @@
 package com.chends.media.picker.preview.provider;
 
-import android.support.v4.content.FileProvider;
+import androidx.core.content.FileProvider;
 
 /**
  * @author cds created on 2019/9/11.
