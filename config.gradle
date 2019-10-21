@@ -1,6 +1,6 @@
 ext {
     supportVersion = "27.1.1"
-    pluginVersion = '3.5.0'
+    pluginVersion = '3.5.1'
     android_support = 'com.android.support'
 
     versions = [
