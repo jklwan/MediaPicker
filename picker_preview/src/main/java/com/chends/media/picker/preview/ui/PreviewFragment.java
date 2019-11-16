@@ -196,7 +196,7 @@ public class PreviewFragment extends Fragment {
             ((SubsamplingScaleImageView) imageView).setOrientation(SubsamplingScaleImageView.ORIENTATION_USE_EXIF);
         }
         ((SubsamplingScaleImageView) imageView).setIsGif(isGif);
-        ((SubsamplingScaleImageView) imageView).setDebug(true);
+        ((SubsamplingScaleImageView) imageView).setDebug(PickerBean.getInstance().debug);
         return (SubsamplingScaleImageView) imageView;
     }
 

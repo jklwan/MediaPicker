@@ -78,6 +78,14 @@ public class MainActivity extends AppCompatActivity {
                         .setLoader(new MyMediaLoader())
                         .start(chooseCode);
                 break;
+            case R.id.chooseAudio:
+                MediaPicker.with(this)
+                        .addTypes(allAudio())
+                        .maxNum(6)
+                        .chooseList(choose)
+                        .setLoader(new MyMediaLoader())
+                        .start(chooseCode);
+                break;
             case R.id.chooseIVideo:
                 MediaPicker.with(this)
                         .addTypes(MimeType.allImage())
@@ -110,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
                         .addTypes(MimeType.all())
                         .addTypes(allAudio())
                         .maxNum(9)
-                        //.setSpanCount(4)
+                        .setSpanCount(4)
                         .chooseList(choose)
                         .setLoader(new MyMediaLoader())
                         .start(chooseCode);

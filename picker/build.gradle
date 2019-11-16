@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.novoda.bintray-release'
 
 android {
     compileSdkVersion versions.compileSdk
@@ -35,5 +36,17 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     compileOnly deps.appcompat_v7
     compileOnly deps.recyclerview_v7
-    api deps.exifinterface
+    compileOnly deps.exifinterface
+}
+
+publish {
+    userOrg = 'chends'
+    groupId = 'com.chends.picker'
+    artifactId = 'MediaPicker'
+    publishVersion = '0.1.0-beta01'
+    desc = ''
+    website = 'https://github.com/novoda/bintray-release'
+}
+task javadoc(type: Javadoc) {
+    options.encoding = "utf-8"
 }
