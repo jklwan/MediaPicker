@@ -7,7 +7,7 @@ ext {
             'compileSdk'   : 28,
             'targetSdk'    : 27,
             'minSdk'       : 14,
-            'pickerVersion': '0.1.0'
+            'pickerVersion': '0.1.0-beta01'
     ]
     deps = [
             support_v4       : "$android_support:support-v4:$supportVersion",
@@ -20,5 +20,15 @@ ext {
             glide            : 'com.github.bumptech.glide:glide:4.9.0',
             glide_compiler   : 'com.github.bumptech.glide:compiler:4.9.0',
             glide_gifdecorder: 'com.github.bumptech.glide:gifdecoder:4.9.0',
+            picker           : "com.chends.picker:picker:$versions.pickerVersion",
+            picker_preview   : "com.chends.picker:picker_preview:$versions.pickerVersion",
+            picker_apng      : "com.chends.picker:third_decoder_apng:$versions.pickerVersion",
+            picker_gif       : "com.chends.picker:third_decoder_gif:$versions.pickerVersion"
+
     ]
+
+    userOrg = 'jklwan'
+    repoName = "maven"
+    groupId = 'com.chends.mediapicker'
+    website = 'https://github.com/jklwan/MediaPicker'
 }

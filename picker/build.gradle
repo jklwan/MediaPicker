@@ -34,18 +34,18 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    compileOnly deps.appcompat_v7
-    compileOnly deps.recyclerview_v7
-    compileOnly deps.exifinterface
+    implementation deps.appcompat_v7
+    implementation deps.recyclerview_v7
+    implementation deps.exifinterface
 }
 
 publish {
-    userOrg = 'chends'
-    groupId = 'com.chends.picker'
-    artifactId = 'MediaPicker'
-    publishVersion = '0.1.0-beta01'
-    desc = ''
-    website = 'https://github.com/novoda/bintray-release'
+    userOrg = "$rootProject.userOrg"
+    groupId = "$rootProject.groupId"
+    artifactId = 'picker'
+    publishVersion = versions.pickerVersion
+    desc = 'Android media picker'
+    website = "$rootProject.website"
 }
 task javadoc(type: Javadoc) {
     options.encoding = "utf-8"

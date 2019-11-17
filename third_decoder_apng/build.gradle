@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.novoda.bintray-release'
 
 android {
     compileSdkVersion versions.compileSdk
@@ -6,7 +7,7 @@ android {
     defaultConfig {
         minSdkVersion versions.minSdk
         targetSdkVersion versions.targetSdk
-        versionName "1.0"
+        versionName versions.pickerVersion
 
         consumerProguardFiles 'consumer-rules.pro'
     }
@@ -35,4 +36,16 @@ dependencies {
     implementation deps.annotations
     implementation deps.exifinterface
     api project(':third_decoder')
+}
+
+publish {
+    userOrg = "$rootProject.userOrg"
+    groupId = "$rootProject.groupId"
+    artifactId = 'third_decoder_apng'
+    publishVersion = versions.pickerVersion
+    desc = 'Android media picker third decoder for apng'
+    website = "$rootProject.website"
+}
+task javadoc(type: Javadoc) {
+    options.encoding = "utf-8"
 }

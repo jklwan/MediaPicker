@@ -18,9 +18,15 @@ import com.chends.media.picker.scaleview.ImageSource;
 import java.io.File;
 
 /**
+ * 图片加载类
+ * <ul>
+ *     <li>如果没有预览功能，继承MediaLoader</li>
+ *     <li>如果没有预览功能，继承PreviewMediaLoader</li>
+ * </ul>
  * @author chends create on 2019/9/9.
  */
 public class MyMediaLoader extends PreviewMediaLoader {
+
     @Override
     public void loadImageThumbnail(ImageView view, String path, int width, int height, @Constant.ImageType int type) {
         GlideApp.with(view.getContext())

@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
                 MediaPicker.with(this)
                         .addTypes(MimeType.all())
                         .addTypes(allAudio())
-                        .maxNum(9)
+                        .maxNum(11)
                         .setSpanCount(4)
                         .chooseList(choose)
                         .setLoader(new MyMediaLoader())
