@@ -70,7 +70,6 @@ public class MyMediaLoader extends PreviewMediaLoader {
                         });
                 break;
             case Constant.TYPE_GIF:
-                callback.getImageView();
                 GlideApp.with(frameLayout.getContext())
                         .asGif()
                         .load(path)

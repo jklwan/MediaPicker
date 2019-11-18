@@ -1,6 +1,9 @@
 # MediaPicker
-Android本地媒体文件选择器。支持图片和音视频文件的单选和多选，支持预览缩放，支持动态图的预览（GIF和APNG，例如gif下载中断导致的图片信息不完整也不影响预览）。
+[![JCenter](https://img.shields.io/static/v1?label=JCenter&message=0.1.0-beta01&color=blue)](https://bintray.com/jklwan/maven/picker/_latestVersion)
+[![MinSdk](https://img.shields.io/badge/API-14%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=14)
+[![License](https://img.shields.io/badge/License%20-Apache%202-337ab7.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
+Android本地媒体文件选择器。支持图片和音视频文件的单选和多选，支持预览缩放，支持动态图的预览（GIF和APNG，例如gif下载中断导致的图片信息不完整也不影响预览）。  
 效果图
 
 | 选择                        | 预览                         |
@@ -63,9 +66,13 @@ dependencies {
 
 关于自定义图片加载，请参考[示例代码](./sample/src/main/java/com/chends/media/picker/sample/MyMediaLoader.java)
 
+## 感谢
+[Subsampling Scale Image View](https://github.com/davemorrissey/subsampling-scale-image-view)  
+[Glide gif decoder](https://github.com/bumptech/glide/tree/master/third_party/gif_decoder)  
+
 ## License
 
-    Copyright 2017 chends
+    Copyright 2017 jklwan
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
