@@ -1,12 +1,12 @@
 # MediaPicker
-[![JCenter](https://img.shields.io/static/v1?label=JCenter&message=0.1.0-beta01&color=blue)](https://bintray.com/jklwan/mavenx/picker/_latestVersion)
+[![JCenter](https://img.shields.io/static/v1?label=JCenter&message=0.1.0&color=blue)](https://bintray.com/jklwan/mavenx/picker/_latestVersion)
 [![MinSdk](https://img.shields.io/badge/API-14%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=14)
 [![License](https://img.shields.io/badge/License%20-Apache%202-337ab7.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
 Android本地媒体文件选择器。支持图片和音视频文件的单选和多选，支持预览缩放，支持动态图的预览（GIF和APNG，例如gif下载中断导致的图片信息不完整也不影响预览）。  
 效果图
 
-| 选择                        | 预览                         |
+| 选择                        | 预览                        |
 |:---------------------------:|:---------------------------:|
 |![](./files/Screenshot1.jpg) | ![](./files/Screenshot2.jpg)|
 
@@ -19,13 +19,13 @@ repositories {
 }
 dependencies {
     // 只使用选择，没有预览功能
-    implementation 'com.chends.mediapickerx:picker:0.1.0-beta01'
+    implementation 'com.chends.mediapickerx:picker:0.1.0'
     // 使用预览，包含选择和预览
-    implementation 'com.chends.mediapickerx:picker_preview:0.1.0-beta01'
+    implementation 'com.chends.mediapickerx:picker_preview:0.1.0'
     // 使用gif decoder，在预览时可以对gif图片进行缩放
-    implementation 'com.chends.mediapickerx:third_decoder_gif:0.1.0-beta01'
+    implementation 'com.chends.mediapickerx:third_decoder_gif:0.1.0'
     // 使用apng decoder，在预览时可以对apng图片进行缩放
-    implementation 'com.chends.mediapickerx:third_decoder_apng:0.1.0-beta01'
+    implementation 'com.chends.mediapickerx:third_decoder_apng:0.1.0'
 }
 ```
 

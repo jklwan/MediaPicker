@@ -13,7 +13,7 @@ ext {
             'compileSdk'   : 28,
             'targetSdk'    : 27,
             'minSdk'       : 14,
-            'pickerVersion': '0.1.0-beta01'
+            'pickerVersion': '0.1.0'
     ]
     deps = [
             support_v4       : "androidx.legacy:legacy-support-v4:$androidxVersion",
