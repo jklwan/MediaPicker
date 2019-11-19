@@ -66,6 +66,7 @@ dependencies {
 
 关于自定义图片加载，请参考[示例代码](./sample/src/main/java/com/chends/media/picker/sample/MyMediaLoader.java)
 
+当前版本是基于support库的，如果需要AndroidX库的版本请参考[AndroidX分支](https://github.com/jklwan/MediaPicker/tree/androidx)
 ## 感谢
 [Subsampling Scale Image View](https://github.com/davemorrissey/subsampling-scale-image-view)  
 [Glide gif decoder](https://github.com/bumptech/glide/tree/master/third_party/gif_decoder)  

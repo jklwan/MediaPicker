@@ -4,7 +4,6 @@ ext {
     android_support = 'com.android.support'
 
     userOrg = 'jklwan'
-    repoName = "maven"
     groupId = 'com.chends.mediapicker'
     website = 'https://github.com/jklwan/MediaPicker'
 

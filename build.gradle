@@ -19,9 +19,9 @@ allprojects {
         google()
         jcenter()
         maven {
-            url 'http://dl.bintray.com/piasy/maven'
+            url 'https://dl.bintray.com/jklwan/maven/'
             content {
-                includeGroup 'com.github.piasy'
+                includeGroup 'com.chends.mediapicker'
             }
         }
     }
