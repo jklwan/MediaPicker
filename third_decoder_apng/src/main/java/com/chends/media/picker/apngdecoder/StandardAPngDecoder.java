@@ -182,6 +182,7 @@ public class StandardAPngDecoder implements AnimDecoder<APngHeader> {
                     canvas.clipRect(0, 0, w, h);
                 }
                 canvas.drawBitmap(current, currentFrame.xOffset, currentFrame.yOffset, null);
+                canvas.setBitmap(null);
                 current.recycle();
                 switch (currentFrame.dispose) {
                     case APngFrame.DISPOSAL_BACKGROUND:

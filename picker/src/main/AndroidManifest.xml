@@ -6,7 +6,7 @@
 
     <application>
         <activity
-            android:name=".ui.MediaPickerActivity"
+            android:name="com.chends.media.picker.ui.MediaPickerActivity"
             android:screenOrientation="portrait"
             android:theme="@style/MediaPicker" />
     </application>

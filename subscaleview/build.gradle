@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.novoda.bintray-release'
 
 android {
     compileSdkVersion versions.compileSdk
@@ -6,7 +7,7 @@ android {
     defaultConfig {
         minSdkVersion versions.minSdk
         targetSdkVersion versions.targetSdk
-        versionName "3.10.0"
+        versionName versions.pickerVersion
 
         consumerProguardFiles 'consumer-rules.pro'
     }
@@ -36,4 +37,16 @@ dependencies {
     implementation deps.exifinterface
     compileOnly project(':third_decoder_gif')
     compileOnly project(':third_decoder_apng')
+}
+
+publish {
+    userOrg = "$rootProject.userOrg"
+    groupId = "$rootProject.groupId"
+    artifactId = 'subscaleview'
+    publishVersion = versions.pickerVersion
+    desc = 'Android media picker sub scale view'
+    website = "$rootProject.website"
+}
+task javadoc(type: Javadoc) {
+    options.encoding = "utf-8"
 }

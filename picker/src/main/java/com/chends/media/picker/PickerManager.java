@@ -82,11 +82,20 @@ public final class PickerManager {
     }
 
     /**
-     * 每行显示数量
+     * 选择器每行显示数量
      * @param spanCount spanCount
      */
     public PickerManager setSpanCount(int spanCount) {
         pickerBean.setSpanCount(spanCount);
+        return this;
+    }
+
+    /**
+     * 设置调试
+     * @param debug debug
+     */
+    public PickerManager setDebug(boolean debug) {
+        pickerBean.setDebug(debug);
         return this;
     }
 

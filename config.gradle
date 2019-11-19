@@ -1,12 +1,17 @@
 ext {
     androidxVersion = "1.0.0"
-    pluginVersion = '3.5.0'
+    pluginVersion = '3.5.2'
+
+    userOrg = 'jklwan'
+    repoName = "maven"
+    groupId = 'com.chends.mediapickerx'
+    website = 'https://github.com/jklwan/MediaPicker'
 
     versions = [
             'compileSdk'   : 28,
             'targetSdk'    : 27,
             'minSdk'       : 14,
-            'pickerVersion': '1.0'
+            'pickerVersion': '0.1.0-beta01'
     ]
     deps = [
             support_v4       : "androidx.legacy:legacy-support-v4:$androidxVersion",
@@ -21,5 +26,9 @@ ext {
             glide            : 'com.github.bumptech.glide:glide:4.10.0',
             glide_compiler   : 'com.github.bumptech.glide:compiler:4.10.0',
             glide_gifdecorder: 'com.github.bumptech.glide:gifdecoder:4.10.0',
+            picker           : "$groupId:picker:$versions.pickerVersion",
+            picker_preview   : "$groupId:picker_preview:$versions.pickerVersion",
+            picker_apng      : "$groupId:third_decoder_apng:$versions.pickerVersion",
+            picker_gif       : "$groupId:third_decoder_gif:$versions.pickerVersion"
     ]
 }

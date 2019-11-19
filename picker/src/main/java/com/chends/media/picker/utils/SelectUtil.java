@@ -156,7 +156,7 @@ public class SelectUtil {
                 folderUri = VIDEO_URI;
                 selection.append(videoSelection());
             } else {
-                folderUri = AUDIO_URI;
+                folderUri = FILE_URI;
                 selection.append(audioSelection());
             }
         }

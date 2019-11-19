@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.novoda.bintray-release'
 
 android {
     compileSdkVersion versions.compileSdk
@@ -35,9 +36,20 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     api project(':picker')
     api project(':subscaleview')
-    compileOnly deps.appcompat_v7
+    implementation deps.appcompat_v7
     compileOnly project(':third_decoder_gif')
     compileOnly project(':third_decoder_apng')
-    implementation deps.annotations
     implementation deps.exifinterface
+}
+
+publish {
+    userOrg = "$rootProject.userOrg"
+    groupId = "$rootProject.groupId"
+    artifactId = 'picker_preview'
+    publishVersion = versions.pickerVersion
+    desc = 'Android media picker preview'
+    website = "$rootProject.website"
+}
+task javadoc(type: Javadoc) {
+    options.encoding = "utf-8"
 }

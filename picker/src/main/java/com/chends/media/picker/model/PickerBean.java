@@ -29,7 +29,8 @@ public final class PickerBean implements Parcelable {
     //public long videoLimit = -1;
     public Set<String> imageList = new HashSet<>(), videoList = new HashSet<>(),
             audioList = new HashSet<>();
-    public boolean hasImage, hasVideo, hasAudio, hasAll, showPreview, reset = false;
+    public boolean hasImage, hasVideo, hasAudio, hasAll, showPreview, reset = false,
+            debug;
     public MediaLoader loader;
 
     private PickerBean() {
@@ -139,6 +140,14 @@ public final class PickerBean implements Parcelable {
      */
     public void setSpanCount(int spanCount) {
         this.spanCount = spanCount;
+    }
+
+    /**
+     * 设置调试
+     * @param debug debug
+     */
+    public void setDebug(boolean debug) {
+        this.debug = debug;
     }
 
     /**

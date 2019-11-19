@@ -172,10 +172,10 @@ public class PreviewFragment extends Fragment {
     }
 
     /**
-     * 创建 gif SubsamplingScaleImageView
+     * 创建 anim SubsamplingScaleImageView
      * @return SubsamplingScaleImageView
      */
-    private SubsamplingScaleImageView createGifSSIV() {
+    private SubsamplingScaleImageView createAnimSSIV() {
         return createSSIV(true);
     }
 
@@ -183,7 +183,7 @@ public class PreviewFragment extends Fragment {
      * 创建 SubsamplingScaleImageView
      * @return SubsamplingScaleImageView
      */
-    private SubsamplingScaleImageView createSSIV(boolean isGif) {
+    private SubsamplingScaleImageView createSSIV(boolean isAnim) {
         if (!(imageView instanceof SubsamplingScaleImageView)) {
             frameLayout.removeView(imageView);
             imageView = new SubsamplingScaleImageView(requireActivity());
@@ -193,11 +193,11 @@ public class PreviewFragment extends Fragment {
             ((SubsamplingScaleImageView) imageView).setDoubleTapZoomStyle(SubsamplingScaleImageView.ZOOM_FOCUS_CUSTOM);
         }
         imageView.setOnClickListener(listener);
-        if (isGif) {
+        if (isAnim) {
             ((SubsamplingScaleImageView) imageView).setOrientation(SubsamplingScaleImageView.ORIENTATION_USE_EXIF);
         }
-        ((SubsamplingScaleImageView) imageView).setIsGif(isGif);
-        ((SubsamplingScaleImageView) imageView).setDebug(true);
+        ((SubsamplingScaleImageView) imageView).setIsAnim(isAnim);
+        ((SubsamplingScaleImageView) imageView).setDebug(PickerBean.getInstance().debug);
         return (SubsamplingScaleImageView) imageView;
     }
 
@@ -267,7 +267,8 @@ public class PreviewFragment extends Fragment {
      * @param path path
      */
     private void loadGifImage(String path) {
-        SubsamplingScaleImageView imageView = createGifSSIV();
+        SubsamplingScaleImageView imageView = createAnimSSIV();
+        //imageView.setAnimDecoderClass(StandardGifDecoder.class);
         imageView.setOnImageEventListener(new TryReloadBitmap(path));
         int[] wh = PickerUtil.getImageWH(path);
         if (Math.max(wh[0], wh[1]) >= PickerUtil.maxTextureSize()) {
@@ -283,7 +284,7 @@ public class PreviewFragment extends Fragment {
      * @param path path
      */
     private void loadAPNGImage(String path) {
-        SubsamplingScaleImageView imageView = createGifSSIV();
+        SubsamplingScaleImageView imageView = createAnimSSIV();
         imageView.setAnimDecoderClass(StandardAPngDecoder.class);
         imageView.setOnImageEventListener(new TryReloadBitmap(path));
         int[] wh = PickerUtil.getImageWH(path);
