@@ -20,11 +20,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
 import android.provider.MediaStore;
-import android.service.quicksettings.Tile;
-import android.support.annotation.AnyThread;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.media.ExifInterface;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -32,7 +27,6 @@ import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnLongClickListener;
 import android.view.ViewParent;
 
 import com.chends.media.picker.decoder.AnimDecoder;
@@ -59,6 +53,11 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import androidx.annotation.AnyThread;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.exifinterface.media.ExifInterface;
 
 /**
  * <p>
@@ -1896,7 +1895,7 @@ public class SubsamplingScaleImageView extends View {
      */
     public void setIsAnim(boolean isAnim) {
         this.isAnim = isAnim;
-        if (animDecoderFactory == null) {
+        if (isAnim && animDecoderFactory == null) {
             animDecoderFactory = new AnimDecoderFactory<>(StandardGifDecoder.class);
         }
     }

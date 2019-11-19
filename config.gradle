@@ -3,7 +3,7 @@ ext {
     pluginVersion = '3.5.2'
 
     userOrg = 'jklwan'
-    repoName = "maven"
+    repoName = "mavenx"
     groupId = 'com.chends.mediapickerx'
     website = 'https://github.com/jklwan/MediaPicker'
 
