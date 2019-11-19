@@ -45,10 +45,13 @@ dependencies {
 publish {
     userOrg = "$rootProject.userOrg"
     groupId = "$rootProject.groupId"
+    repoName = "$rootProject.repoName"
     artifactId = 'picker_preview'
     publishVersion = versions.pickerVersion
     desc = 'Android media picker preview'
     website = "$rootProject.website"
+    issueTracker = "$rootProject.issueTracker"
+    repository = "$rootProject.repository"
 }
 task javadoc(type: Javadoc) {
     options.encoding = "utf-8"

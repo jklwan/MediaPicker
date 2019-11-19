@@ -41,10 +41,13 @@ dependencies {
 publish {
     userOrg = "$rootProject.userOrg"
     groupId = "$rootProject.groupId"
+    repoName = "$rootProject.repoName"
     artifactId = 'third_decoder_apng'
     publishVersion = versions.pickerVersion
     desc = 'Android media picker third decoder for apng'
     website = "$rootProject.website"
+    issueTracker = "$rootProject.issueTracker"
+    repository = "$rootProject.repository"
 }
 task javadoc(type: Javadoc) {
     options.encoding = "utf-8"
