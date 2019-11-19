@@ -19,13 +19,13 @@ repositories {
 }
 dependencies {
     // 只使用选择，没有预览功能
-    implementation 'com.chends.picker:picker:0.1.0-beta01'
+    implementation 'com.chends.mediapicker:picker:0.1.0-beta01'
     // 使用预览，包含选择和预览
-    implementation 'com.chends.picker:picker_preview:0.1.0-beta01'
+    implementation 'com.chends.mediapicker:picker_preview:0.1.0-beta01'
     // 使用gif decoder，在预览时可以对gif图片进行缩放
-    implementation 'com.chends.picker:third_decoder_gif:0.1.0-beta01'
+    implementation 'com.chends.mediapicker:third_decoder_gif:0.1.0-beta01'
     // 使用apng decoder，在预览时可以对apng图片进行缩放
-    implementation 'com.chends.picker:third_decoder_apng:0.1.0-beta01'
+    implementation 'com.chends.mediapicker:third_decoder_apng:0.1.0-beta01'
 }
 ```
 
