@@ -1,5 +1,5 @@
 # MediaPicker
-[![JCenter](https://img.shields.io/static/v1?label=JCenter&message=0.1.0-beta01&color=blue)](https://bintray.com/jklwan/maven/picker/_latestVersion)
+[![JCenter](https://img.shields.io/static/v1?label=JCenter&message=0.1.0&color=blue)](https://bintray.com/jklwan/maven/picker/_latestVersion)
 [![MinSdk](https://img.shields.io/badge/API-14%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=14)
 [![License](https://img.shields.io/badge/License%20-Apache%202-337ab7.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
@@ -19,13 +19,13 @@ repositories {
 }
 dependencies {
     // 只使用选择，没有预览功能
-    implementation 'com.chends.mediapicker:picker:0.1.0-beta01'
+    implementation 'com.chends.mediapicker:picker:0.1.0'
     // 使用预览，包含选择和预览
-    implementation 'com.chends.mediapicker:picker_preview:0.1.0-beta01'
+    implementation 'com.chends.mediapicker:picker_preview:0.1.0'
     // 使用gif decoder，在预览时可以对gif图片进行缩放
-    implementation 'com.chends.mediapicker:third_decoder_gif:0.1.0-beta01'
+    implementation 'com.chends.mediapicker:third_decoder_gif:0.1.0'
     // 使用apng decoder，在预览时可以对apng图片进行缩放
-    implementation 'com.chends.mediapicker:third_decoder_apng:0.1.0-beta01'
+    implementation 'com.chends.mediapicker:third_decoder_apng:0.1.0'
 }
 ```
 
