@@ -321,7 +321,7 @@ public class PreviewFragment extends Fragment {
                 realW = h;
                 realH = w;
             }
-            float wScale = (float) realW / wh[0], hScale = (float) realH / wh[1];
+            float wScale = (realW * 1f) / wh[0], hScale = (realH * 1f) / wh[1];
             minScale = Math.min(wScale, hScale);
             maxScale = Math.max(wScale, hScale);
             if (minScale < 0.5f) {
