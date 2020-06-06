@@ -336,12 +336,12 @@ public class SubsamplingScaleImageView extends View {
     // A global preference for bitmap format, available to decoder classes that respect it
     private static Bitmap.Config preferredBitmapConfig;
     private final Object pauseLock = new Object();
-    public AnimDecoder mDecoder;
+    public AnimDecoder<?> mDecoder;
     public Handler mHandler;
     private AtomicBoolean isPaused = new AtomicBoolean(false);
     private DrawThread drawThread;
     private boolean mIsRun = false, isAnim = false;
-    private AnimDecoderFactory<? extends AnimDecoder> animDecoderFactory;
+    private AnimDecoderFactory<?> animDecoderFactory;
     private int maxTextureSize = 0;
 
     public SubsamplingScaleImageView(Context context) {
@@ -781,7 +781,6 @@ public class SubsamplingScaleImageView extends View {
         return handled || super.onTouchEvent(event);
     }
 
-    @SuppressWarnings("deprecation")
     private boolean onTouchEventInternal(@NonNull MotionEvent event) {
         int touchCount = event.getPointerCount();
         switch (event.getAction()) {
@@ -1149,6 +1148,7 @@ public class SubsamplingScaleImageView extends View {
                     for (Tile tile : tileMapEntry.getValue()) {
                         if (tile.visible && (tile.loading || tile.bitmap == null)) {
                             hasMissingTiles = true;
+                            break;
                         }
                     }
                 }
@@ -1192,7 +1192,7 @@ public class SubsamplingScaleImageView extends View {
                 }
             }
 
-        } else if (bitmap != null) {
+        } else if (bitmap != null && !bitmap.isRecycled()) {
 
             float xScale = scale, yScale = scale;
             if (bitmapIsPreview) {
@@ -1292,6 +1292,7 @@ public class SubsamplingScaleImageView extends View {
                     for (Tile tile : tileMapEntry.getValue()) {
                         if (tile.loading || tile.bitmap == null) {
                             baseLayerReady = false;
+                            break;
                         }
                     }
                 }
@@ -1505,7 +1506,7 @@ public class SubsamplingScaleImageView extends View {
             // Choose the smallest ratio as inSampleSize value, this will guarantee
             // a final image with both dimensions larger than or equal to the
             // requested height and width.
-            inSampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
+            inSampleSize = Math.min(heightRatio, widthRatio);
         }
 
         // We want the actual sample size that will be used, so round down to nearest power of 2.
@@ -1924,7 +1925,7 @@ public class SubsamplingScaleImageView extends View {
      * 设置动画解析器
      * @param animDecoderClass class
      */
-    public final void setAnimDecoderClass(@NonNull Class<? extends AnimDecoder> animDecoderClass) {
+    public final void setAnimDecoderClass(@NonNull Class<? extends AnimDecoder<?>> animDecoderClass) {
         //noinspection ConstantConditions
         if (animDecoderClass == null) {
             throw new IllegalArgumentException("Decoder class cannot be set to null");
@@ -1939,17 +1940,17 @@ public class SubsamplingScaleImageView extends View {
         private final WeakReference<SubsamplingScaleImageView> viewRef;
         private final Uri uri;
         private final boolean preview;
-        private AnimDecoder animDecoder;
-        private final WeakReference<AnimDecoderFactory<? extends AnimDecoder>> decoderFactoryRef;
+        private AnimDecoder<?> animDecoder;
+        private final WeakReference<AnimDecoderFactory<?>> decoderFactoryRef;
         private Bitmap bitmap;
         private Exception exception;
 
         public AnimImageLoadTask(SubsamplingScaleImageView view, Uri uri, boolean preview,
-                                 AnimDecoderFactory<? extends AnimDecoder> factory) {
+                                 AnimDecoderFactory<?> factory) {
             this.viewRef = new WeakReference<>(view);
             this.uri = uri;
             this.preview = preview;
-            this.decoderFactoryRef = new WeakReference<AnimDecoderFactory<? extends AnimDecoder>>(factory);
+            this.decoderFactoryRef = new WeakReference<AnimDecoderFactory<?>>(factory);
         }
 
         @Override
@@ -1964,7 +1965,7 @@ public class SubsamplingScaleImageView extends View {
                 if (inputStream == null) {
                     return null;
                 }
-                AnimDecoderFactory factory = decoderFactoryRef.get();
+                AnimDecoderFactory<?> factory = decoderFactoryRef.get();
                 if (factory == null) {
                     return null;
                 }

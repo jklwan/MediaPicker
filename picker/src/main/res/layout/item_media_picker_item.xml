@@ -97,19 +97,14 @@
 
     <android.support.v7.widget.AppCompatImageView
         android:id="@+id/select"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:background="@null"
         android:clickable="false"
-        android:paddingStart="15dp"
-        android:paddingLeft="15dp"
-        android:paddingTop="8dp"
-        android:paddingEnd="8dp"
-        android:paddingRight="8dp"
-        android:paddingBottom="15dp"
+        android:padding="3dp"
         android:scaleType="fitCenter"
         app:srcCompat="@drawable/ic_media_picker_checked"
         tools:ignore="contentDescription" />

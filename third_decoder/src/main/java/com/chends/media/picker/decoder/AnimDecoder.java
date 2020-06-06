@@ -14,7 +14,7 @@ import java.nio.ByteBuffer;
  * 动画解析
  * @author chends create on 2019/9/19.
  */
-public interface AnimDecoder<T extends AnimHeader> {
+public interface AnimDecoder<T extends AnimHeader<?>> {
     int INITIAL_FRAME_POINTER = -1;
     int BYTES_PER_INTEGER = Integer.SIZE / 8;
     /**

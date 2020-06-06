@@ -110,8 +110,13 @@ public class ControlUtil implements LifecycleObserver {
                     MediaPickerActivity.sendResult(reference.get());
                 }
             } else if (v.getId() == R.id.picker_folder) {
-                popupWindow.show(topBar);
-                onShowDismissPopup(true);
+                if (popupWindow == null) return;
+                if (popupWindow.isShowing()){
+                    popupWindow.dismiss();
+                } else {
+                    popupWindow.show(topBar);
+                    onShowDismissPopup(true);
+                }
             } else if (v.getId() == R.id.picker_preview) {
                 if (!PickerBean.getInstance().chooseList.isEmpty()) {
                     if (!MediaPickerActivity.startPreview(reference.get())) {
@@ -327,6 +332,11 @@ public class ControlUtil implements LifecycleObserver {
         } else {
             folderArrow.animate().rotation(0).setDuration(200).start();
         }
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+    public void onResume() {
+        updateFinish();
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
